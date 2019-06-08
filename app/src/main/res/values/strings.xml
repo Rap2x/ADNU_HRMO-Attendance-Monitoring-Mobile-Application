@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">ADNU-HRMO Attendance Monitoring Mobile Application</string>
+    <string name="app_name">Attendance Monitoring Application</string>
+    <string name="settings_name">Logout</string>
 </resources>
