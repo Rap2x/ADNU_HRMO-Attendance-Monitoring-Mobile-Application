@@ -28,4 +28,8 @@ public class activity_attendance extends AppCompatActivity {
         inflater.inflate(R.menu.menu,menu);
         return super.onCreateOptionsMenu(menu);
     }
+    public void markAbsent(View view){
+        Intent intent = new Intent(this, activity_absent.class);
+        startActivity(intent);
+    }
 }

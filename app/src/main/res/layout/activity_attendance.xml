@@ -42,7 +42,8 @@
         android:text="Absent"
         android:textColor="@color/colorRed"
         app:layout_constraintBottom_toTopOf="@+id/navigation_view"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="markAbsent"/>
 
     <ImageView
         android:id="@+id/imageView"
