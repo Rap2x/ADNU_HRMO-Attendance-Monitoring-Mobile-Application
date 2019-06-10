@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity_absent"></activity>
+        <activity android:name=".ConfirmationSlip"></activity>
+        <activity android:name=".activity_absent" />
         <activity android:name=".activity_attendance" />
         <activity android:name=".AttendanceList" />
         <activity android:name=".MainActivity">
