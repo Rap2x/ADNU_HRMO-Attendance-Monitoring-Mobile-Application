@@ -10,6 +10,74 @@
         android:id="@+id/app_bar"
         layout="@layout/toolbar" />
 
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="411dp"
+        android:layout_height="387dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/app_bar">
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="160dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="160dp"
+            android:text="Sign Signature"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="410dp"
+            android:layout_height="200dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView4"
+            app:srcCompat="@drawable/signaturepad" />
+
+        <Button
+            android:id="@+id/button5"
+            android:layout_width="128dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="141dp"
+            android:layout_marginEnd="141dp"
+            android:text="Accept"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editText3" />
+
+        <Button
+            android:id="@+id/button4"
+            android:layout_width="139dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="136dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="136dp"
+            android:text="Reset"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+
+        <EditText
+            android:id="@+id/editText3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="99dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="99dp"
+            android:ems="10"
+            android:hint="PIN"
+            android:inputType="numberPassword"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button4" />
+    </android.support.constraint.ConstraintLayout>
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation_view"
         android:layout_width="match_parent"
