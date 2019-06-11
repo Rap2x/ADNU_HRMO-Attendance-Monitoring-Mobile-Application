@@ -6,4 +6,9 @@
     android:title="@string/settings_name"
     app:showAsAction="never">
 </item>
+    <item
+        android:id="@+id/action_refresh"
+        android:title="Refresh List"
+        app:showAsAction="never">
+    </item>
 </menu>
