@@ -53,4 +53,9 @@ public class AttendanceList extends AppCompatActivity {
         Intent intent = new Intent(this, activity_attendance.class);
         startActivity(intent);
     }
+    public void markAbsent(View view){
+        Intent intent = new Intent(this, activity_absent.class);
+        startActivity(intent);
+    }
+
 }
