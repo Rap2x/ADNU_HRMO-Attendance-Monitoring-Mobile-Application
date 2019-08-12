@@ -1,4 +1,4 @@
-package com.icst241.adnu_hrmoattendancemonitoringmobileapplication;
+package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

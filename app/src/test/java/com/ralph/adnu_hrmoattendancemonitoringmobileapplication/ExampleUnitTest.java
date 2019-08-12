@@ -1,4 +1,4 @@
-package com.icst241.adnu_hrmoattendancemonitoringmobileapplication;
+package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import org.junit.Test;
 
