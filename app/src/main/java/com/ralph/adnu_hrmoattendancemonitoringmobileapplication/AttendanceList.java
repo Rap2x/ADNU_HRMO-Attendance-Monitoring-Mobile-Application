@@ -1,60 +1,46 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
-import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
-public class AttendanceList extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class AttendanceList extends FragmentActivity {
+    DatabaseHelper myDB;
+
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+
+    private List<AttendanceListItem> listItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance_list);
-        android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
-        setSupportActionBar(toolbar);
 
-        //you can remove this block of code to disable the listener for the bottom navigation bar
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                Intent in;
-                switch(menuItem.getItemId()){
-                    case R.id.bottom_nav_home:
-                        in = new Intent(getBaseContext(), AttendanceList.class);
-                        startActivity(in);
-                }
-                return false;
-            }
-        });
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    }
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+        listItems = new ArrayList<>();
+
+        for(int i = 0 ;i <=100; i++){
+            AttendanceListItem listItem = new AttendanceListItem(
+                    "name " + i+1,
+                    "subjectCode" + i+1,
+                    "roomNumber" + i+1
+            );
+
+            listItems.add(listItem);
+        }
+        adapter = new AttendanceAdapter(listItems, this);
+
+        recyclerView.setAdapter(adapter);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu,menu);
-        return super.onCreateOptionsMenu(menu);
-    }
 
-    public void selectFaculty(View view){
-        Intent intent = new Intent(this, activity_attendance.class);
-        startActivity(intent);
-    }
-    public void markAbsent(View view){
-        Intent intent = new Intent(this, activity_absent.class);
-        startActivity(intent);
-    }
 
 }

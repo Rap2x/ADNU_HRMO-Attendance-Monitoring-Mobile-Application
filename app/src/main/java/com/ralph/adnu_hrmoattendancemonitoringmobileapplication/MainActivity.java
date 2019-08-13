@@ -1,5 +1,6 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,7 +24,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     DatabaseHelper myDB;
 
-    public final String ip = "192.168.1.2";
+    public final String ip = "192.168.1.2"; //Change this accordingly
 
     EditText eUsername;
     EditText ePassword;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         ahcfamsApi = retrofit.create(AhcfamsApi.class);
 
-        adddEditTextListener();
+        addEditTextListener();
 
         final Button signIn = findViewById(R.id.SignIn);
         signIn.setOnClickListener(new View.OnClickListener(){
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void adddEditTextListener(){
+    public void addEditTextListener(){
         eUsername = (EditText) findViewById(R.id.editTextUsername);
         ePassword = (EditText) findViewById(R.id.editTextPassword);
 
@@ -118,8 +119,12 @@ public class MainActivity extends AppCompatActivity {
 
                     if(loginResponse.getStatus().equals("200")){
                         boolean isInserted = myDB.loginStaff(loginResponse.getUsername(), loginResponse.getToken(), loginResponse.getDateTime());
-                        if(isInserted == true)
+
+                        if(isInserted == true) {
+                            Intent in = new Intent(MainActivity.this, AttendanceList.class);
+                            startActivity(in);
                             Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();
+                        }
                         else
                             Toast.makeText(getApplicationContext(), "Error: Database not Updated", Toast.LENGTH_SHORT).show();
                     }

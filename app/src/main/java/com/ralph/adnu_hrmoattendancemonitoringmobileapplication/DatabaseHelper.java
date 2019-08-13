@@ -16,12 +16,95 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_NAME + "( staff_id VARCHAR PRIMARY KEY, password VARCHAR, privilege INTEGER, staff_type CHARACTER, last_login TEXT, route_id INTEGER, first_name VARCHAR, middle_name VARCHAR, last_name VARCHAR, token VARCHAR)");
+        // Create the tables here
+        db.execSQL("CREATE TABLE FACULTY(\n" +
+                "\tfaculty_id VARCHAR PRIMARY KEY NOT NULL,\n" +
+                "\tfirst_name VARCHAR NOT NULL,\n" +
+                "\tmiddle_name VARCHAR NOT NULL,\n" +
+                "\tlast_name VARCHAR NOT NULL,\n" +
+                "\tdesignation VARCHAR NOT NULL,\n" +
+                "\temail VARCHAR NOT NULL UNIQUE,\n" +
+                "\tcontact_number VARCHAR NOT NULL UNIQUE,\n" +
+                "\tpassword VARCHAR NOT NULL,\n" +
+                "\tdepartment VARCHAR NOT NULL,\n" +
+                "\tcollege VARCHAR NOT NULL\n" +
+                ")");
+        db.execSQL("CREATE TABLE STAFF(\n" +
+                "\tstaff_id VARCHAR PRIMARY KEY NOT NULL,\n" +
+                "\tpassword VARCHAR,\n" +
+                "\tprivilege INTEGER,\n" +
+                "\tstaff_type CHARACTER,\n" +
+                "\tlast_login TEXT,\n" +
+                "\troute_id INTEGER,\n" +
+                "\tfirst_name VARCHAR,\n" +
+                "\tmiddle_name VARCHAR,\n" +
+                "\tlast_name VARCHAR,\n" +
+                "\ttoken VARCHAR\n" +
+                ")");
+
+        db.execSQL("CREATE TABLE ROUTE(\n" +
+                "\troute_id INTEGER PRIMARY KEY NOT NULL,\n" +
+                "\tdescription VARCHAR\n" +
+                ")");
+
+        db.execSQL("CREATE TABLE ROOM(\n" +
+                "\troom_id VARCHAR PRIMARY KEY NOT NULL,\n" +
+                "\troute_id INTEGER,\n" +
+                "\tbuidling_name VARCHAR NOT NULL\n" +
+                ")");
+
+        db.execSQL("CREATE TABLE CLASS_SCHEDULE(\n" +
+                "\tclass_schedule_id VARCHAR PRIMARY KEY NOT NULL,\n" +
+                "\troom_id VARCHAR,\n" +
+                "\tfaculty_id VARCHAR,\n" +
+                "\tsemester INTEGER NOT NULL,\n" +
+                "\tschool_year VARCHAR NOT NULL,\n" +
+                "\tstart_time TEXT,\n" +
+                "\tend_time TEXT,\n" +
+                "\tclass_section VARCHAR NOT NULL,\n" +
+                "\tclass_day VARCHAR,\n" +
+                "\tsubject_code VARCHAR NOT NULL,\n" +
+                "\thalf_day INTEGER NOT NULL,\n" +
+                "\thours FLOAT NOT NULL\n" +
+                ")");
+
+        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE(\n" +
+                "\tfaculty_attendance_id VARCHAR PRIMARY KEY NOT NULL,\n" +
+                "\tstaff_id VARCHAR NOT NULL,\n" +
+                "\tclass_schedule_id VARCHAR NOT NULL,\n" +
+                "\tattendance_date TEXT NOT NULL,\n" +
+                "\tfirst_check TEXT,\n" +
+                "\tsecond_check TEXT,\n" +
+                "\timage_file VARCHAR,\n" +
+                "\tsalary_deduction CHARACTER,\n" +
+                "\tstatus VARCHAR\n" +
+                ")");
+
+        db.execSQL("CREATE TABLE CONFIRMATION_NOTICE(\n" +
+                "\tconfirmation_notice_id VARCHAR PRIMARY KEY NOT NULL,\n" +
+                "\tfaculty_attendance_id VARCHAR,\n" +
+                "\tconfirmation_notice_id TEXT,\n" +
+                "\treason VARCHAR,\n" +
+                "\telectronic_signature VARCHAR,\n" +
+                "\tremarks VARCHAR\n" +
+                ")");
+
+        db.execSQL("CREATE TABLE ABSENCE_APPEAL(\n" +
+                "\tabsence_appeal_id VARCHAR PRIMARY KEY NOT NULL,\n" +
+                "\tconfirmation_notice_id VARCHAR NOT NULL,\n" +
+                "\tstaff_id VARCHAR,\n" +
+                "\tchairperson_id VARCHAR,\n" +
+                "\tabsence_appeal_reason VARCHAR,\n" +
+                "\tvalidated INTEGER,\n" +
+                "\tremarks INTEGER\n" +
+                ")");
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        //db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        //db.execSQL("DROP TABLE IF EXISTS  FACULTY");
         onCreate(db);
     }
 
