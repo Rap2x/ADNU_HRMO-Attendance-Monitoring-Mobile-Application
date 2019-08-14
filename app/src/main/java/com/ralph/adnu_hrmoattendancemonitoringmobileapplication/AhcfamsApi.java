@@ -13,4 +13,12 @@ public interface AhcfamsApi {
             @Field("username") String username,
             @Field("password") String password
     );
+
+    @FormUrlEncoded
+    @POST("faculty")
+    Call<Faculty> faculty(
+            @Field("id") String id,
+            @Field("token") String token
+    );
+
 }

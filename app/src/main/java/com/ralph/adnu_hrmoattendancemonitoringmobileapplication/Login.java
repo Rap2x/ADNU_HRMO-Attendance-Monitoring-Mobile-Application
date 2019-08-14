@@ -5,10 +5,9 @@ public class Login {
     private String password;
     private String status;
     private String message;
+    private String staff_id;
     private String token;
     private String DateTime;
-
-    private String text;
 
     public Login(String username,String password) {
         this.username = username;
@@ -16,7 +15,7 @@ public class Login {
     }
 
     public String getUsername() {
-        return username;
+        return staff_id;
     }
 
     public String getPassword() {

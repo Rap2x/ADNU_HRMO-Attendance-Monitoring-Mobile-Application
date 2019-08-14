@@ -14,6 +14,8 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,7 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     DatabaseHelper myDB;
 
-    public final String ip = "192.168.1.2"; //Change this accordingly
+    public final static String ip = "192.168.1.4"; //Change this accordingly
 
     EditText eUsername;
     EditText ePassword;

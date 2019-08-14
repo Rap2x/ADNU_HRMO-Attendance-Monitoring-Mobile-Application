@@ -5,12 +5,4 @@
 
     </style>
 
-    <style name="CustomToolbarStyle" parent="Theme.AppCompat.Light.NoActionBar" >
-
-        <item name="android:textColor">@color/colorBlack</item>
-        <item name="android:overlapAnchor">false</item>
-        <item name="android:dropDownVerticalOffset">-4dp</item>
-
-    </style>
-
 </resources>
