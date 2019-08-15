@@ -1,6 +1,7 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 public class Faculty {
+    private String faculty_id;
     private String id;
     private String name;
     private String designation;
@@ -9,13 +10,13 @@ public class Faculty {
     private String college;
     private String token;
 
-    public Faculty(String faculty_id, String token) {
-        this.id = faculty_id;
+    public Faculty(String id, String token) {
+        this.id = id;
         this.token = token;
     }
 
-    public String getId() {
-        return id;
+    public String getFaculty_id() {
+        return faculty_id;
     }
 
     public String getName() {
@@ -36,9 +37,5 @@ public class Faculty {
 
     public String getCollege() {
         return college;
-    }
-
-    public String getToken() {
-        return token;
     }
 }

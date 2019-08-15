@@ -1,5 +1,7 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -16,9 +18,25 @@ public interface AhcfamsApi {
 
     @FormUrlEncoded
     @POST("faculty")
-    Call<Faculty> faculty(
+    Call<List<Faculty>> faculty(
             @Field("id") String id,
             @Field("token") String token
     );
+
+    @FormUrlEncoded
+    @POST("route")
+    Call<List<Route>> route(
+            @Field("id") String id,
+            @Field("token") String token
+    );
+
+    @FormUrlEncoded
+    @POST("class_schedule")
+    Call<List<ClassSchedule>> classSchedule(
+            @Field("id") String id,
+            @Field("token") String token
+    );
+
+
 
 }

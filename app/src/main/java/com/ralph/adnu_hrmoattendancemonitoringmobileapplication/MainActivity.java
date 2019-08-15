@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }else{
                     Login loginResponse = response.body();
-                    Toast.makeText(getApplicationContext(), loginResponse.getMessage() +"\n" + loginResponse.getToken(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), loginResponse.getMessage(), Toast.LENGTH_SHORT).show();
 
                     if(loginResponse.getStatus().equals("200")){
                         boolean isInserted = myDB.loginStaff(loginResponse.getUsername(), loginResponse.getToken(), loginResponse.getDateTime());
