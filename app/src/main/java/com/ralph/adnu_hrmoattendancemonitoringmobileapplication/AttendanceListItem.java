@@ -46,4 +46,12 @@ public class AttendanceListItem {
     public String getSecond() {
         return second;
     }
+
+    public void setFirst(String firstTime) {
+        first = firstTime;
+    }
+
+    public void setSecond(String secondTime) {
+        second = secondTime;
+    }
 }

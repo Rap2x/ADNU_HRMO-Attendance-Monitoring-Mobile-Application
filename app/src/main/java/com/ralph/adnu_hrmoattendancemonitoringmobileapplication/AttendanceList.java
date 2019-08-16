@@ -30,7 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AttendanceList extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private AttendanceAdapter adapter;
 
     private List<AttendanceListItem> listItems;
 
@@ -127,6 +127,19 @@ public class AttendanceList extends AppCompatActivity {
         adapter = new AttendanceAdapter(listItems, this);
 
         recyclerView.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(new AttendanceAdapter.OnItemClickListener() {
+            @Override
+            public void setAbsent(int position) {
+                listItems.get(position).setFirst(MainActivity.getCurrentTime());
+                boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst().toString());
+                if(isUpdated)
+                    Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void updateFaculty(){

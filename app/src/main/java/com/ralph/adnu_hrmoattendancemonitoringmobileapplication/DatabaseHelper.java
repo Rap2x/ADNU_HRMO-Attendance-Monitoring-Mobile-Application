@@ -249,7 +249,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put("faculty_attendance_id", faculty_attendance_id);
                 contentValues.put("staff_id", MainActivity.userStaffId);
                 contentValues.put("class_schedule_id", classScheduleId.get(i));
-                contentValues.put("attendance_date", MainActivity.currentDate);
+                contentValues.put("attendance_date", MainActivity.getCurrentDate());
                 contentValues.put("first_check", "null");
                 contentValues.put("second_check", "null");
                 contentValues.put("image_file", "");
@@ -265,7 +265,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean isAttendanceDuplicated(String class_schedule_id){
-        Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where class_schedule_id = '" + class_schedule_id + "' and attendance_date = '" + MainActivity.currentDate + "'",null);
+        Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where class_schedule_id = '" + class_schedule_id + "' and attendance_date = '" + MainActivity.getCurrentDate() + "'",null);
         int count = res.getCount();
 
 
@@ -291,9 +291,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public boolean checkAttendance(){
+    public boolean checkFirstAttendance(String id, String time){
 
-        return true;
+        ContentValues contentValues = new ContentValues();
+
+        long result;
+
+        contentValues.put("first_check", time);
+
+        result = writeDB.update("faculty_attendance", contentValues, "faculty_attendance_id = '" + id + "'", null);
+
+        if(result == -1)
+            return false;
+        else
+            return true;
     }
 
 

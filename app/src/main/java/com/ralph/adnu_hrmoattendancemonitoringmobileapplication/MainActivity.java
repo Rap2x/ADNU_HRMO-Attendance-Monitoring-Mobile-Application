@@ -44,11 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AhcfamsApi ahcfamsApi;
 
-    public static Calendar calendar = Calendar.getInstance();
 
-    static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-    public static String currentDate = dateFormat.format(calendar.getTime());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
         ahcfamsApi = retrofit.create(AhcfamsApi.class);
 
         addEditTextListener();
+
+        //Toast.makeText(getApplicationContext(), getCurrentTime(), Toast.LENGTH_SHORT).show();
 
         final Button signIn = findViewById(R.id.SignIn);
         signIn.setOnClickListener(new View.OnClickListener(){
@@ -158,6 +156,27 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Error", t.getMessage());
             }
         });
+    }
+
+    public static String getCurrentTime(){
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss:SS");
+
+        String currentTime = dateFormat.format(calendar.getTime());
+
+        return currentTime;
+
+    }
+
+    public static String getCurrentDate(){
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        String currentDate = dateFormat.format(calendar.getTime());
+
+        return currentDate;
     }
 
 
