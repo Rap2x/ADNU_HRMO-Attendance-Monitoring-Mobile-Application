@@ -5,16 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-
-import java.sql.SQLInput;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "ahcfams.db";
-
+    private SQLiteDatabase readDB = getReadableDatabase();
+    private SQLiteDatabase writeDB = getWritableDatabase();
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -42,7 +42,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean loginStaff(String username, String token, String last_login){
-        SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("staff_id", username);
@@ -53,24 +52,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result;
 
         if(isUserRecorded(username)){
-            result = db.update("STAFF", contentValues, "staff_id = " + username,null);
-            if(result == -1)
+            result = writeDB.update("STAFF", contentValues, "staff_id = " + username,null);
+
+            if(result == -1){
                 return false;
-        }else
-            result = db.insert("STAFF",null,contentValues);
-                if(result == -1)
-                    return false;
-                else
-                    return true;
+            }
+
+        }else{
+            result = writeDB.insert("STAFF",null,contentValues);
+        }
+
+        if(result == -1)
+            return false;
+        else
+            return true;
 
     }
 
 
     public ArrayList getUserCredentials(){
-        SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<String> arrayList = new ArrayList<String>();
 
-        Cursor res = db.rawQuery("select staff_id, token from STAFF",null);
+        Cursor res = readDB.rawQuery("select staff_id, token from STAFF",null);
+
         res.moveToLast();
         arrayList.add(res.getString(0));
         arrayList.add(res.getString(1));
@@ -79,8 +83,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean isUserRecorded(String staff_id){
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor res = db.rawQuery("select staff_id from staff where staff_id =" + staff_id, null);
+        Cursor res = readDB.rawQuery("select staff_id from staff where staff_id =" + staff_id, null);
+
 
         if(res.getCount() == 0)
             return false;
@@ -90,8 +94,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean isTeacherRecorded(String faculty_id){
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor res = db.rawQuery("select faculty_id from faculty where faculty_id = " + faculty_id, null);
+        Cursor res = readDB.rawQuery("select faculty_id from faculty where faculty_id = " + faculty_id, null);
+
 
         if(res.getCount() == 0)
             return false;
@@ -101,9 +105,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList getFaculty(){
-        SQLiteDatabase db = getReadableDatabase();
         ArrayList<String> arrayList = new ArrayList<String>();
-        Cursor res = db.rawQuery("select * from faculty", null);
+        Cursor res = readDB.rawQuery("select * from faculty", null);
+
         res.moveToLast();
 
         arrayList.add(res.getString(res.getColumnIndex("faculty_id")));
@@ -113,8 +117,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean updateFaculty(String faculty_id,String name, String designation, String department, String college){
-
-        SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("faculty_id", faculty_id);
@@ -127,32 +129,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result;
 
         if(isTeacherRecorded(faculty_id)){
-            result = db.update("FACULTY", contentValues, "faculty_id = " + faculty_id,null);
-            if(result == -1)
-                return false;
-        }else
-            result = db.insert("FACULTY",null,contentValues);
+            result = writeDB.update("FACULTY", contentValues, "faculty_id = " + faculty_id,null);
 
             if(result == -1)
                 return false;
-            else
-                return true;
+        }else{
+            result = writeDB.insert("FACULTY",null,contentValues);
+
+        }
+
+        if(result == -1){
+            return false;}
+        else{
+            return true;}
 
     }
 
     public boolean isRecorded(String id, String colName, String table){ // Checks if an id is already existing in the database
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor res = db.rawQuery("select " + colName +" from " + table +" where " + colName + " = '" + id + "'", null);
+        Cursor res = readDB.rawQuery("select " + colName +" from " + table +" where " + colName + " = '" + id + "'", null);
 
-        if(res.getCount() == 0)
+        if(res.getCount() == 0){
             return false;
-        else
+        }else{
             return true;
+        }
 
     }
 
     public boolean updateRoute(String route_id, String description){
-        SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("route_id", route_id);
@@ -161,20 +165,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result;
 
         if(isRecorded(route_id, "route_id", "route")){
-            result = db.update("ROUTE", contentValues, "route_id = " + route_id,null);
+            result = writeDB.update("ROUTE", contentValues, "route_id = " + route_id,null);
             if(result == -1)
                 return false;
-        }else
-            result = db.insert("ROUTE", null, contentValues);
+        }else{
+            result = writeDB.insert("ROUTE", null, contentValues);
+        }if(result == -1)
+            return false;
+        else
+            return true;
 
-            if(result == -1)
-                return false;
-            else
-                return true;
     }
 
     public boolean updateClassSchedule(String class_schedule_id, String room_id, String faculty_id, String semester, String school_year, String start_time, String end_time, String class_section, String class_day, String subject_code, String half_day, String hours){
-        SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("class_schedule_id", class_schedule_id);
@@ -193,16 +196,104 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result;
 
         if(isRecorded(class_schedule_id, "class_schedule_id", "class_schedule")){
-            result = db.update("CLASS_SCHEDULE", contentValues, "class_schedule_id = " + class_schedule_id,null);
+            result = writeDB.update("CLASS_SCHEDULE", contentValues, "class_schedule_id = '" + class_schedule_id + "'",null);
             if(result == -1)
                 return false;
         }else
-            result = db.insert("CLASS_SCHEDULE", null, contentValues);
+            result = writeDB.insert("CLASS_SCHEDULE", null, contentValues);
 
-        if(result == -1)
+        if(result == -1){
             return false;
-        else
+        }else{
             return true;
+        }
+
+    }
+
+    public ArrayList<String> getSchedule(){
+        ArrayList<String> arrayList = new ArrayList<>();
+
+        Cursor res = readDB.rawQuery("select class_schedule_id from class_schedule",null);
+        res.moveToFirst();
+        do{
+            arrayList.add(res.getString(res.getColumnIndex("class_schedule_id")));
+        }while(res.moveToNext());
+
+        return arrayList;
+    }
+
+    public String generateRandomString(int size){
+        String pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+        String randomString = "";
+        Random rand = new Random();
+
+        for(int i =0; i< size; i++){
+            int length = pool.length();
+            int n = rand.nextInt(length);
+            randomString += pool.charAt(n);
+        }
+
+        return randomString;
+    }
+
+    public void createAttendance(){
+        ArrayList<String> classScheduleId = getSchedule();
+        ContentValues contentValues = new ContentValues();
+        String faculty_attendance_id;
+        int scheduleSize = getScheduleSize();
+
+        for(int i = 0; i < scheduleSize; i++){
+            do{
+                faculty_attendance_id = generateRandomString(9);
+
+                contentValues.put("faculty_attendance_id", faculty_attendance_id);
+                contentValues.put("staff_id", MainActivity.userStaffId);
+                contentValues.put("class_schedule_id", classScheduleId.get(i));
+                contentValues.put("attendance_date", MainActivity.currentDate);
+                contentValues.put("first_check", "null");
+                contentValues.put("second_check", "null");
+                contentValues.put("image_file", "");
+                contentValues.put("salary_deduction", "");
+                contentValues.put("status", "");
+
+            }while(isRecorded(faculty_attendance_id, "faculty_attendance_id", "faculty_attendance"));
+
+            if (!isAttendanceDuplicated(classScheduleId.get(i)))
+                writeDB.insert("FACULTY_ATTENDANCE", null, contentValues);
+        }
+
+    }
+
+    public boolean isAttendanceDuplicated(String class_schedule_id){
+        Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where class_schedule_id = '" + class_schedule_id + "' and attendance_date = '" + MainActivity.currentDate + "'",null);
+        int count = res.getCount();
+
+
+        if(count > 1)
+            return true;
+        else
+            return false;
+
+        // Return true if there's a duplicate in the table false if unique
+    }
+
+    public int getScheduleSize(){
+
+        Cursor res = readDB.rawQuery("select * from class_schedule", null);
+        int count = res.getCount();
+
+        return count;
+    }
+
+    public Cursor getFacultyAttendance(){
+
+        Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id",null);
+        return res;
+    }
+
+    public boolean checkAttendance(){
+
+        return true;
     }
 
 

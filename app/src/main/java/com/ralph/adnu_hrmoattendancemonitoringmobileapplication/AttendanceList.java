@@ -1,6 +1,9 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
+import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,8 +26,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class AttendanceList extends AppCompatActivity {
-    DatabaseHelper myDB;
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
@@ -44,11 +47,7 @@ public class AttendanceList extends AppCompatActivity {
         android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
 
-
-        myDB = new DatabaseHelper(this);
-
-
-        ArrayList userCredential = myDB.getUserCredentials();
+        ArrayList userCredential = MainActivity.myDB.getUserCredentials();
         userStaffId = userCredential.get(0).toString();
         userToken = userCredential.get(1).toString();
 
@@ -69,21 +68,28 @@ public class AttendanceList extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()){
+            case R.id.action_refresh:
+                showList();
+                break;
+
             case R.id.action_update_faculty_table:
                 updateFaculty();
-                showList();
                 break;
 
             case R.id.action_update_route_table:
                 updateRoute();
                 break;
+
             case R.id.action_class_schedule:
                 updateClassSchedule();
                 break;
+
+            case R.id.action_faculty_attendance:
+                MainActivity.myDB.createAttendance();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
-
-
     }
 
     @Override
@@ -100,14 +106,23 @@ public class AttendanceList extends AppCompatActivity {
 
         listItems = new ArrayList<>();
 
-        for(int i = 0 ;i <=100; i++){
+        Cursor attendanceData = MainActivity.myDB.getFacultyAttendance();
+
+        attendanceData.moveToFirst();
+
+        for(int i = 0 ;i < attendanceData.getCount(); i++){
             AttendanceListItem listItem = new AttendanceListItem(
-                    "name " + i+1,
-                    "subjectCode" + i+1,
-                    "roomNumber" + i+1
+                    attendanceData.getString(3),
+                    attendanceData.getString(2),
+                    attendanceData.getString(1),
+                    attendanceData.getString(4),
+                    attendanceData.getString(0),
+                    attendanceData.getString(5),
+                    attendanceData.getString(6)
             );
 
             listItems.add(listItem);
+            attendanceData.moveToNext();
         }
         adapter = new AttendanceAdapter(listItems, this);
 
@@ -130,7 +145,7 @@ public class AttendanceList extends AppCompatActivity {
 
                     for(Faculty faculty1 : faculties){
 
-                        boolean isInserted = myDB.updateFaculty(faculty1.getFaculty_id(), faculty1.getName(), faculty1.getDesignation(), faculty1.getDepartment(), faculty1.getCollege());
+                        boolean isInserted = MainActivity.myDB.updateFaculty(faculty1.getFaculty_id(), faculty1.getName(), faculty1.getDesignation(), faculty1.getDepartment(), faculty1.getCollege());
                         if (isInserted){
                             count += 1;
                             Toast.makeText(getApplicationContext(),count.toString() , Toast.LENGTH_SHORT).show();
@@ -160,7 +175,7 @@ public class AttendanceList extends AppCompatActivity {
                 Integer count = 0;
 
                 for (Route route1 : routes){
-                    boolean isInserted = myDB.updateRoute(route1.getRoute_id(), route1.getDescription());
+                    boolean isInserted = MainActivity.myDB.updateRoute(route1.getRoute_id(), route1.getDescription());
                     if(isInserted) {
                         count += 1;
                         Toast.makeText(getApplicationContext(), "Routes: " + count.toString(), Toast.LENGTH_SHORT).show();
@@ -187,7 +202,7 @@ public class AttendanceList extends AppCompatActivity {
 
                 Integer count = 0;
                 for (ClassSchedule classSchedule1 : classSchedules){
-                    boolean isInserted = myDB.updateClassSchedule(classSchedule1.getClass_schedule_id(), classSchedule1.getRoom_id(), classSchedule1.getFaculty_id(), classSchedule1.getSemester(), classSchedule1.getSchool_year(), classSchedule1.getStart_time(), classSchedule1.getEnd_time(), classSchedule1.getClass_section(), classSchedule1.getClass_day(), classSchedule1.getSubject_code(), classSchedule1.getHalf_day(), classSchedule1.getHours());
+                    boolean isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getClass_schedule_id(), classSchedule1.getRoom_id(), classSchedule1.getFaculty_id(), classSchedule1.getSemester(), classSchedule1.getSchool_year(), classSchedule1.getStart_time(), classSchedule1.getEnd_time(), classSchedule1.getClass_section(), classSchedule1.getClass_day(), classSchedule1.getSubject_code(), classSchedule1.getHalf_day(), classSchedule1.getHours());
                     if(isInserted){
                         count += 1;
                         Toast.makeText(getApplicationContext(), "Class Schedule: " + count, Toast.LENGTH_SHORT).show();

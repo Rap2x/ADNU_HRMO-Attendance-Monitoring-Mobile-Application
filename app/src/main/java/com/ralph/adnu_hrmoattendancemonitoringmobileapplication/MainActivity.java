@@ -1,6 +1,9 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import android.content.Intent;
+import android.icu.text.SimpleDateFormat;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -23,8 +27,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class MainActivity extends AppCompatActivity {
-    DatabaseHelper myDB;
+    static DatabaseHelper myDB;
 
     public final static String ip = "192.168.1.4"; //Change this accordingly
 
@@ -34,7 +39,16 @@ public class MainActivity extends AppCompatActivity {
     private String username = "sample";
     private String password = "sample";
 
+    public static  String userStaffId;
+    public static String userToken;
+
     private AhcfamsApi ahcfamsApi;
+
+    public static Calendar calendar = Calendar.getInstance();
+
+    static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    public static String currentDate = dateFormat.format(calendar.getTime());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +140,10 @@ public class MainActivity extends AppCompatActivity {
                             Intent in = new Intent(MainActivity.this, AttendanceList.class);
                             startActivity(in);
                             Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();
+
+                            ArrayList userCredentials = myDB.getUserCredentials();
+                            userStaffId = userCredentials.get(0).toString();
+                            userToken = userCredentials.get(1).toString();
                         }
                         else
                             Toast.makeText(getApplicationContext(), "Error: Database not Updated", Toast.LENGTH_SHORT).show();
