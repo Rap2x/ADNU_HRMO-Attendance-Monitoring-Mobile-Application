@@ -69,23 +69,24 @@ public class AttendanceList extends AppCompatActivity {
 
         switch (item.getItemId()){
             case R.id.action_refresh:
+                Integer schedSize = MainActivity.myDB.getScheduleSize();
+                Integer attenSize = MainActivity.myDB.getAttendanceSize();
+
+
+                Toast.makeText(getApplicationContext(),"Class Schedule: " + schedSize.toString() , Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Attendance Size: " + attenSize.toString() , Toast.LENGTH_SHORT).show();
                 showList();
-                break;
-
-            case R.id.action_update_faculty_table:
-                updateFaculty();
-                break;
-
-            case R.id.action_update_route_table:
-                updateRoute();
-                break;
-
-            case R.id.action_class_schedule:
-                updateClassSchedule();
                 break;
 
             case R.id.action_faculty_attendance:
                 MainActivity.myDB.createAttendance();
+                break;
+
+            case R.id.update_database:
+                updateFaculty();
+                updateRoute();
+                updateRoom();
+                updateClassSchedule();
                 break;
 
         }
@@ -122,6 +123,7 @@ public class AttendanceList extends AppCompatActivity {
             );
 
             listItems.add(listItem);
+            Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_SHORT).show();
             attendanceData.moveToNext();
         }
         adapter = new AttendanceAdapter(listItems, this);
@@ -154,11 +156,11 @@ public class AttendanceList extends AppCompatActivity {
                 }else{
                     List<Faculty> faculties = response.body();
 
-                    Integer count =0;
+                    Integer count = 0;
 
                     for(Faculty faculty1 : faculties){
 
-                        boolean isInserted = MainActivity.myDB.updateFaculty(faculty1.getFaculty_id(), faculty1.getName(), faculty1.getDesignation(), faculty1.getDepartment(), faculty1.getCollege());
+                        boolean isInserted = MainActivity.myDB.updateFaculty(faculty1.getFACULTY_ID(), faculty1.getNAME(),faculty1.getDEPARTMENT(), faculty1.getCOLLEGE());
                         if (isInserted){
                             count += 1;
                             Toast.makeText(getApplicationContext(),count.toString() , Toast.LENGTH_SHORT).show();
@@ -188,7 +190,7 @@ public class AttendanceList extends AppCompatActivity {
                 Integer count = 0;
 
                 for (Route route1 : routes){
-                    boolean isInserted = MainActivity.myDB.updateRoute(route1.getRoute_id(), route1.getDescription());
+                    boolean isInserted = MainActivity.myDB.updateRoute(route1.getROUTE_ID(), route1.getDESCRIPTION());
                     if(isInserted) {
                         count += 1;
                         Toast.makeText(getApplicationContext(), "Routes: " + count.toString(), Toast.LENGTH_SHORT).show();
@@ -215,7 +217,7 @@ public class AttendanceList extends AppCompatActivity {
 
                 Integer count = 0;
                 for (ClassSchedule classSchedule1 : classSchedules){
-                    boolean isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getClass_schedule_id(), classSchedule1.getRoom_id(), classSchedule1.getFaculty_id(), classSchedule1.getSemester(), classSchedule1.getSchool_year(), classSchedule1.getStart_time(), classSchedule1.getEnd_time(), classSchedule1.getClass_section(), classSchedule1.getClass_day(), classSchedule1.getSubject_code(), classSchedule1.getHalf_day(), classSchedule1.getHours());
+                    boolean isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), classSchedule1.getSTART_TIME(), classSchedule1.getEND_TIME(), classSchedule1.getCLASS_SECTION(), classSchedule1.getCLASS_DAY(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHALF_DAY(), classSchedule1.getHOURS());
                     if(isInserted){
                         count += 1;
                         Toast.makeText(getApplicationContext(), "Class Schedule: " + count, Toast.LENGTH_SHORT).show();
@@ -232,7 +234,30 @@ public class AttendanceList extends AppCompatActivity {
         });
     }
 
+    private void updateRoom(){
+        Room room = new Room(userStaffId, userToken);
 
+        Call<List<Room>> call = ahcfamsApi.room(userStaffId,userToken);
+        call.enqueue(new Callback<List<Room>>() {
+            @Override
+            public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
+                List<Room> rooms = response.body();
+                Integer count = 0;
 
+                for (Room room1 : rooms){
+                    boolean isInserted = MainActivity.myDB.updateRoom(room1.getROOM_ID(), room1.getROUTE_ID(), room1.getBUILDING_NAME(), room1.getROOM_ORDER());
+                    if (isInserted){
+                        count += 1;
+                    }else
+                        Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+                }
+            }
 
+            @Override
+            public void onFailure(Call<List<Room>> call, Throwable t) {
+
+            }
+        });
+
+    }
 }

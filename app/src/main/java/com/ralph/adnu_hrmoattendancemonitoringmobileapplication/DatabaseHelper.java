@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -23,12 +25,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE FACULTY( faculty_id VARCHAR PRIMARY KEY NOT NULL, name VARCHAR NOT NULL, designation VARCHAR NOT NULL, password VARCHAR, department VARCHAR NOT NULL, college VARCHAR NOT NULL)");
+        db.execSQL("CREATE TABLE FACULTY( faculty_id VARCHAR PRIMARY KEY NOT NULL, name VARCHAR NOT NULL, department VARCHAR NOT NULL, college VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE STAFF ( staff_id VARCHAR PRIMARY KEY NOT NULL, last_login TEXT, route_id INTEGER, token VARCHAR)");
         db.execSQL("CREATE TABLE ROUTE( route_id INTEGER PRIMARY KEY NOT NULL, description VARCHAR)");
-        db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, route_id INTEGER, buidling_name VARCHAR NOT NULL)");
+        db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, route_id INTEGER, building_name VARCHAR NOT NULL, room_order VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, half_day INTEGER NOT NULL, hours FLOAT NOT NULL)");
-        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR)");
+        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
         db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, reason VARCHAR, electronic_signature VARCHAR, remarks VARCHAR)");
         db.execSQL("CREATE TABLE ABSENCE_APPEAL( absence_appeal_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_id VARCHAR NOT NULL, staff_id VARCHAR, chairperson_id VARCHAR, absence_appeal_reason VARCHAR, validated INTEGER, remarks INTEGER)");
     }
@@ -116,13 +118,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return arrayList;
     }
 
-    public boolean updateFaculty(String faculty_id,String name, String designation, String department, String college){
+    public boolean updateFaculty(String faculty_id,String name , String department, String college){
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("faculty_id", faculty_id);
         contentValues.put("name" , name);
-        contentValues.put("designation", designation);
-        contentValues.put("password", "null");
         contentValues.put("department", department);
         contentValues.put("college", college);
 
@@ -252,14 +252,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put("attendance_date", MainActivity.getCurrentDate());
                 contentValues.put("first_check", "null");
                 contentValues.put("second_check", "null");
-                contentValues.put("image_file", "");
-                contentValues.put("salary_deduction", "");
-                contentValues.put("status", "");
+                contentValues.put("image_file", "null");
+                contentValues.put("salary_deduction", "null");
+                contentValues.put("status", "null");
+                contentValues.put("synchronized", "0");
 
-            }while(isRecorded(faculty_attendance_id, "faculty_attendance_id", "faculty_attendance"));
+            }while(isRecorded(faculty_attendance_id, "faculty_attendance_id", "FACULTY_ATTENDANCE"));
 
-            if (!isAttendanceDuplicated(classScheduleId.get(i)))
+            if (!isAttendanceDuplicated(classScheduleId.get(i))){
                 writeDB.insert("FACULTY_ATTENDANCE", null, contentValues);
+            }
         }
 
     }
@@ -269,7 +271,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int count = res.getCount();
 
 
-        if(count > 1)
+        if(count > 0)
             return true;
         else
             return false;
@@ -282,6 +284,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = readDB.rawQuery("select * from class_schedule", null);
         int count = res.getCount();
 
+        return count;
+    }
+
+    public int getAttendanceSize(){
+        Cursor res = readDB.rawQuery("select * from faculty_attendance",null);
+
+        int count = res.getCount();
         return count;
     }
 
@@ -305,6 +314,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return false;
         else
             return true;
+    }
+
+    public boolean updateRoom(String room_id, String route_id, String building_name, String room_order){
+
+        ContentValues contentValues = new ContentValues();
+
+        long result;
+
+        contentValues.put("room_id", room_id);
+        contentValues.put("route_id", route_id);
+        contentValues.put("building_name", building_name);
+        contentValues.put("room_order", room_order);
+
+        if(isRecorded(room_id, "room_id", "room")){
+            result = writeDB.update("ROOM", contentValues, "room_id = '" + room_id+ "'",null);
+            if(result == -1)
+                return false;
+        }else
+            result = writeDB.insert("room", null, contentValues);
+
+        if(result == -1){
+            return false;
+        }else{
+            return true;
+        }
+
     }
 
 

@@ -31,7 +31,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     static DatabaseHelper myDB;
 
-    public final static String ip = "192.168.1.4"; //Change this accordingly
+    public final static String ip = "172.16.154.222"; //Change this accordingly
 
     EditText eUsername;
     EditText ePassword;

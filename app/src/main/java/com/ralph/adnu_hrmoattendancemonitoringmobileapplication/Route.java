@@ -1,8 +1,8 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 public class Route {
-    private String route_id;
-    private String description;
+    private String ROUTE_ID;
+    private String DESCRIPTION;
     private String id;
     private String token;
 
@@ -11,12 +11,12 @@ public class Route {
         this.token = token;
     }
 
-    public String getRoute_id() {
-        return route_id;
+    public String getROUTE_ID() {
+        return ROUTE_ID;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDESCRIPTION() {
+        return DESCRIPTION;
     }
 
     public String getId() {

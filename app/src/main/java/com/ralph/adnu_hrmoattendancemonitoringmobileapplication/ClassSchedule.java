@@ -3,69 +3,69 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 public class ClassSchedule {
     private String id;
     private String token;
-    private String class_schedule_id;
-    private String room_id;
-    private String faculty_id;
-    private String semester;
-    private String school_year;
-    private String start_time;
-    private String end_time;
-    private String class_section;
-    private String class_day;
-    private String subject_code;
-    private String half_day;
-    private String hours;
+    private String CLASS_SCHEDULE_ID;
+    private String ROOM_ID;
+    private String FACULTY_ID;
+    private String SEMESTER;
+    private String SCHOOL_YEAR;
+    private String START_TIME;
+    private String END_TIME;
+    private String CLASS_SECTION;
+    private String CLASS_DAY;
+    private String SUBJECT_CODE;
+    private String HALF_DAY;
+    private String HOURS;
 
     public ClassSchedule(String id, String token) {
         this.id = id;
         this.token = token;
     }
 
-    public String getClass_schedule_id() {
-        return class_schedule_id;
+    public String getCLASS_SCHEDULE_ID() {
+        return CLASS_SCHEDULE_ID;
     }
 
-    public String getRoom_id() {
-        return room_id;
+    public String getROOM_ID() {
+        return ROOM_ID;
     }
 
-    public String getFaculty_id() {
-        return faculty_id;
+    public String getFACULTY_ID() {
+        return FACULTY_ID;
     }
 
-    public String getSemester() {
-        return semester;
+    public String getSEMESTER() {
+        return SEMESTER;
     }
 
-    public String getSchool_year() {
-        return school_year;
+    public String getSCHOOL_YEAR() {
+        return SCHOOL_YEAR;
     }
 
-    public String getStart_time() {
-        return start_time;
+    public String getSTART_TIME() {
+        return START_TIME;
     }
 
-    public String getEnd_time() {
-        return end_time;
+    public String getEND_TIME() {
+        return END_TIME;
     }
 
-    public String getClass_section() {
-        return class_section;
+    public String getCLASS_SECTION() {
+        return CLASS_SECTION;
     }
 
-    public String getClass_day() {
-        return class_day;
+    public String getCLASS_DAY() {
+        return CLASS_DAY;
     }
 
-    public String getSubject_code() {
-        return subject_code;
+    public String getSUBJECT_CODE() {
+        return SUBJECT_CODE;
     }
 
-    public String getHalf_day() {
-        return half_day;
+    public String getHALF_DAY() {
+        return HALF_DAY;
     }
 
-    public String getHours() {
-        return hours;
+    public String getHOURS() {
+        return HOURS;
     }
 }

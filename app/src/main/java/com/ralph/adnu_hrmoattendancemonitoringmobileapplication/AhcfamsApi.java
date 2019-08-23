@@ -37,6 +37,12 @@ public interface AhcfamsApi {
             @Field("token") String token
     );
 
+    @FormUrlEncoded
+    @POST("room")
+    Call<List<Room>> room(
+            @Field("id") String id,
+            @Field("token") String token
+    );
 
 
 }

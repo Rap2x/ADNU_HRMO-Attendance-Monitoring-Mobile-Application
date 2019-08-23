@@ -11,25 +11,17 @@ xmlns:app="http://schemas.android.com/apk/res-auto">
         android:title="Refresh List"
         app:showAsAction="never">
     </item>
-    <item
-        android:id="@+id/action_update_faculty_table"
-        android:title="Update Faculty Table"
-        app:showAsAction="never">
-    </item>
-    <item
-        android:id="@+id/action_update_route_table"
-        android:title="Update Route Table"
-        app:showAsAction="never">
-    </item>
-    <item
-        android:id="@+id/action_class_schedule"
-        android:title="Update Class Schedule Table"
-        app:showAsAction="never">
-    </item>
+
 
     <item
         android:id="@+id/action_faculty_attendance"
         android:title="Update Faculty Attendance Table"
+        app:showAsAction="never">
+    </item>
+
+    <item
+        android:id="@+id/update_database"
+        android:title="Update Database"
         app:showAsAction="never">
     </item>
 </menu>
