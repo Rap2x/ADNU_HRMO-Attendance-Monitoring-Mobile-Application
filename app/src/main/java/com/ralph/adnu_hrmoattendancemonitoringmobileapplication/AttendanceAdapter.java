@@ -19,6 +19,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
 
     public interface OnItemClickListener{
         void setAbsent(int position);
+        void setPresent(int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){
@@ -54,6 +55,18 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
                         int position = getAdapterPosition();
                         if(position != RecyclerView.NO_POSITION){
                             listener.setAbsent(position);
+                        }
+                    }
+                }
+            });
+
+            buttonPresent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listener.setPresent(position);
                         }
                     }
                 }

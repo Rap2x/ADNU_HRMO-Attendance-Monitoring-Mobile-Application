@@ -26,6 +26,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static android.text.TextUtils.isEmpty;
+
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class AttendanceList extends AppCompatActivity {
 
@@ -133,13 +135,44 @@ public class AttendanceList extends AppCompatActivity {
         adapter.setOnItemClickListener(new AttendanceAdapter.OnItemClickListener() {
             @Override
             public void setAbsent(int position) {
-                listItems.get(position).setFirst(MainActivity.getCurrentTime());
-                boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst().toString());
-                if(isUpdated)
-                    Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
-                adapter.notifyDataSetChanged();
+                if (isEmpty(listItems.get(position).getFirst())){
+                    listItems.get(position).setFirst("Absent");
+                    boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
+                    if(isUpdated)
+                        Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
+                }else{
+                    listItems.get(position).setSecond("Absent");
+                    boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
+                    if(isUpdated)
+                        Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
+                }
+                listItems.remove(position);
+                adapter.notifyItemRemoved(position);
+            }
+
+            @Override
+            public void setPresent(int position) {
+                if (isEmpty(listItems.get(position).getFirst())){
+                    listItems.get(position).setFirst(MainActivity.getCurrentTime());
+                    boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
+                    if(isUpdated)
+                        Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
+                }else{
+                    listItems.get(position).setSecond(MainActivity.getCurrentTime());
+                    boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
+                    if(isUpdated)
+                        Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
+                }
+                listItems.remove(position);
+                adapter.notifyItemRemoved(position);
             }
         });
     }

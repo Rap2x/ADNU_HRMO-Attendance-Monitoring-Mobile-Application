@@ -92,9 +92,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_marginEnd="44dp"
+                    android:layout_marginEnd="110dp"
                     android:text="First Checking"
-                    app:layout_constraintEnd_toStartOf="@+id/secondTime"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/absent" />
 
                 <TextView
@@ -102,34 +102,31 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:layout_marginEnd="25dp"
+                    android:layout_marginEnd="110dp"
                     android:text="Second Checking"
-                    app:layout_constraintEnd_toStartOf="@+id/firstTime"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/first" />
 
                 <TextView
                     android:id="@+id/firstTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:text="7:30:35 AM"
-                    android:textColor="@color/colorTimeBlue"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/secondTime" />
+                    app:layout_constraintTop_toBottomOf="@+id/present" />
 
                 <TextView
                     android:id="@+id/secondTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginEnd="8dp"
                     android:text="8:20:49 AM"
-                    android:textColor="@color/colorRed"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/present" />
+                    app:layout_constraintTop_toBottomOf="@+id/firstTime" />
             </android.support.constraint.ConstraintLayout>
-
         </LinearLayout>
     </android.support.v7.widget.CardView>
 

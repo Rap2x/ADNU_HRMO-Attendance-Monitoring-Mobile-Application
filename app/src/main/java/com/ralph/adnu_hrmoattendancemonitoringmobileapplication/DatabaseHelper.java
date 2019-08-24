@@ -250,8 +250,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put("staff_id", MainActivity.userStaffId);
                 contentValues.put("class_schedule_id", classScheduleId.get(i));
                 contentValues.put("attendance_date", MainActivity.getCurrentDate());
-                contentValues.put("first_check", "null");
-                contentValues.put("second_check", "null");
+                contentValues.put("first_check", "");
+                contentValues.put("second_check", "");
                 contentValues.put("image_file", "null");
                 contentValues.put("salary_deduction", "null");
                 contentValues.put("status", "null");
@@ -307,6 +307,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result;
 
         contentValues.put("first_check", time);
+
+        result = writeDB.update("faculty_attendance", contentValues, "faculty_attendance_id = '" + id + "'", null);
+
+        if(result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    public boolean checkSecondAttendance(String id, String time){
+
+        ContentValues contentValues = new ContentValues();
+
+        long result;
+
+        contentValues.put("second_check", time);
 
         result = writeDB.update("faculty_attendance", contentValues, "faculty_attendance_id = '" + id + "'", null);
 
