@@ -17,8 +17,13 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.text.ParseException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -74,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 login();
             }
         });
+
+        Toast.makeText(getApplicationContext(), getCurrentTime(), Toast.LENGTH_SHORT).show();
     }
 
     public void addEditTextListener(){
@@ -161,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     public static String getCurrentTime(){
         Calendar calendar = Calendar.getInstance();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss:SS");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
         String currentTime = dateFormat.format(calendar.getTime());
 
@@ -177,6 +184,42 @@ public class MainActivity extends AppCompatActivity {
         String currentDate = dateFormat.format(calendar.getTime());
 
         return currentDate;
+    }
+
+    public static String getCurrentTime12Hours(){
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm:ss a");
+
+        String currentTime = dateFormat.format(calendar.getTime());
+
+        return currentTime;
+
+    }
+
+    public static String time12HourTo24Hour(String time) throws ParseException {
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            String result = LocalTime.parse(time, DateTimeFormatter.ofPattern("hh:mma", Locale.US)).format(DateTimeFormatter.ofPattern("HH:mm"));
+            return result;
+        }else{
+            SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm:ss");
+            SimpleDateFormat parseFormat = new SimpleDateFormat("hh:mma");
+            Date date = parseFormat.parse(time);
+            return displayFormat.format(date);
+        }
+    }
+
+    public static String time24HourTo12Hour(String time) throws ParseException{
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            String result = LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm", Locale.US)).format(DateTimeFormatter.ofPattern("hh:mma"));
+            return result;
+        }else{
+            SimpleDateFormat displayFormat = new SimpleDateFormat("hh:mma");
+            SimpleDateFormat parseFormat = new SimpleDateFormat("HH:mm:ss");
+            Date date = parseFormat.parse(time);
+            return displayFormat.format(date);
+        }
     }
 
 

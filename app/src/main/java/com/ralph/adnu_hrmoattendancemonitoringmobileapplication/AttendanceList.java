@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,12 +72,6 @@ public class AttendanceList extends AppCompatActivity {
 
         switch (item.getItemId()){
             case R.id.action_refresh:
-                Integer schedSize = MainActivity.myDB.getScheduleSize();
-                Integer attenSize = MainActivity.myDB.getAttendanceSize();
-
-
-                Toast.makeText(getApplicationContext(),"Class Schedule: " + schedSize.toString() , Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), "Attendance Size: " + attenSize.toString() , Toast.LENGTH_SHORT).show();
                 showList();
                 break;
 
@@ -157,14 +152,14 @@ public class AttendanceList extends AppCompatActivity {
             @Override
             public void setPresent(int position) {
                 if (isEmpty(listItems.get(position).getFirst())){
-                    listItems.get(position).setFirst(MainActivity.getCurrentTime());
+                    listItems.get(position).setFirst(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
                     if(isUpdated)
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }else{
-                    listItems.get(position).setSecond(MainActivity.getCurrentTime());
+                    listItems.get(position).setSecond(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
                     if(isUpdated)
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
@@ -250,7 +245,12 @@ public class AttendanceList extends AppCompatActivity {
 
                 Integer count = 0;
                 for (ClassSchedule classSchedule1 : classSchedules){
-                    boolean isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), classSchedule1.getSTART_TIME(), classSchedule1.getEND_TIME(), classSchedule1.getCLASS_SECTION(), classSchedule1.getCLASS_DAY(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHALF_DAY(), classSchedule1.getHOURS());
+                    boolean isInserted = false;
+                    try {
+                        isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), classSchedule1.getCLASS_DAY(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHALF_DAY(), classSchedule1.getHOURS());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                     if(isInserted){
                         count += 1;
                         Toast.makeText(getApplicationContext(), "Class Schedule: " + count, Toast.LENGTH_SHORT).show();
