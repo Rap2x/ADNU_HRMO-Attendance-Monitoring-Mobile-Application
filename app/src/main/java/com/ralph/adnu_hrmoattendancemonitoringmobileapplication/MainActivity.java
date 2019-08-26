@@ -36,7 +36,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     static DatabaseHelper myDB;
 
-    public final static String ip = "192.168.1.4"; //Change this accordingly
+    public final static String ip = "192.168.1.11"; //Change this accordingly
 
     EditText eUsername;
     EditText ePassword;
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static  String userStaffId;
     public static String userToken;
+    public static String userRoute;
 
     private AhcfamsApi ahcfamsApi;
 
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), loginResponse.getMessage(), Toast.LENGTH_SHORT).show();
 
                     if(loginResponse.getStatus().equals("200")){
-                        boolean isInserted = myDB.loginStaff(loginResponse.getUsername(), loginResponse.getToken(), loginResponse.getDateTime());
+                        boolean isInserted = myDB.loginStaff(loginResponse.getUsername(), loginResponse.getToken(), loginResponse.getDateTime(), loginResponse.getRoute_id());
 
                         if(isInserted == true) {
                             Intent in = new Intent(MainActivity.this, AttendanceList.class);
@@ -149,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
                             ArrayList userCredentials = myDB.getUserCredentials();
                             userStaffId = userCredentials.get(0).toString();
                             userToken = userCredentials.get(1).toString();
+                            userRoute = userCredentials.get(2).toString();
                         }
                         else
                             Toast.makeText(getApplicationContext(), "Error: Database not Updated", Toast.LENGTH_SHORT).show();

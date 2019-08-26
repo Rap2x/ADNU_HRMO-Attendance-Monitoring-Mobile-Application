@@ -8,6 +8,7 @@ public class Login {
     private String staff_id;
     private String token;
     private String DateTime;
+    private String route_id;
 
     public Login(String username,String password) {
         this.username = username;
@@ -36,5 +37,9 @@ public class Login {
 
     public String getDateTime() {
         return DateTime;
+    }
+
+    public String getRoute_id() {
+        return route_id;
     }
 }

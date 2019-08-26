@@ -26,11 +26,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE FACULTY( faculty_id VARCHAR PRIMARY KEY NOT NULL, name VARCHAR NOT NULL, department VARCHAR NOT NULL, college VARCHAR NOT NULL)");
-        db.execSQL("CREATE TABLE STAFF ( staff_id VARCHAR PRIMARY KEY NOT NULL, last_login TEXT, route_id INTEGER, token VARCHAR)");
+        db.execSQL("CREATE TABLE USER ( user_id VARCHAR PRIMARY KEY NOT NULL, last_login TEXT, route_id INTEGER, token VARCHAR)");
         db.execSQL("CREATE TABLE ROUTE( route_id INTEGER PRIMARY KEY NOT NULL, description VARCHAR)");
         db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, route_id INTEGER, building_name VARCHAR NOT NULL, room_order VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, half_day INTEGER NOT NULL, hours FLOAT NOT NULL)");
-        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
+        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR,salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
         db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, reason VARCHAR, electronic_signature VARCHAR, remarks VARCHAR)");
         db.execSQL("CREATE TABLE ABSENCE_APPEAL( absence_appeal_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_id VARCHAR NOT NULL, staff_id VARCHAR, chairperson_id VARCHAR, absence_appeal_reason VARCHAR, validated INTEGER, remarks INTEGER)");
     }
@@ -43,25 +43,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean loginStaff(String username, String token, String last_login){
+    public boolean loginStaff(String username, String token, String last_login, String route_id){
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put("staff_id", username);
+        contentValues.put("user_id", username);
         contentValues.put("last_login", last_login);
-        contentValues.put("route_id","null");
+        contentValues.put("route_id",route_id);
         contentValues.put("token", token);
 
         long result;
 
         if(isUserRecorded(username)){
-            result = writeDB.update("STAFF", contentValues, "staff_id = " + username,null);
+            result = writeDB.update("USER", contentValues, "user_id = " + username,null);
 
             if(result == -1){
                 return false;
             }
 
         }else{
-            result = writeDB.insert("STAFF",null,contentValues);
+            result = writeDB.insert("USER",null,contentValues);
         }
 
         if(result == -1)
@@ -75,17 +75,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList getUserCredentials(){
         ArrayList<String> arrayList = new ArrayList<String>();
 
-        Cursor res = readDB.rawQuery("select staff_id, token from STAFF",null);
+        Cursor res = readDB.rawQuery("select user_id, token, route_id from USER",null);
 
         res.moveToLast();
         arrayList.add(res.getString(0));
         arrayList.add(res.getString(1));
+        arrayList.add(res.getString(2));
 
         return arrayList;
     }
 
-    public boolean isUserRecorded(String staff_id){
-        Cursor res = readDB.rawQuery("select staff_id from staff where staff_id =" + staff_id, null);
+    public boolean isUserRecorded(String user_id){
+        Cursor res = readDB.rawQuery("select user_id from user where user_id =" + user_id, null);
 
 
         if(res.getCount() == 0)
@@ -252,7 +253,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put("attendance_date", MainActivity.getCurrentDate());
                 contentValues.put("first_check", "");
                 contentValues.put("second_check", "");
-                contentValues.put("image_file", "null");
+                contentValues.put("first_image_file", "null");
+                contentValues.put("second_image_file", "null");
                 contentValues.put("salary_deduction", "null");
                 contentValues.put("status", "null");
                 contentValues.put("synchronized", "0");
@@ -266,7 +268,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean isAttendanceDuplicated(String class_schedule_id){
+    public boolean isAttendanceDuplicated(String class_schedule_id){ // checks the local database for duplicates using the current date and attendance_id
         Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where class_schedule_id = '" + class_schedule_id + "' and attendance_date = '" + MainActivity.getCurrentDate() + "'",null);
         int count = res.getCount();
 
