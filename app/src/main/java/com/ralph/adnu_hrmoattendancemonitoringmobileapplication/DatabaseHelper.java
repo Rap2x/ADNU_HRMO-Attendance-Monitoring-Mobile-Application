@@ -40,6 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         //db.execSQL("DROP TABLE IF EXISTS  FACULTY");
         //db.execSQL("DROP TABLE IF EXISTS STAFF");
+        db.execSQL("DROP TABLE IF EXISTS USER");
         onCreate(db);
     }
 
@@ -236,7 +237,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return randomString;
     }
 
-    public void createAttendance(){
+    public void createAttendance() {
         ArrayList<String> classScheduleId = getSchedule();
         ContentValues contentValues = new ContentValues();
         String faculty_attendance_id;
@@ -254,7 +255,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put("second_check", "");
                 contentValues.put("first_image_file", "null");
                 contentValues.put("second_image_file", "null");
-                contentValues.put("salary_deduction", "null");
+                contentValues.put("salary_deduction", "");
                 contentValues.put("status", "null");
                 contentValues.put("synchronized", "0");
 
@@ -295,10 +296,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public Cursor getFacultyAttendance(){
+    public Cursor getAttendanceList(){
 
         Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = class_schedule.room_id INNER JOIN route on route.route_id = room.route_id where attendance_date = '" + MainActivity.getCurrentDate()+ "' AND class_schedule.start_time <= '" + MainActivity.getCurrentTime()+ "' AND class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' AND route.route_id = '" + MainActivity.userRoute + "' ORDER BY room.room_order ASC",null);
         return res;
+    }
+
+    public Cursor getFacultyAttendance(){
+
+        Cursor res = readDB.rawQuery("select * from faculty_attendance where synchronized = '0' and first_check != '' and second_check != ''", null);
+        return res;
+    }
+
+    public boolean changeSync(String faid){
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("synchronized", 1);
+
+        long result;
+
+        result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + faid + "'", null);
+
+        if(result == -1)
+            return false;
+        else
+            return true;
     }
 
     public boolean checkFirstAttendance(String id, String time){

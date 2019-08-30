@@ -3,6 +3,7 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,10 +18,14 @@ import android.support.v7.widget.Toolbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,6 +41,7 @@ public class AttendanceList extends AppCompatActivity {
     private AttendanceAdapter adapter;
 
     private List<AttendanceListItem> listItems;
+    private List<FacultyAttendance> attendanceItems;
 
     private AhcfamsApi ahcfamsApi;
 
@@ -85,6 +91,9 @@ public class AttendanceList extends AppCompatActivity {
                 updateRoom();
                 updateClassSchedule();
                 break;
+            case R.id.upload_faculty_attendance:
+                uploadFacultyAttendance();
+                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -104,7 +113,7 @@ public class AttendanceList extends AppCompatActivity {
 
         listItems = new ArrayList<>();
 
-        Cursor attendanceData = MainActivity.myDB.getFacultyAttendance();
+        Cursor attendanceData = MainActivity.myDB.getAttendanceList();
 
         attendanceData.moveToFirst();
 
@@ -291,6 +300,77 @@ public class AttendanceList extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    private void uploadFacultyAttendance(){
+        attendanceItems = new ArrayList<>();
+
+        final Cursor facultyAttendance = MainActivity.myDB.getFacultyAttendance();
+
+        facultyAttendance.moveToFirst();
+
+        for (int i = 0; i < facultyAttendance.getCount(); i++){
+            File file1 = new File(facultyAttendance.getString(6));
+            File file2 = new File(facultyAttendance.getString(7));
+            RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), "");
+            RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), "");
+
+            MultipartBody.Part firstImage = MultipartBody.Part.createFormData("fipath", "", fileReqBody1);
+            MultipartBody.Part secondImage = MultipartBody.Part.createFormData("sipath", "", fileReqBody2);
+
+            RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
+            RequestBody token = RequestBody.create(MediaType.parse("text/plain"), userToken);
+            RequestBody faid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(0));
+            RequestBody sid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(1));
+            RequestBody csid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(2));
+            RequestBody adate = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(3));
+            RequestBody fcheck = null;
+            if(isEmpty(facultyAttendance.getString(4))){
+                fcheck = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(4));
+                Toast.makeText(getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
+            }else if(facultyAttendance.getString(4) == "Absent"){
+                fcheck = RequestBody.create(MediaType.parse("text/plain"), "");
+            }else{
+                try {
+                    fcheck = RequestBody.create(MediaType.parse("text/plain"), MainActivity.convertTimeToDateTime(facultyAttendance.getString(4)));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            RequestBody scheck = null;
+            if(isEmpty(facultyAttendance.getString(5))){
+                scheck = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(5));
+            }else if(facultyAttendance.getString(5) == "Absent"){
+                scheck = RequestBody.create(MediaType.parse("text/plain"), "");
+            }else{
+                try {
+                    scheck = RequestBody.create(MediaType.parse("text/plain"), MainActivity.convertTimeToDateTime(facultyAttendance.getString(5)));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+            RequestBody sdeduct = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(8));
+            RequestBody status = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(9));
+
+            Call call = ahcfamsApi.faculty_attendance(id, token, faid, sid, csid, adate, fcheck, scheck, firstImage, secondImage, sdeduct, status);
+
+            call.enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) {
+                }
+
+                @Override
+                public void onFailure(Call call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+            //if(MainActivity.myDB.changeSync(facultyAttendance.getString(0))){}
+            if(!facultyAttendance.isLast())
+                facultyAttendance.moveToNext();
+        }
+
+
 
     }
 }

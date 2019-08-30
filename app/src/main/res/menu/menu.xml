@@ -24,4 +24,10 @@ xmlns:app="http://schemas.android.com/apk/res-auto">
         android:title="Update Database"
         app:showAsAction="never">
     </item>
+
+    <item
+        android:id="@+id/upload_faculty_attendance"
+        android:title="Upload Attendance"
+        app:showAsAction="never">
+    </item>
 </menu>

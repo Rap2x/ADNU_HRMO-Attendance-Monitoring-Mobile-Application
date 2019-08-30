@@ -36,7 +36,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     static DatabaseHelper myDB;
 
-    public final static String ip = "192.168.1.11"; //Change this accordingly
+    public final static String ip = "192.168.1.8"; //Change this accordingly
 
     EditText eUsername;
     EditText ePassword;
@@ -50,8 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
     private AhcfamsApi ahcfamsApi;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://" + ip + "/ADNU_HRMO-College-Faculty-Attendance-Monitoring-System/index.php/auth/")
+                .baseUrl("http://" + ip + "/ADNU_HRMO-College-Faculty-Attendance-Monitoring-System/index.php/api/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -80,8 +78,11 @@ public class MainActivity extends AppCompatActivity {
                 login();
             }
         });
-
-        Toast.makeText(getApplicationContext(), getCurrentTime(), Toast.LENGTH_SHORT).show();
+        try {
+            Toast.makeText(getApplicationContext(), convertTimeToDateTime("11:30:00 PM"), Toast.LENGTH_SHORT).show();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addEditTextListener(){
@@ -175,13 +176,22 @@ public class MainActivity extends AppCompatActivity {
         String currentTime = dateFormat.format(calendar.getTime());
 
         return currentTime;
-
     }
 
     public static String getCurrentDate(){
         Calendar calendar = Calendar.getInstance();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
+
+        String currentDate = dateFormat.format(calendar.getTime());
+
+        return currentDate;
+    }
+
+    public static String getCurrentDateDash(){
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 
         String currentDate = dateFormat.format(calendar.getTime());
 
@@ -221,6 +231,19 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat parseFormat = new SimpleDateFormat("HH:mm:ss");
             Date date = parseFormat.parse(time);
             return displayFormat.format(date);
+        }
+    }
+
+    public static String convertTimeToDateTime(String time) throws ParseException {
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            String result = LocalTime.parse(time, DateTimeFormatter.ofPattern("hh:mm:ss a", Locale.US)).format(DateTimeFormatter.ofPattern("hh.mm.ss a"));
+            return getCurrentDate() + " " + result;
+        }else{
+            SimpleDateFormat displayFormat = new SimpleDateFormat("hh.mm.ss a");
+            SimpleDateFormat parseFormat = new SimpleDateFormat("hh:mm:ss a");
+            Date date = parseFormat.parse(time);
+            return getCurrentDateDash()+ " " + displayFormat.format(date);
         }
     }
 
