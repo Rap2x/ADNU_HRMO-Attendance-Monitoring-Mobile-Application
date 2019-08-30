@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE ROUTE( route_id INTEGER PRIMARY KEY NOT NULL, description VARCHAR)");
         db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, route_id INTEGER, building_name VARCHAR NOT NULL, room_order VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, half_day INTEGER NOT NULL, hours FLOAT NOT NULL)");
-        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR,salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
+        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
         db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, reason VARCHAR, electronic_signature VARCHAR, remarks VARCHAR)");
         db.execSQL("CREATE TABLE ABSENCE_APPEAL( absence_appeal_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_id VARCHAR NOT NULL, staff_id VARCHAR, chairperson_id VARCHAR, absence_appeal_reason VARCHAR, validated INTEGER, remarks INTEGER)");
     }
@@ -70,7 +70,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
 
     }
-
 
     public ArrayList getUserCredentials(){
         ArrayList<String> arrayList = new ArrayList<String>();
@@ -298,7 +297,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getFacultyAttendance(){
 
-        Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id where attendance_date = '" + MainActivity.getCurrentDate()+ "' AND class_schedule.start_time <= '" + MainActivity.getCurrentTime()+ "' AND class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "'",null);
+        Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = class_schedule.room_id INNER JOIN route on route.route_id = room.route_id where attendance_date = '" + MainActivity.getCurrentDate()+ "' AND class_schedule.start_time <= '" + MainActivity.getCurrentTime()+ "' AND class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' AND route.route_id = '" + MainActivity.userRoute + "' ORDER BY room.room_order ASC",null);
         return res;
     }
 
