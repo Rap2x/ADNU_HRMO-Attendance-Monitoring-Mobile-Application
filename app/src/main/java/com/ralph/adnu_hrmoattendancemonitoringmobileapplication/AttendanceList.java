@@ -332,11 +332,26 @@ public class AttendanceList extends AppCompatActivity {
         for (int i = 0; i < facultyAttendance.getCount(); i++){
             File file1 = new File(facultyAttendance.getString(6));
             File file2 = new File(facultyAttendance.getString(7));
-            RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), file1);
-            RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), file2);
+            MultipartBody.Part firstImage;
+            MultipartBody.Part secondImage;
 
-            MultipartBody.Part firstImage = MultipartBody.Part.createFormData("fipath", file1.getName(), fileReqBody1);
-            MultipartBody.Part secondImage = MultipartBody.Part.createFormData("sipath", file2.getName(), fileReqBody2);
+            if(isEmpty(facultyAttendance.getString(6))){ // checks if there's no image
+                /* Send an empty image*/
+                RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), "");
+
+                firstImage = MultipartBody.Part.createFormData("fipath", "", fileReqBody1);
+            }else{
+                RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), file1);
+                firstImage = MultipartBody.Part.createFormData("fipath", file1.getName(), fileReqBody1);
+            }
+
+            if(isEmpty(facultyAttendance.getString(7))){
+                RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), "");
+                secondImage = MultipartBody.Part.createFormData("sipath", "", fileReqBody2);
+            }else{
+                RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), file2);
+                secondImage = MultipartBody.Part.createFormData("sipath", file2.getName(), fileReqBody2);
+            }
 
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
             RequestBody token = RequestBody.create(MediaType.parse("text/plain"), userToken);
@@ -414,7 +429,6 @@ public class AttendanceList extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
-            galleryAddPic();
             Toast.makeText(getApplicationContext(), "Image Saved", Toast.LENGTH_SHORT).show();
         }
     }

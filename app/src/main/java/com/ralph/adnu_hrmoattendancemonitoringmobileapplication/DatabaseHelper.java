@@ -253,10 +253,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put("attendance_date", MainActivity.getCurrentDate());
                 contentValues.put("first_check", "");
                 contentValues.put("second_check", "");
-                contentValues.put("first_image_file", "null");
-                contentValues.put("second_image_file", "null");
+                contentValues.put("first_image_file", "");
+                contentValues.put("second_image_file", "");
                 contentValues.put("salary_deduction", "");
-                contentValues.put("status", "null");
+                contentValues.put("status", "");
                 contentValues.put("synchronized", "0");
 
             }while(isRecorded(faculty_attendance_id, "faculty_attendance_id", "FACULTY_ATTENDANCE"));
