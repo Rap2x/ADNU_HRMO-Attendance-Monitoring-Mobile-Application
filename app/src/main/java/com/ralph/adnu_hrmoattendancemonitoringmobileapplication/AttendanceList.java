@@ -1,10 +1,16 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,14 +19,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
-import android.support.v7.widget.Toolbar;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -32,6 +41,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static android.os.Environment.getExternalStoragePublicDirectory;
 import static android.text.TextUtils.isEmpty;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
@@ -47,6 +57,9 @@ public class AttendanceList extends AppCompatActivity {
 
     private String userStaffId;
     private String userToken;
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    String currentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,15 +155,21 @@ public class AttendanceList extends AppCompatActivity {
                 if (isEmpty(listItems.get(position).getFirst())){
                     listItems.get(position).setFirst("Absent");
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
-                    if(isUpdated)
+                    if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                        dispatchTakePictureIntent();
+                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file", currentPhotoPath);
+                    }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }else{
                     listItems.get(position).setSecond("Absent");
                     boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
-                    if(isUpdated)
+                    if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                        dispatchTakePictureIntent();
+                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "second_image_file", currentPhotoPath);
+                    }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }
@@ -313,11 +332,11 @@ public class AttendanceList extends AppCompatActivity {
         for (int i = 0; i < facultyAttendance.getCount(); i++){
             File file1 = new File(facultyAttendance.getString(6));
             File file2 = new File(facultyAttendance.getString(7));
-            RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), "");
-            RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), "");
+            RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), file1);
+            RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), file2);
 
-            MultipartBody.Part firstImage = MultipartBody.Part.createFormData("fipath", "", fileReqBody1);
-            MultipartBody.Part secondImage = MultipartBody.Part.createFormData("sipath", "", fileReqBody2);
+            MultipartBody.Part firstImage = MultipartBody.Part.createFormData("fipath", file1.getName(), fileReqBody1);
+            MultipartBody.Part secondImage = MultipartBody.Part.createFormData("sipath", file2.getName(), fileReqBody2);
 
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
             RequestBody token = RequestBody.create(MediaType.parse("text/plain"), userToken);
@@ -330,7 +349,7 @@ public class AttendanceList extends AppCompatActivity {
                 fcheck = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(4));
                 Toast.makeText(getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
             }else if(facultyAttendance.getString(4) == "Absent"){
-                fcheck = RequestBody.create(MediaType.parse("text/plain"), "");
+                fcheck = RequestBody.create(MediaType.parse("text/plain"), "null");
             }else{
                 try {
                     fcheck = RequestBody.create(MediaType.parse("text/plain"), MainActivity.convertTimeToDateTime(facultyAttendance.getString(4)));
@@ -342,7 +361,7 @@ public class AttendanceList extends AppCompatActivity {
             if(isEmpty(facultyAttendance.getString(5))){
                 scheck = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(5));
             }else if(facultyAttendance.getString(5) == "Absent"){
-                scheck = RequestBody.create(MediaType.parse("text/plain"), "");
+                scheck = RequestBody.create(MediaType.parse("text/plain"), "null");
             }else{
                 try {
                     scheck = RequestBody.create(MediaType.parse("text/plain"), MainActivity.convertTimeToDateTime(facultyAttendance.getString(5)));
@@ -373,4 +392,49 @@ public class AttendanceList extends AppCompatActivity {
 
 
     }
+
+    private void dispatchTakePictureIntent(){
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(takePictureIntent.resolveActivity(getPackageManager()) != null){
+            File photoFile = null;
+            try{
+                photoFile = createImageFile();
+            }catch(IOException ex){
+                Toast.makeText(getApplicationContext(), "Image Not Created", Toast.LENGTH_SHORT).show();
+            }
+            if(photoFile != null){
+                Uri photoURI = FileProvider.getUriForFile(AttendanceList.this, "com.ralph.adnu_hrmoattendancemonitoringmobileapplication.fileprovider",photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent,REQUEST_IMAGE_CAPTURE);
+            }else
+                Toast.makeText(getApplicationContext(), "ERROR!!!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
+            galleryAddPic();
+            Toast.makeText(getApplicationContext(), "Image Saved", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private File createImageFile() throws IOException{
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_" ;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void galleryAddPic(){
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(currentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+
 }

@@ -381,5 +381,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    public boolean saveImage(String id, String col,String path){
+        ContentValues contentValues = new ContentValues();
 
+        long result;
+
+        contentValues.put(col, path);
+        result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + id + "'",null);
+
+        if(result == -1){
+            return false;
+        }else{
+            return true;
+        }
+    }
 }
