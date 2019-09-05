@@ -177,6 +177,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
 
     }
+    public boolean updateConfirmationNotice(String confirmation_notice_id, String faculty_attendance_id, String confirmation_notice_date, String reason, String electronic_signature, String remarks){
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("confirmation_notice_id", confirmation_notice_id);
+        contentValues.put("faculty_attendance_id", faculty_attendance_id);
+        contentValues.put("confirmation_notice_date", confirmation_notice_date);
+        contentValues.put("reason", reason);
+        contentValues.put("electronic_signature",electronic_signature);
+        contentValues.put("remarks", remarks);
+
+        long result;
+
+        if(isRecorded(confirmation_notice_id, "confirmation_notice_id", "CONFIRMATION_NOTICE")){
+            result = writeDB.update("CONFIRMATION_NOTICE", contentValues, "confirmation_notice_id = '" + confirmation_notice_id + "'",null);
+            if(result == -1)
+                return false;
+        }else{
+            result = writeDB.insert("CONFIRMATION_NOTICE", null,contentValues);
+        }if(result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    public boolean updateAbsenceAppeal(String absence_appeal_id, String confirmation_notice_id, String staff_id, String chairperson_id, String absence_appeal_reason, String validated, String remarks){
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("absence_appeal_id", absence_appeal_id);
+        contentValues.put("confirmation_notice_id", confirmation_notice_id);
+        contentValues.put("staff_id", staff_id);
+        contentValues.put("chairperson_id", chairperson_id);
+        contentValues.put("absence_appeal_reason",absence_appeal_reason);
+        contentValues.put("validated", validated);
+        contentValues.put("remarks", remarks);
+
+        long result;
+
+        if(isRecorded(confirmation_notice_id, "absence_appeal_id", "ABSENCE_APPEAL")){
+            result = writeDB.update("ABSENCE_APPEAL", contentValues, "absence_appeal_id = '" + absence_appeal_id + "'",null);
+            if(result == -1)
+                return false;
+        }else{
+            result = writeDB.insert("ABSENCE_APPEAL", null,contentValues);
+        }if(result == -1)
+            return false;
+        else
+            return true;
+    }
 
     public boolean updateClassSchedule(String class_schedule_id, String room_id, String faculty_id, String semester, String school_year, String start_time, String end_time, String class_section, String class_day, String subject_code, String half_day, String hours){
         ContentValues contentValues = new ContentValues();

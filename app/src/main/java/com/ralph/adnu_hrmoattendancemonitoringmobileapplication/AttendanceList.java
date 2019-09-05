@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
@@ -107,6 +108,10 @@ public class AttendanceList extends AppCompatActivity {
             case R.id.upload_faculty_attendance:
                 uploadFacultyAttendance();
                 break;
+
+            case R.id.upload_confirmation_absence:
+                updateCofirmationNotice();
+                updateAbsenceAppeal();
 
         }
         return super.onOptionsItemSelected(item);
@@ -310,7 +315,7 @@ public class AttendanceList extends AppCompatActivity {
                     if (isInserted){
                         count += 1;
                     }else
-                        Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Room ERROR", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -450,5 +455,50 @@ public class AttendanceList extends AppCompatActivity {
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
     }
+
+    private void updateCofirmationNotice(){
+        ConfirmationNotice confirmationNotice = new ConfirmationNotice(userStaffId, userToken);
+
+        Call<List<ConfirmationNotice>> call = ahcfamsApi.confirmation_notice(userStaffId,userToken);
+        call.enqueue(new Callback<List<ConfirmationNotice>>() {
+            @Override
+            public void onResponse(Call<List<ConfirmationNotice>> call, Response<List<ConfirmationNotice>> response) {
+                List<ConfirmationNotice> confirmationNotices = response.body();
+                for (ConfirmationNotice confirmationNotice1: confirmationNotices){
+                    boolean isInserted = MainActivity.myDB.updateConfirmationNotice(confirmationNotice1.getCONFIRMATION_NOTICE_ID(), confirmationNotice1.getFACULTY_ATTENDANCE_ID(),confirmationNotice1.getCONFIRMATION_NOTICE_DATE(),confirmationNotice1.getREASON(), confirmationNotice1.getELECTRONIC_SIGNATURE(),confirmationNotice1.getREMARKS());
+                    if(!isInserted)
+                        Toast.makeText(getApplicationContext(), "Confirmation Notice Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ConfirmationNotice>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void updateAbsenceAppeal(){
+        AbsenceAppeal absenceAppeal = new AbsenceAppeal(userStaffId, userToken);
+
+        Call<List<AbsenceAppeal>> call = ahcfamsApi.absence_appeal(userStaffId,userToken);
+        call.enqueue(new Callback<List<AbsenceAppeal>>() {
+            @Override
+            public void onResponse(Call<List<AbsenceAppeal>> call, Response<List<AbsenceAppeal>> response) {
+                List<AbsenceAppeal> absenceAppeals = response.body();
+                for (AbsenceAppeal absenceAppeal1: absenceAppeals){
+                    boolean isInserted = MainActivity.myDB.updateAbsenceAppeal(absenceAppeal1.getABSENCE_APPEAL_ID(), absenceAppeal1.getCONFIRMATION_NOTICE_ID(),absenceAppeal1.getSTAFF_ID(), absenceAppeal1.getCHAIRPERSON_ID(), absenceAppeal1.getABSENCE_APPEAL_REASON(), absenceAppeal1.getVALIDATED(), absenceAppeal1.getREMARKS());
+                    if(!isInserted)
+                        Toast.makeText(getApplicationContext(), "Confirmation Notice Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<AbsenceAppeal>> call, Throwable t) {
+
+            }
+        });
+    }
+
 
 }

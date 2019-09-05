@@ -64,4 +64,18 @@ public interface AhcfamsApi {
             @Part("sdeduct")RequestBody sdeduct,
             @Part("status")RequestBody status
             );
+
+    @FormUrlEncoded
+    @POST("absence_appeal")
+    Call<List<AbsenceAppeal>> absence_appeal(
+            @Field("id") String id,
+            @Field("token") String token
+    );
+
+    @FormUrlEncoded
+    @POST("confirmation_notice")
+    Call<List<ConfirmationNotice>> confirmation_notice(
+            @Field("id") String id,
+            @Field("token") String token
+    );
 }
