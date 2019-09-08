@@ -8,8 +8,9 @@ public class AttendanceListItem {
     private String facultyAttendance_Id;
     private String first;
     private String second;
+    private String faculty_id;
 
-    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second) {
+    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id) {
         this.name = name;
         this.subjectCode = subjectCode;
         this.roomNumber = roomNumber;
@@ -17,6 +18,7 @@ public class AttendanceListItem {
         this.facultyAttendance_Id = facultyAttendance_Id;
         this.first = first;
         this.second = second;
+        this.faculty_id = faculty_id;
     }
 
     public String getName() {
@@ -53,5 +55,9 @@ public class AttendanceListItem {
 
     public void setSecond(String secondTime) {
         second = secondTime;
+    }
+
+    public String getFaculty_id() {
+        return faculty_id;
     }
 }

@@ -17,7 +17,7 @@
         android:theme="@style/AppTheme">
         <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.ConfirmationSlip"></activity>
         <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.activity_absent" />
-        <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.ActivityAttendance" />
+        <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.ConfirmationNoticeList" />
         <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.AttendanceList" />
         <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.MainActivity">
             <intent-filter>

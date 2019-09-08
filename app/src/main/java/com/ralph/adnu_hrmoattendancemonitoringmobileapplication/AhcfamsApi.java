@@ -49,7 +49,7 @@ public interface AhcfamsApi {
     );
 
     @Multipart
-    @POST("faculty_attendance")
+    @POST("post_faculty_attendance")
     Call<FacultyAttendance> faculty_attendance(
             @Part("id")RequestBody id,
             @Part("token")RequestBody token,
@@ -64,6 +64,13 @@ public interface AhcfamsApi {
             @Part("sdeduct")RequestBody sdeduct,
             @Part("status")RequestBody status
             );
+
+    @FormUrlEncoded
+    @POST("get_faculty_attendance")
+    Call<List<FacultyAttendance>> faculty_attendance(
+            @Field("id") String id,
+            @Field("token") String token
+    );
 
     @FormUrlEncoded
     @POST("absence_appeal")

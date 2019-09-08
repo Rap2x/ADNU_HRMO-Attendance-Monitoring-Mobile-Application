@@ -177,6 +177,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
 
     }
+
     public boolean updateConfirmationNotice(String confirmation_notice_id, String faculty_attendance_id, String confirmation_notice_date, String reason, String electronic_signature, String remarks){
         ContentValues contentValues = new ContentValues();
 
@@ -346,7 +347,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAttendanceList(){
 
-        Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = class_schedule.room_id INNER JOIN route on route.route_id = room.route_id where attendance_date = '" + MainActivity.getCurrentDate()+ "' AND class_schedule.start_time <= '" + MainActivity.getCurrentTime()+ "' AND class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' AND route.route_id = '" + MainActivity.userRoute + "' ORDER BY room.room_order ASC",null);
+        Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check, faculty.faculty_id FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = class_schedule.room_id INNER JOIN route on route.route_id = room.route_id where attendance_date = '" + MainActivity.getCurrentDate()+ "' AND class_schedule.start_time <= '" + MainActivity.getCurrentTime()+ "' AND class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' AND route.route_id = '" + MainActivity.userRoute + "' ORDER BY room.room_order ASC",null);
         return res;
     }
 
@@ -436,6 +437,49 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         contentValues.put(col, path);
         result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + id + "'",null);
+
+        if(result == -1){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    public Cursor getConfirmationNotice(String faculty_id){
+        Cursor res = readDB.rawQuery("SELECT confirmation_notice.confirmation_notice_id, faculty.faculty_id, faculty.name, class_schedule.subject_code, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time FROM faculty INNER JOIN class_schedule ON faculty.faculty_id = class_schedule.faculty_id INNER JOIN faculty_attendance ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN confirmation_notice ON confirmation_notice.faculty_attendance_id = faculty_attendance.faculty_attendance_id WHERE faculty.faculty_id = '" + faculty_id + "'",null);
+        res.moveToFirst();
+        return res;
+    }
+
+    public Cursor getFacultyDetails(String faculty_id){
+        Cursor res = readDB.rawQuery("select * from faculty where faculty_id = '" + faculty_id + "'", null);
+        res.moveToLast();
+        return res;
+    }
+
+    public boolean updateFacultyAttendance(String faculty_attendance_id, String staff_id, String class_schedule_id, String attendance_date, String first_check, String second_check, String first_image_file, String second_image_file, String salary_deduction , String status){
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("faculty_attendance_id", faculty_attendance_id);
+        contentValues.put("staff_id", staff_id);
+        contentValues.put("class_schedule_id", class_schedule_id);
+        contentValues.put("attendance_date", attendance_date);
+        contentValues.put("first_check", first_check);
+        contentValues.put("second_check", second_check);
+        contentValues.put("first_image_file", first_image_file);
+        contentValues.put("second_image_file", second_image_file);
+        contentValues.put("salary_deduction", salary_deduction);
+        contentValues.put("status", status);
+        contentValues.put("synchronized", "1");
+
+        long result;
+
+        if(isRecorded(faculty_attendance_id, "faculty_attendance_id", "faculty_attendance")){
+            result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + faculty_attendance_id + "'",null);
+            if(result == -1)
+                return false;
+        }else
+            result = writeDB.insert("FACULTY_ATTENDANCE", null, contentValues);
 
         if(result == -1){
             return false;

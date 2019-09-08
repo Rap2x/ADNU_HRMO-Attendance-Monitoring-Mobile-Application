@@ -14,6 +14,20 @@ public class FacultyAttendance {
     private String sdeduct;
     private String status;
 
+    private String FACULTY_ATTENDANCE_ID;
+    private String STAFF_ID;
+    private String CLASS_SCHEDULE_ID;
+    private String ATTENDANCE_DATE;
+    private String FIRST_CHECK;
+    private String SECOND_CHECK;
+    private String FIRST_IMAGE_FILE;
+    private String SECOND_IMAGE_FILE;
+    private String SALARY_DEDUCTION;
+    private String STATUS;
+    private String NOTIFIED;
+
+
+
     public FacultyAttendance(String id, String token, String faid, String sid, String csid, String adate, String fcheck, String scheck, String fipath, String sipath, String sdeduct, String status) {
         this.id = id;
         this.token = token;
@@ -27,6 +41,11 @@ public class FacultyAttendance {
         this.sipath = sipath;
         this.sdeduct = sdeduct;
         this.status = status;
+    }
+
+    public FacultyAttendance(String id, String token) {
+        this.id = id;
+        this.token = token;
     }
 
     public void setFaid(String faid) {
@@ -115,5 +134,50 @@ public class FacultyAttendance {
 
     public String getStatus() {
         return status;
+    }
+
+
+    public String getFACULTY_ATTENDANCE_ID() {
+        return FACULTY_ATTENDANCE_ID;
+    }
+
+    public String getSTAFF_ID() {
+        return STAFF_ID;
+    }
+
+    public String getCLASS_SCHEDULE_ID() {
+        return CLASS_SCHEDULE_ID;
+    }
+
+    public String getATTENDANCE_DATE() {
+        return ATTENDANCE_DATE;
+    }
+
+    public String getFIRST_CHECK() {
+        return FIRST_CHECK;
+    }
+
+    public String getSECOND_CHECK() {
+        return SECOND_CHECK;
+    }
+
+    public String getFIRST_IMAGE_FILE() {
+        return FIRST_IMAGE_FILE;
+    }
+
+    public String getSECOND_IMAGE_FILE() {
+        return SECOND_IMAGE_FILE;
+    }
+
+    public String getSALARY_DEDUCTION() {
+        return SALARY_DEDUCTION;
+    }
+
+    public String getSTATUS() {
+        return STATUS;
+    }
+
+    public String getNOTIFIED() {
+        return NOTIFIED;
     }
 }
