@@ -16,6 +16,14 @@ public class ConfirmationNotice {
         this.token = token;
     }
 
+    public ConfirmationNotice(String id, String token, String CONFIRMATION_NOTICE_ID, String ELECTRONIC_SIGNATURE, String REMARKS) {
+        this.id = id;
+        this.token = token;
+        this.CONFIRMATION_NOTICE_ID = CONFIRMATION_NOTICE_ID;
+        this.ELECTRONIC_SIGNATURE = ELECTRONIC_SIGNATURE;
+        this.REMARKS = REMARKS;
+    }
+
     public String getId() {
         return id;
     }

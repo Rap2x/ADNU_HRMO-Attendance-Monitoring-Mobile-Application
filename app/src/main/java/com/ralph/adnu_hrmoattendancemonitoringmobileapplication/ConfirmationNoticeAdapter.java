@@ -14,6 +14,16 @@ public class ConfirmationNoticeAdapter extends RecyclerView.Adapter<Confirmation
     private List<ConfirmationNoticeListItem> listItems;
     private Context context;
 
+    private OnItemClickListener mlistener;
+
+    public interface OnItemClickListener{
+        void onItemClick(int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        mlistener = listener;
+    }
+
     public ConfirmationNoticeAdapter(List<ConfirmationNoticeListItem> listItems, Context context) {
         this.listItems = listItems;
         this.context = context;
@@ -24,7 +34,7 @@ public class ConfirmationNoticeAdapter extends RecyclerView.Adapter<Confirmation
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.confirmation_notice_list_item,parent,false);
 
-        return new ViewHolder(v);
+        return new ViewHolder(v,mlistener);
     }
 
     @Override
@@ -41,15 +51,29 @@ public class ConfirmationNoticeAdapter extends RecyclerView.Adapter<Confirmation
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
+        public TextView title;
         public TextView subjectCode;
         public TextView time;
 
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
 
+            title = (TextView) itemView.findViewById(R.id.confirmation_notice_title);
             subjectCode = (TextView) itemView.findViewById(R.id.subject_code);
             time = (TextView) itemView.findViewById(R.id.time);
+
+            title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listener.onItemClick(position);
+                        }
+                    }
+                }
+            });
         }
     }
 }

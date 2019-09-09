@@ -23,7 +23,7 @@ public class ConfirmationNoticeList extends AppCompatActivity {
     private TextView college;
 
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    private ConfirmationNoticeAdapter adapter;
 
     private List<ConfirmationNoticeListItem> listItems;
 
@@ -38,14 +38,14 @@ public class ConfirmationNoticeList extends AppCompatActivity {
         department = findViewById(R.id.department);
         college = findViewById(R.id.college);
 
-        String faculty_id = getIntent().getStringExtra("faculty_id");
+        final String faculty_id = getIntent().getStringExtra("faculty_id");
         Cursor facultyDetails = MainActivity.myDB.getFacultyDetails(faculty_id);
 
         fullName.setText("Name: " + facultyDetails.getString(1));
         department.setText("Department: " + facultyDetails.getString(2));
         college.setText("College: " + facultyDetails.getString(3));
 
-        Cursor confirmationNoticeData = MainActivity.myDB.getConfirmationNotice(faculty_id);
+        Cursor confirmationNoticeData = MainActivity.myDB.getAllConfirmationNoticeOfAFaculty(faculty_id);
         confirmationNoticeData.moveToFirst();
 
         recyclerView = (RecyclerView) findViewById(R.id.confirmation_notice_list_recyclerview);
@@ -54,15 +54,12 @@ public class ConfirmationNoticeList extends AppCompatActivity {
 
         listItems = new ArrayList<>();
 
-        Integer count = confirmationNoticeData.getCount();
-        Toast.makeText(getApplicationContext(), count.toString(), Toast.LENGTH_SHORT).show();
-
         for(int i = 0; i < confirmationNoticeData.getCount(); i++){
             ConfirmationNoticeListItem listItem = new ConfirmationNoticeListItem(
                     confirmationNoticeData.getString(0),
                     confirmationNoticeData.getString(1),
                     confirmationNoticeData.getString(2),
-                    confirmationNoticeData.getString(3),
+                    confirmationNoticeData.getString(3)+ "." + confirmationNoticeData.getString(5),
                     confirmationNoticeData.getString(4)
             );
             listItems.add(listItem);
@@ -70,6 +67,17 @@ public class ConfirmationNoticeList extends AppCompatActivity {
 
         adapter = new ConfirmationNoticeAdapter(listItems,this);
         recyclerView.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(new ConfirmationNoticeAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(getBaseContext(), Signature.class);
+                String confirmationNoticeId = listItems.get(position).getConfirmationNoticeId();
+                intent.putExtra("faculty_id", faculty_id);
+                intent.putExtra("confirmation_notice_id", confirmationNoticeId);
+                startActivity(intent);
+            }
+        });
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

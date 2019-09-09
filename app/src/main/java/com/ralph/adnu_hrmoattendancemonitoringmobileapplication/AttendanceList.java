@@ -65,7 +65,7 @@ public class AttendanceList extends AppCompatActivity {
         android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
 
-        ArrayList userCredential = MainActivity.myDB.getUserCredentials();
+        ArrayList<String> userCredential = MainActivity.myDB.getUserCredentials();
         userStaffId = userCredential.get(0).toString();
         userToken = userCredential.get(1).toString();
 
@@ -106,7 +106,10 @@ public class AttendanceList extends AppCompatActivity {
                 uploadFacultyAttendance();
                 break;
             case R.id.update_confirmation_notice:
-                updateCofirmationNotice();
+                updateConfirmationNotice();
+            case R.id.upload_confirmation_notice:
+                uploadConfirmationNotice();
+
 
         }
         return super.onOptionsItemSelected(item);
@@ -461,7 +464,7 @@ public class AttendanceList extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
-    private void updateCofirmationNotice(){
+    private void updateConfirmationNotice(){
         ConfirmationNotice confirmationNotice = new ConfirmationNotice(userStaffId, userToken);
 
         Call<List<ConfirmationNotice>> call = ahcfamsApi.confirmation_notice(userStaffId,userToken);
@@ -527,5 +530,54 @@ public class AttendanceList extends AppCompatActivity {
 
             }
         });
+    }
+
+    public void uploadConfirmationNotice(){
+        List<ConfirmationNotice> confirmationNoticeItems = new ArrayList<>();
+
+        final Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
+        confirmationNotice.moveToFirst();
+
+        Integer count = confirmationNotice.getCount();
+
+        Toast.makeText(getApplicationContext(), count.toString(), Toast.LENGTH_SHORT).show();
+
+        for(int i = 0; i < confirmationNotice.getCount(); i++){
+            File file = new File(confirmationNotice.getString(4));
+            MultipartBody.Part signature;
+
+            if(isEmpty(confirmationNotice.getString(4))){
+                RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"),"");
+
+                signature = MultipartBody.Part.createFormData("spath", "", fileReqBody);
+            }else{
+                RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
+                signature = MultipartBody.Part.createFormData("spath", file.getName(), fileReqBody);
+            }
+
+            RequestBody id = RequestBody.create(MediaType.parse("text/plain"),MainActivity.userStaffId);
+            RequestBody token = RequestBody.create(MediaType.parse("text/plain"),MainActivity.userToken);
+            RequestBody cid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
+            RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(5));
+
+            Call call = ahcfamsApi.confirmation_notice(id, token, cid, remarks, signature);
+            call.enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) {
+                    //change the synchronized to 1
+                }
+
+                @Override
+                public void onFailure(Call call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            if(!confirmationNotice.isLast()){
+                confirmationNotice.moveToNext();
+            }
+        }
+
+
     }
 }

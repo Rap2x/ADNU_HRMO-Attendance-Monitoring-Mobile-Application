@@ -23,7 +23,7 @@
                 >
 
                 <TextView
-                    android:id="@+id/textView5"
+                    android:id="@+id/confirmation_notice_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Confirmation Notice"
@@ -36,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:text="Subject Code"
-                    app:layout_constraintStart_toEndOf="@+id/textView5"
+                    app:layout_constraintStart_toEndOf="@+id/confirmation_notice_title"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView

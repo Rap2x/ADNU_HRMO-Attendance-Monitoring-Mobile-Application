@@ -2,12 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ralph.adnu_hrmoattendancemonitoringmobileapplication">
 
-    <!-- ADD OTHER PERMISSIONS HERE-->
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,17 +9,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.ConfirmationSlip"></activity>
-        <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.activity_absent" />
-        <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.ConfirmationNoticeList" />
-        <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.AttendanceList" />
-        <activity android:name="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.MainActivity">
+        <activity android:name=".AbsenceAppealActivity"></activity>
+        <activity android:name=".Signature" />
+        <activity android:name=".ConfirmationSlip" />
+        <activity android:name=".activity_absent" />
+        <activity android:name=".ConfirmationNoticeList" />
+        <activity android:name=".AttendanceList" />
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.ralph.adnu_hrmoattendancemonitoringmobileapplication.fileprovider"
@@ -33,8 +30,12 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
 
 </manifest>

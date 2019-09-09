@@ -65,6 +65,16 @@ public interface AhcfamsApi {
             @Part("status")RequestBody status
             );
 
+    @Multipart
+    @POST("post_confirmation_notice")
+    Call<ConfirmationNotice> confirmation_notice(
+            @Part("id")RequestBody id,
+            @Part("token")RequestBody token,
+            @Part("cid")RequestBody cid,
+            @Part("remarks")RequestBody remarks,
+            @Part MultipartBody.Part spath
+    );
+
     @FormUrlEncoded
     @POST("get_faculty_attendance")
     Call<List<FacultyAttendance>> faculty_attendance(
