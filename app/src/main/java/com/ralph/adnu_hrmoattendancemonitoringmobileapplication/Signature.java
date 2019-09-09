@@ -176,7 +176,7 @@ public class Signature extends AppCompatActivity {
 
         try{
             fos = new FileOutputStream(image);
-            bitMapImage.compress(Bitmap.CompressFormat.JPEG, 50, fos);
+            bitMapImage.compress(Bitmap.CompressFormat.JPEG, 10, fos);
 
         }catch(Exception e){
             e.printStackTrace();

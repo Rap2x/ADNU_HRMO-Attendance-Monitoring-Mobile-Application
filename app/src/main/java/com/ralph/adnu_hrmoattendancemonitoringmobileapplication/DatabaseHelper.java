@@ -31,7 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, route_id INTEGER, building_name VARCHAR NOT NULL, room_order VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, half_day INTEGER NOT NULL, hours FLOAT NOT NULL)");
         db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
-        db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, reason VARCHAR, electronic_signature VARCHAR, remarks VARCHAR, synchronized)");
+        db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, electronic_signature VARCHAR, remarks VARCHAR, synchronized)");
         db.execSQL("CREATE TABLE ABSENCE_APPEAL( absence_appeal_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_id VARCHAR NOT NULL, staff_id VARCHAR, chairperson_id VARCHAR, absence_appeal_reason VARCHAR, validated INTEGER, remarks INTEGER)");
     }
 
@@ -178,13 +178,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean updateConfirmationNotice(String confirmation_notice_id, String faculty_attendance_id, String confirmation_notice_date, String reason, String electronic_signature, String remarks){
+    public boolean updateConfirmationNotice(String confirmation_notice_id, String faculty_attendance_id, String confirmation_notice_date, String electronic_signature, String remarks){
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("confirmation_notice_id", confirmation_notice_id);
         contentValues.put("faculty_attendance_id", faculty_attendance_id);
         contentValues.put("confirmation_notice_date", confirmation_notice_date);
-        contentValues.put("reason", reason);
         contentValues.put("electronic_signature",electronic_signature);
         contentValues.put("remarks", remarks);
         contentValues.put("synchronized", 0);

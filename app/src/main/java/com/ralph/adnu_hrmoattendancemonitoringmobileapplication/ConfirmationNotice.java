@@ -7,7 +7,6 @@ public class ConfirmationNotice {
     private String CONFIRMATION_NOTICE_ID;
     private String FACULTY_ATTENDANCE_ID;
     private String CONFIRMATION_NOTICE_DATE;
-    private String REASON;
     private String ELECTRONIC_SIGNATURE;
     private String REMARKS;
 
@@ -42,10 +41,6 @@ public class ConfirmationNotice {
 
     public String getCONFIRMATION_NOTICE_DATE() {
         return CONFIRMATION_NOTICE_DATE;
-    }
-
-    public String getREASON() {
-        return REASON;
     }
 
     public String getELECTRONIC_SIGNATURE() {

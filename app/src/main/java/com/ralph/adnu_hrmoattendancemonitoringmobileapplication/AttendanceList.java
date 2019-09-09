@@ -473,7 +473,7 @@ public class AttendanceList extends AppCompatActivity {
             public void onResponse(Call<List<ConfirmationNotice>> call, Response<List<ConfirmationNotice>> response) {
                 List<ConfirmationNotice> confirmationNotices = response.body();
                 for (ConfirmationNotice confirmationNotice1: confirmationNotices){
-                    boolean isInserted = MainActivity.myDB.updateConfirmationNotice(confirmationNotice1.getCONFIRMATION_NOTICE_ID(), confirmationNotice1.getFACULTY_ATTENDANCE_ID(),confirmationNotice1.getCONFIRMATION_NOTICE_DATE(),confirmationNotice1.getREASON(), confirmationNotice1.getELECTRONIC_SIGNATURE(),confirmationNotice1.getREMARKS());
+                    boolean isInserted = MainActivity.myDB.updateConfirmationNotice(confirmationNotice1.getCONFIRMATION_NOTICE_ID(), confirmationNotice1.getFACULTY_ATTENDANCE_ID(),confirmationNotice1.getCONFIRMATION_NOTICE_DATE(), confirmationNotice1.getELECTRONIC_SIGNATURE(),confirmationNotice1.getREMARKS());
                     if(!isInserted)
                         Toast.makeText(getApplicationContext(), "Confirmation Notice Error", Toast.LENGTH_SHORT).show();
                     else
@@ -543,10 +543,10 @@ public class AttendanceList extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), count.toString(), Toast.LENGTH_SHORT).show();
 
         for(int i = 0; i < confirmationNotice.getCount(); i++){
-            File file = new File(confirmationNotice.getString(4));
+            File file = new File(confirmationNotice.getString(3));
             MultipartBody.Part signature;
 
-            if(isEmpty(confirmationNotice.getString(4))){
+            if(isEmpty(confirmationNotice.getString(3))){
                 RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"),"");
 
                 signature = MultipartBody.Part.createFormData("spath", "", fileReqBody);
@@ -558,7 +558,7 @@ public class AttendanceList extends AppCompatActivity {
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"),MainActivity.userStaffId);
             RequestBody token = RequestBody.create(MediaType.parse("text/plain"),MainActivity.userToken);
             RequestBody cid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
-            RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(5));
+            RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(4));
 
             Call call = ahcfamsApi.confirmation_notice(id, token, cid, remarks, signature);
             call.enqueue(new Callback() {
