@@ -95,4 +95,18 @@ public interface AhcfamsApi {
             @Field("id") String id,
             @Field("token") String token
     );
+
+    @FormUrlEncoded
+    @POST("post_absence_appeal")
+    Call<AbsenceAppeal> absence_appeal(
+            @Field("id") String id,
+            @Field("token") String token,
+            @Field("aid") String aid,
+            @Field("cid") String cid,
+            @Field("staff_id") String staff_id,
+            @Field("chair_id") String chair_id,
+            @Field("absence_reason") String absence_reason,
+            @Field("validated") String validated,
+            @Field("remarks") String remarks
+    );
 }

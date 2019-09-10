@@ -27,25 +27,59 @@ public class ConfirmationNoticeList extends AppCompatActivity {
 
     private List<ConfirmationNoticeListItem> listItems;
 
+    private String faculty_id = null;
+
+    private Cursor confirmationNoticeData = null;
+    private Cursor facultyDetails = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirmation_notice_list);
+
+        createOptionMenu();
+
+        showConfirmationNoticeList();
+
+        showFacultyDetails();
+
+        onClickListener();
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void createOptionMenu(){
         android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
+    }
 
-        fullName = findViewById(R.id.name);
-        department = findViewById(R.id.department);
-        college = findViewById(R.id.college);
+    private void onClickListener(){
+        adapter.setOnItemClickListener(new ConfirmationNoticeAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(getBaseContext(), Signature.class);
+                String confirmationNoticeId = listItems.get(position).getConfirmationNoticeId();
+                intent.putExtra("faculty_id", faculty_id);
+                intent.putExtra("confirmation_notice_id", confirmationNoticeId);
+                startActivity(intent);
+            }
+        });
+    }
 
-        final String faculty_id = getIntent().getStringExtra("faculty_id");
-        Cursor facultyDetails = MainActivity.myDB.getFacultyDetails(faculty_id);
+    private void showConfirmationNoticeList(){ //Call this function before showFacultyDetails()
+        faculty_id = getIntent().getStringExtra("faculty_id");
+        facultyDetails = MainActivity.myDB.getFacultyDetails(faculty_id);
 
-        fullName.setText("Name: " + facultyDetails.getString(1));
-        department.setText("Department: " + facultyDetails.getString(2));
-        college.setText("College: " + facultyDetails.getString(3));
-
-        Cursor confirmationNoticeData = MainActivity.myDB.getAllConfirmationNoticeOfAFaculty(faculty_id);
+        confirmationNoticeData = MainActivity.myDB.getAllConfirmationNoticeOfAFaculty(faculty_id);
         confirmationNoticeData.moveToFirst();
 
         recyclerView = (RecyclerView) findViewById(R.id.confirmation_notice_list_recyclerview);
@@ -67,27 +101,15 @@ public class ConfirmationNoticeList extends AppCompatActivity {
 
         adapter = new ConfirmationNoticeAdapter(listItems,this);
         recyclerView.setAdapter(adapter);
-
-        adapter.setOnItemClickListener(new ConfirmationNoticeAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                Intent intent = new Intent(getBaseContext(), Signature.class);
-                String confirmationNoticeId = listItems.get(position).getConfirmationNoticeId();
-                intent.putExtra("faculty_id", faculty_id);
-                intent.putExtra("confirmation_notice_id", confirmationNoticeId);
-                startActivity(intent);
-            }
-        });
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu,menu);
-        return super.onCreateOptionsMenu(menu);
+    private void showFacultyDetails(){
+        fullName = findViewById(R.id.name);
+        department = findViewById(R.id.department);
+        college = findViewById(R.id.college);
+
+        fullName.setText("Name: " + facultyDetails.getString(1));
+        department.setText("Department: " + facultyDetails.getString(2));
+        college.setText("College: " + facultyDetails.getString(3));
     }
 }

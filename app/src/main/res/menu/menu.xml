@@ -32,12 +32,6 @@ xmlns:app="http://schemas.android.com/apk/res-auto">
     </item>
 
     <item
-        android:id="@+id/update_confirmation_notice"
-        android:title="Update Confirmation Notice"
-        app:showAsAction="never">
-    </item>
-
-    <item
         android:id="@+id/upload_confirmation_notice"
         android:title="Upload Confirmation Notice"
         app:showAsAction="never">

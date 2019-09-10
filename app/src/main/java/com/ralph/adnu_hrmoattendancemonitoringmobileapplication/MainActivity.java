@@ -61,10 +61,35 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        requestPermission();
+
+        createRetrofitClient();
+
+        onClickListener();
+    }
+
+    private void onClickListener(){
+        final Button signIn = findViewById(R.id.SignIn);
+        signIn.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                login();
+            }
+        });
+        try {
+            Toast.makeText(getApplicationContext(), convertTimeToDateTime("11:30:00 PM"), Toast.LENGTH_SHORT).show();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void requestPermission(){
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_DENIED || ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) //check if camera permission is not yet granted
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); // grant camera permission
 
+    }
+
+    private void createRetrofitClient(){
         myDB = new DatabaseHelper(this);
 
         Gson gson = new GsonBuilder()
@@ -79,20 +104,6 @@ public class MainActivity extends AppCompatActivity {
         ahcfamsApi = retrofit.create(AhcfamsApi.class);
 
         addEditTextListener();
-
-        //Toast.makeText(getApplicationContext(), getCurrentTime(), Toast.LENGTH_SHORT).show();
-
-        final Button signIn = findViewById(R.id.SignIn);
-        signIn.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                login();
-            }
-        });
-        try {
-            Toast.makeText(getApplicationContext(), convertTimeToDateTime("11:30:00 PM"), Toast.LENGTH_SHORT).show();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
     public void addEditTextListener(){
@@ -153,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                     if(loginResponse.getStatus().equals("200")){
                         boolean isInserted = myDB.loginStaff(loginResponse.getUsername(), loginResponse.getToken(), loginResponse.getDateTime(), loginResponse.getRoute_id());
 
-                        if(isInserted == true) {
+                        if(isInserted) { //Move to the next activity if inserted
                             Intent in = new Intent(MainActivity.this, AttendanceList.class);
                             startActivity(in);
                             Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();

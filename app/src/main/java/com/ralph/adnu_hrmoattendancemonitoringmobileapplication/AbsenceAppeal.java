@@ -12,9 +12,31 @@ public class AbsenceAppeal {
     private String VALIDATED;
     private String REMARKS;
 
+    private String aid;
+    private String cid;
+    private String staff_id;
+    private String chair_id;
+    private String absence_reason;
+    private String validated;
+    private String remarks;
+
+
+
     public AbsenceAppeal(String id, String token) {
         this.id = id;
         this.token = token;
+    }
+
+    public AbsenceAppeal(String id, String token, String aid, String cid, String staff_id, String chair_id, String absence_reason, String validated, String remarks) {
+        this.id = id;
+        this.token = token;
+        this.aid = aid;
+        this.cid = cid;
+        this.staff_id = staff_id;
+        this.chair_id = chair_id;
+        this.absence_reason = absence_reason;
+        this.validated = validated;
+        this.remarks = remarks;
     }
 
     public String getId() {

@@ -31,8 +31,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, route_id INTEGER, building_name VARCHAR NOT NULL, room_order VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, half_day INTEGER NOT NULL, hours FLOAT NOT NULL)");
         db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
-        db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, electronic_signature VARCHAR, remarks VARCHAR, synchronized)");
-        db.execSQL("CREATE TABLE ABSENCE_APPEAL( absence_appeal_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_id VARCHAR NOT NULL, staff_id VARCHAR, chairperson_id VARCHAR, absence_appeal_reason VARCHAR, validated INTEGER, remarks INTEGER)");
+        db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, electronic_signature VARCHAR, remarks VARCHAR, synchronized INTEGER)");
+        db.execSQL("CREATE TABLE ABSENCE_APPEAL( absence_appeal_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_id VARCHAR NOT NULL, staff_id VARCHAR, chairperson_id VARCHAR, absence_appeal_reason VARCHAR, validated INTEGER, remarks INTEGER, synchronized INTEGER)");
     }
 
     @Override
@@ -357,14 +357,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public boolean changeSync(String faid){
+    public boolean changeSync(String id,String colName, String table){
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("synchronized", 1);
 
         long result;
 
-        result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + faid + "'", null);
+        result = writeDB.update(table, contentValues, colName + " = '" + id + "'", null);
 
         if(result == -1)
             return false;
@@ -513,6 +513,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = readDB.rawQuery("select * from CONFIRMATION_NOTICE where synchronized <> '1'", null);
 
         res.moveToFirst();
+        return res;
+    }
+
+    public boolean isUnique(String id, String column, String table){
+        Cursor res = readDB.rawQuery("select * from '" + table + "' where " + column + " = '" + id + "'",null);
+
+        if (res.getCount() > 0)
+            return false;
+        else
+            return true;
+    }
+
+    public void createAbsenceAppeal(String confirmation_notice_id, String reason){
+        ContentValues contentValues = new ContentValues();
+
+        String tempId;
+
+        do{
+            contentValues.put("absence_appeal_id", tempId = generateRandomString(9));
+
+        }while(!(isUnique(tempId, "absence_appeal_id", "ABSENCE_APPEAL")));
+
+        contentValues.put("confirmation_notice_id", confirmation_notice_id);
+        contentValues.put("staff_id", "");
+        contentValues.put("chairperson_id", "");
+        contentValues.put("absence_appeal_reason", reason);
+        contentValues.put("validated","");
+        contentValues.put("remarks", "");
+        contentValues.put("synchronized", "0");
+
+        writeDB.insert("ABSENCE_APPEAL",null, contentValues);
+    }
+
+    public Cursor getAllAbsenceAppeal(){
+        Cursor res = readDB.rawQuery("select * from absence_appeal where synchronized = 0", null);
+        res.moveToFirst();
+
         return res;
     }
 }

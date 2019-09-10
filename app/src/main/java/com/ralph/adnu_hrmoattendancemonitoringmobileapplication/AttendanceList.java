@@ -62,24 +62,13 @@ public class AttendanceList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance_list);
 
-        android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
-        setSupportActionBar(toolbar);
+        createOptionMenu();
 
         ArrayList<String> userCredential = MainActivity.myDB.getUserCredentials();
-        userStaffId = userCredential.get(0).toString();
-        userToken = userCredential.get(1).toString();
+        userStaffId = userCredential.get(0);
+        userToken = userCredential.get(1);
 
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://" + MainActivity.ip + "/ADNU_HRMO-College-Faculty-Attendance-Monitoring-System/index.php/api/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        ahcfamsApi = retrofit.create(AhcfamsApi.class);
-
+        createRetrofitClient();
     }
 
     @Override
@@ -92,6 +81,7 @@ public class AttendanceList extends AppCompatActivity {
 
             case R.id.action_faculty_attendance:
                 MainActivity.myDB.createAttendance();
+                updateConfirmationNotice();
                 break;
 
             case R.id.update_database:
@@ -101,15 +91,16 @@ public class AttendanceList extends AppCompatActivity {
                 updateClassSchedule();
                 updateAbsenceAppeal();
                 updateFacultyAttendance();
+                //updateConfirmationNotice();
                 break;
             case R.id.upload_faculty_attendance:
                 uploadFacultyAttendance();
                 break;
-            case R.id.update_confirmation_notice:
-                updateConfirmationNotice();
+
             case R.id.upload_confirmation_notice:
                 uploadConfirmationNotice();
-
+                uploadAbsenceAppeal();
+                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -120,6 +111,25 @@ public class AttendanceList extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu,menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void createRetrofitClient(){
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://" + MainActivity.ip + "/ADNU_HRMO-College-Faculty-Attendance-Monitoring-System/index.php/api/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        ahcfamsApi = retrofit.create(AhcfamsApi.class);
+    }
+
+    private void createOptionMenu(){
+
+        android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
     }
 
     private void showList(){
@@ -224,16 +234,13 @@ public class AttendanceList extends AppCompatActivity {
                 }else{
                     List<Faculty> faculties = response.body();
 
-                    Integer count = 0;
-
                     for(Faculty faculty1 : faculties){
 
                         boolean isInserted = MainActivity.myDB.updateFaculty(faculty1.getFACULTY_ID(), faculty1.getNAME(),faculty1.getDEPARTMENT(), faculty1.getCOLLEGE());
                         if (isInserted){
-                            count += 1;
-                            Toast.makeText(getApplicationContext(),count.toString() , Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),"Faculty Table Updated" , Toast.LENGTH_SHORT).show();
                         }else
-                            Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Faculty Error", Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -255,15 +262,12 @@ public class AttendanceList extends AppCompatActivity {
             public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
                 List<Route> routes = response.body();
 
-                Integer count = 0;
-
                 for (Route route1 : routes){
                     boolean isInserted = MainActivity.myDB.updateRoute(route1.getROUTE_ID(), route1.getDESCRIPTION());
                     if(isInserted) {
-                        count += 1;
-                        Toast.makeText(getApplicationContext(), "Routes: " + count.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Routes Table Updated ", Toast.LENGTH_SHORT).show();
                     }else
-                        Toast.makeText(getApplicationContext(),"Routes: ERROR" , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),"Routes: Error" , Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -293,9 +297,9 @@ public class AttendanceList extends AppCompatActivity {
                     }
                     if(isInserted){
                         count += 1;
-                        Toast.makeText(getApplicationContext(), "Class Schedule: " + count, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Class Schedule Table Updated", Toast.LENGTH_SHORT).show();
                     }else
-                        Toast.makeText(getApplicationContext(), "Class Schedule Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Class Schedule Table: Error", Toast.LENGTH_SHORT).show();
 
                 }
             }
@@ -315,14 +319,13 @@ public class AttendanceList extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
                 List<Room> rooms = response.body();
-                Integer count = 0;
 
                 for (Room room1 : rooms){
                     boolean isInserted = MainActivity.myDB.updateRoom(room1.getROOM_ID(), room1.getROUTE_ID(), room1.getBUILDING_NAME(), room1.getROOM_ORDER());
                     if (isInserted){
-                        count += 1;
+                        Toast.makeText(getApplicationContext(), "Room Table Updated", Toast.LENGTH_SHORT).show();
                     }else
-                        Toast.makeText(getApplicationContext(), "Room ERROR", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Room: Error", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -417,8 +420,6 @@ public class AttendanceList extends AppCompatActivity {
                 facultyAttendance.moveToNext();
         }
 
-
-
     }
 
     private void dispatchTakePictureIntent(){
@@ -456,14 +457,6 @@ public class AttendanceList extends AppCompatActivity {
         return image;
     }
 
-    private void galleryAddPic(){
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(currentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-
     private void updateConfirmationNotice(){
         ConfirmationNotice confirmationNotice = new ConfirmationNotice(userStaffId, userToken);
 
@@ -474,10 +467,10 @@ public class AttendanceList extends AppCompatActivity {
                 List<ConfirmationNotice> confirmationNotices = response.body();
                 for (ConfirmationNotice confirmationNotice1: confirmationNotices){
                     boolean isInserted = MainActivity.myDB.updateConfirmationNotice(confirmationNotice1.getCONFIRMATION_NOTICE_ID(), confirmationNotice1.getFACULTY_ATTENDANCE_ID(),confirmationNotice1.getCONFIRMATION_NOTICE_DATE(), confirmationNotice1.getELECTRONIC_SIGNATURE(),confirmationNotice1.getREMARKS());
-                    if(!isInserted)
-                        Toast.makeText(getApplicationContext(), "Confirmation Notice Error", Toast.LENGTH_SHORT).show();
+                    if(isInserted)
+                        Toast.makeText(getApplicationContext(), "Confirmation Notice Table Updated", Toast.LENGTH_SHORT).show();
                     else
-                        Toast.makeText(getApplicationContext(), "Inserted", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -498,8 +491,10 @@ public class AttendanceList extends AppCompatActivity {
                 List<AbsenceAppeal> absenceAppeals = response.body();
                 for (AbsenceAppeal absenceAppeal1: absenceAppeals){
                     boolean isInserted = MainActivity.myDB.updateAbsenceAppeal(absenceAppeal1.getABSENCE_APPEAL_ID(), absenceAppeal1.getCONFIRMATION_NOTICE_ID(),absenceAppeal1.getSTAFF_ID(), absenceAppeal1.getCHAIRPERSON_ID(), absenceAppeal1.getABSENCE_APPEAL_REASON(), absenceAppeal1.getVALIDATED(), absenceAppeal1.getREMARKS());
-                    if(!isInserted)
-                        Toast.makeText(getApplicationContext(), "Confirmation Notice Error", Toast.LENGTH_SHORT).show();
+                    if(isInserted)
+                        Toast.makeText(getApplicationContext(), "Absence Appeal Table Updated", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), "Absence Appeal: Error", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -520,8 +515,10 @@ public class AttendanceList extends AppCompatActivity {
                 List<FacultyAttendance> facultyAttendances = response.body();
                 for (FacultyAttendance facultyAttendance1 : facultyAttendances){
                     boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(),facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(),facultyAttendance1.getATTENDANCE_DATE(),facultyAttendance1.getFIRST_CHECK(),facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSALARY_DEDUCTION(), facultyAttendance1.getSTATUS());
-                    if(!isInserted)
-                        Toast.makeText(getApplicationContext(), "Faculty Attendance Error", Toast.LENGTH_SHORT).show();
+                    if(isInserted)
+                        Toast.makeText(getApplicationContext(), "Faculty Attendance Updated", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -579,5 +576,30 @@ public class AttendanceList extends AppCompatActivity {
         }
 
 
+    }
+
+    public void uploadAbsenceAppeal(){
+        List<AbsenceAppeal> absenceAppealItems = new ArrayList<>();
+
+        final Cursor absenceAppeal = MainActivity.myDB.getAllAbsenceAppeal();
+
+        for(int i = 0; i < absenceAppeal.getCount(); i++){
+
+            Call<AbsenceAppeal> call = ahcfamsApi.absence_appeal(userStaffId, userToken, absenceAppeal.getString(0), absenceAppeal.getString(1), absenceAppeal.getString(2), absenceAppeal.getString(3), absenceAppeal.getString(4), absenceAppeal.getString(5), absenceAppeal.getString(6));
+            call.enqueue(new Callback<AbsenceAppeal>() {
+                @Override
+                public void onResponse(Call<AbsenceAppeal> call, Response<AbsenceAppeal> response) {
+                    //MainActivity.myDB.changeSync(absenceAppeal.getString(0), "absence_appeal_id", "ABSENCE_APPEAL");
+                }
+
+                @Override
+                public void onFailure(Call<AbsenceAppeal> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+            if(!(absenceAppeal.isLast())){
+                absenceAppeal.moveToNext();
+            }
+        }
     }
 }
