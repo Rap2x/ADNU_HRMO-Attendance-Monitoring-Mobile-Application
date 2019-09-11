@@ -1,6 +1,7 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -36,6 +37,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         public TextView textViewSecond;
         public Button buttonPresent;
         public Button buttonAbsent;
+        public TextView noticeCount;
 
         public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
@@ -48,6 +50,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             textViewSecond = (TextView) itemView.findViewById(R.id.secondTime);
             buttonAbsent = (Button) itemView.findViewById(R.id.absent);
             buttonPresent = (Button) itemView.findViewById(R.id.present);
+            noticeCount = (TextView) itemView.findViewById(R.id.notice_count);
 
             buttonAbsent.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -114,7 +117,11 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         viewHolder.textViewTime.setText(listItem.getClassTime());
         viewHolder.textViewFirst.setText(listItem.getFirst());
         viewHolder.textViewSecond.setText(listItem.getSecond());
-
+        viewHolder.noticeCount.setText(listItem.getNoticeCount());
+        if(!(listItem.getNoticeCount().equals("0"))){
+            //viewHolder.noticeCount.setTextColor(Color.RED);
+            viewHolder.noticeCount.setTextColor(Color.RED);
+        }
     }
 
     @Override

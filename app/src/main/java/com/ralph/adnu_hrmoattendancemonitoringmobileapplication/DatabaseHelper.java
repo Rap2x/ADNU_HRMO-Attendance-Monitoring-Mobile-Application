@@ -215,7 +215,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         long result;
 
-        if(isRecorded(confirmation_notice_id, "absence_appeal_id", "ABSENCE_APPEAL")){
+        if(isRecorded(absence_appeal_id, "absence_appeal_id", "ABSENCE_APPEAL")){
             result = writeDB.update("ABSENCE_APPEAL", contentValues, "absence_appeal_id = '" + absence_appeal_id + "'",null);
             if(result == -1)
                 return false;
@@ -571,6 +571,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         res.moveToFirst();
 
         return res;
+    }
+
+    public String getConfirmationNoticeCount(String faculty_id){
+        Cursor res = readDB.rawQuery("SELECT confirmation_notice.confirmation_notice_id FROM faculty INNER JOIN class_schedule ON faculty.faculty_id = class_schedule.faculty_id INNER JOIN faculty_attendance ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN confirmation_notice ON confirmation_notice.faculty_attendance_id = faculty_attendance.faculty_attendance_id WHERE faculty.faculty_id = '" + faculty_id + "'", null);
+
+        Integer count = res.getCount();
+
+        return count.toString();
     }
 
 

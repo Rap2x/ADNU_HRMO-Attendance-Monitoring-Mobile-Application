@@ -155,6 +155,7 @@ public class AttendanceList extends AppCompatActivity {
         attendanceData.moveToFirst();
 
         for(int i = 0 ;i < attendanceData.getCount(); i++){
+            String noticeCount = MainActivity.myDB.getConfirmationNoticeCount(attendanceData.getString(7));
             AttendanceListItem listItem = new AttendanceListItem(
                     attendanceData.getString(3),
                     attendanceData.getString(2),
@@ -163,7 +164,8 @@ public class AttendanceList extends AppCompatActivity {
                     attendanceData.getString(0),
                     attendanceData.getString(5),
                     attendanceData.getString(6),
-                    attendanceData.getString(7)
+                    attendanceData.getString(7),
+                    noticeCount
             );
 
             listItems.add(listItem);

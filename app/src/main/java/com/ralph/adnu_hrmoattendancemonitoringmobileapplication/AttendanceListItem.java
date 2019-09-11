@@ -9,8 +9,9 @@ public class AttendanceListItem {
     private String first;
     private String second;
     private String faculty_id;
+    private String noticeCount;
 
-    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id) {
+    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id, String noticeCount) {
         this.name = name;
         this.subjectCode = subjectCode;
         this.roomNumber = roomNumber;
@@ -19,6 +20,7 @@ public class AttendanceListItem {
         this.first = first;
         this.second = second;
         this.faculty_id = faculty_id;
+        this.noticeCount = noticeCount;
     }
 
     public String getName() {
@@ -59,5 +61,9 @@ public class AttendanceListItem {
 
     public String getFaculty_id() {
         return faculty_id;
+    }
+
+    public String getNoticeCount() {
+        return noticeCount;
     }
 }
