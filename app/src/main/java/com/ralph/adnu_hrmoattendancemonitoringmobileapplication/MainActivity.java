@@ -56,6 +56,24 @@ public class MainActivity extends AppCompatActivity {
 
     private AhcfamsApi ahcfamsApi;
 
+    public static int absenceAppealCount;
+    public static double classScheduleCount;
+    public static int confirmationNoticeCount;
+    public static int facultyCount;
+    public static int facultyAttendanceCount;
+    public static int roomCount;
+    public static int routeCount;
+    public static int staffCount;
+
+    public static int currentAbsenceAppealCount = 0;
+    public static double currentClassScheduleCount = 0;
+    public static int currentConfirmationNoticeCount = 0;
+    public static int currentFacultyCount = 0;
+    public static int currentFacultyAttendanceCount = 0;
+    public static int currentRoomCount = 0;
+    public static int currentRouteCount = 0;
+    public static int currentStaffCount = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,6 +191,8 @@ public class MainActivity extends AppCompatActivity {
                             userStaffId = userCredentials.get(0).toString();
                             userToken = userCredentials.get(1).toString();
                             userRoute = userCredentials.get(2).toString();
+
+                            getTableRowCounts();
                         }
                         else
                             Toast.makeText(getApplicationContext(), "Error: Database not Updated", Toast.LENGTH_SHORT).show();
@@ -266,6 +286,33 @@ public class MainActivity extends AppCompatActivity {
             Date date = parseFormat.parse(time);
             return getCurrentDateDash()+ " " + displayFormat.format(date);
         }
+    }
+
+    public void getTableRowCounts(){
+        TableRowCounts counts1 = new TableRowCounts(userStaffId, userToken);
+        Call<TableRowCounts> call = ahcfamsApi.table_row_counts(userStaffId, userToken);
+
+        call.enqueue(new Callback<TableRowCounts>() {
+            @Override
+            public void onResponse(Call<TableRowCounts> call, Response<TableRowCounts> response) {
+                TableRowCounts counts = response.body();
+
+                absenceAppealCount = Integer.parseInt(counts.getABSENCE_APPEAL());
+                classScheduleCount = Integer.parseInt(counts.getCLASS_SCHEDULE());
+                confirmationNoticeCount = Integer.parseInt(counts.getCONFIRMATION_NOTICE());
+                facultyCount = Integer.parseInt(counts.getFACULTY());
+                facultyAttendanceCount = Integer.parseInt(counts.getFACULTY_ATTENDANCE());
+                roomCount = Integer.parseInt(counts.getROOM());
+                routeCount = Integer.parseInt(counts.getROUTE());
+                staffCount = Integer.parseInt(counts.getSTAFF());
+            }
+
+            @Override
+            public void onFailure(Call<TableRowCounts> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
 

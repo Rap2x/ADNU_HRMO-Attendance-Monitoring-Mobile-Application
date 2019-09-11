@@ -13,6 +13,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -49,10 +50,10 @@ public class AttendanceList extends AppCompatActivity {
     private List<AttendanceListItem> listItems;
     private List<FacultyAttendance> attendanceItems;
 
-    private AhcfamsApi ahcfamsApi;
+    private static AhcfamsApi ahcfamsApi;
 
-    private String userStaffId;
-    private String userToken;
+    private static String userStaffId;
+    private static String userToken;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     String currentPhotoPath;
@@ -102,6 +103,10 @@ public class AttendanceList extends AppCompatActivity {
                 uploadAbsenceAppeal();
                 break;
 
+            case R.id.settings:
+                openSettings();
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -130,6 +135,12 @@ public class AttendanceList extends AppCompatActivity {
 
         android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
+    }
+
+    private void openSettings(){
+
+        Intent intent = new Intent(getBaseContext(), Settings.class);
+        startActivity(intent);
     }
 
     private void showList(){
@@ -172,7 +183,7 @@ public class AttendanceList extends AppCompatActivity {
                     if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
-                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file", currentPhotoPath);
+                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file",currentPhotoPath,"first_check", MainActivity.getCurrentTime12Hours());
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
@@ -182,7 +193,7 @@ public class AttendanceList extends AppCompatActivity {
                     if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
-                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "second_image_file", currentPhotoPath);
+                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "second_image_file", currentPhotoPath, "second_check", MainActivity.getCurrentTime12Hours());
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
@@ -237,9 +248,7 @@ public class AttendanceList extends AppCompatActivity {
                     for(Faculty faculty1 : faculties){
 
                         boolean isInserted = MainActivity.myDB.updateFaculty(faculty1.getFACULTY_ID(), faculty1.getNAME(),faculty1.getDEPARTMENT(), faculty1.getCOLLEGE());
-                        if (isInserted){
-                            Toast.makeText(getApplicationContext(),"Faculty Table Updated" , Toast.LENGTH_SHORT).show();
-                        }else
+                        if (!isInserted)
                             Toast.makeText(getApplicationContext(), "Faculty Error", Toast.LENGTH_SHORT).show();
                     }
 
@@ -248,7 +257,7 @@ public class AttendanceList extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Faculty>> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Faculty Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -264,21 +273,19 @@ public class AttendanceList extends AppCompatActivity {
 
                 for (Route route1 : routes){
                     boolean isInserted = MainActivity.myDB.updateRoute(route1.getROUTE_ID(), route1.getDESCRIPTION());
-                    if(isInserted) {
-                        Toast.makeText(getApplicationContext(), "Routes Table Updated ", Toast.LENGTH_SHORT).show();
-                    }else
+                    if(!isInserted)
                         Toast.makeText(getApplicationContext(),"Routes: Error" , Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Route>> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(),"Routes: Error" , Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void updateClassSchedule(){
+    public static void updateClassSchedule(){
         ClassSchedule classSchedule = new ClassSchedule(userStaffId, userToken);
         Call<List<ClassSchedule>> call = ahcfamsApi.classSchedule(userStaffId,userToken);
 
@@ -287,7 +294,6 @@ public class AttendanceList extends AppCompatActivity {
             public void onResponse(Call<List<ClassSchedule>> call, Response<List<ClassSchedule>> response) {
                 List<ClassSchedule> classSchedules = response.body();
 
-                Integer count = 0;
                 for (ClassSchedule classSchedule1 : classSchedules){
                     boolean isInserted = false;
                     try {
@@ -296,17 +302,14 @@ public class AttendanceList extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     if(isInserted){
-                        count += 1;
-                        Toast.makeText(getApplicationContext(), "Class Schedule Table Updated", Toast.LENGTH_SHORT).show();
-                    }else
-                        Toast.makeText(getApplicationContext(), "Class Schedule Table: Error", Toast.LENGTH_SHORT).show();
+                        MainActivity.currentClassScheduleCount += 1;
+                    }
 
                 }
             }
 
             @Override
             public void onFailure(Call<List<ClassSchedule>> call, Throwable t) {
-
             }
         });
     }
@@ -322,16 +325,14 @@ public class AttendanceList extends AppCompatActivity {
 
                 for (Room room1 : rooms){
                     boolean isInserted = MainActivity.myDB.updateRoom(room1.getROOM_ID(), room1.getROUTE_ID(), room1.getBUILDING_NAME(), room1.getROOM_ORDER());
-                    if (isInserted){
-                        Toast.makeText(getApplicationContext(), "Room Table Updated", Toast.LENGTH_SHORT).show();
-                    }else
+                    if (!isInserted)
                         Toast.makeText(getApplicationContext(), "Room: Error", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Room>> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Room: Error", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -467,16 +468,14 @@ public class AttendanceList extends AppCompatActivity {
                 List<ConfirmationNotice> confirmationNotices = response.body();
                 for (ConfirmationNotice confirmationNotice1: confirmationNotices){
                     boolean isInserted = MainActivity.myDB.updateConfirmationNotice(confirmationNotice1.getCONFIRMATION_NOTICE_ID(), confirmationNotice1.getFACULTY_ATTENDANCE_ID(),confirmationNotice1.getCONFIRMATION_NOTICE_DATE(), confirmationNotice1.getELECTRONIC_SIGNATURE(),confirmationNotice1.getREMARKS());
-                    if(isInserted)
-                        Toast.makeText(getApplicationContext(), "Confirmation Notice Table Updated", Toast.LENGTH_SHORT).show();
-                    else
+                    if(!isInserted)
                         Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<ConfirmationNotice>> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -491,16 +490,14 @@ public class AttendanceList extends AppCompatActivity {
                 List<AbsenceAppeal> absenceAppeals = response.body();
                 for (AbsenceAppeal absenceAppeal1: absenceAppeals){
                     boolean isInserted = MainActivity.myDB.updateAbsenceAppeal(absenceAppeal1.getABSENCE_APPEAL_ID(), absenceAppeal1.getCONFIRMATION_NOTICE_ID(),absenceAppeal1.getSTAFF_ID(), absenceAppeal1.getCHAIRPERSON_ID(), absenceAppeal1.getABSENCE_APPEAL_REASON(), absenceAppeal1.getVALIDATED(), absenceAppeal1.getREMARKS());
-                    if(isInserted)
-                        Toast.makeText(getApplicationContext(), "Absence Appeal Table Updated", Toast.LENGTH_SHORT).show();
-                    else
+                    if(!isInserted)
                         Toast.makeText(getApplicationContext(), "Absence Appeal: Error", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<AbsenceAppeal>> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Absence Appeal: Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -515,16 +512,14 @@ public class AttendanceList extends AppCompatActivity {
                 List<FacultyAttendance> facultyAttendances = response.body();
                 for (FacultyAttendance facultyAttendance1 : facultyAttendances){
                     boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(),facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(),facultyAttendance1.getATTENDANCE_DATE(),facultyAttendance1.getFIRST_CHECK(),facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSALARY_DEDUCTION(), facultyAttendance1.getSTATUS());
-                    if(isInserted)
-                        Toast.makeText(getApplicationContext(), "Faculty Attendance Updated", Toast.LENGTH_SHORT).show();
-                    else
+                    if(!isInserted)
                         Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<FacultyAttendance>> call, Throwable t) {
-
+                Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -602,4 +597,6 @@ public class AttendanceList extends AppCompatActivity {
             }
         }
     }
+
+
 }

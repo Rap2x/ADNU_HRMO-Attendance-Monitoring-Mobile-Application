@@ -430,11 +430,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean saveImage(String id, String col,String path){
+    public boolean saveImage(String id, String col,String path, String timeCol,String time){
         ContentValues contentValues = new ContentValues();
 
         long result;
-
+        contentValues.put(timeCol, time);
         contentValues.put(col, path);
         result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + id + "'",null);
 
@@ -552,4 +552,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return res;
     }
+
+    public boolean changeRoute(String id, String route){
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("route_id", route);
+
+        long result = writeDB.update("USER", contentValues, "user_id = '" + id + "'",null);
+
+        if(result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    public Cursor getRoutes(){
+        Cursor res = readDB.rawQuery("select * from ROUTE", null);
+        res.moveToFirst();
+
+        return res;
+    }
+
+
 }

@@ -109,4 +109,11 @@ public interface AhcfamsApi {
             @Field("validated") String validated,
             @Field("remarks") String remarks
     );
+
+    @FormUrlEncoded
+    @POST("get_all_count")
+    Call<TableRowCounts> table_row_counts(
+            @Field("id") String id,
+            @Field("token") String token
+    );
 }
