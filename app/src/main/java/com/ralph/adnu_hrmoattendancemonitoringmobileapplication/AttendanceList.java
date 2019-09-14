@@ -40,6 +40,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.text.TextUtils.isEmpty;
+import static com.ralph.adnu_hrmoattendancemonitoringmobileapplication.MainActivity.userStaffId;
+import static com.ralph.adnu_hrmoattendancemonitoringmobileapplication.MainActivity.userToken;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class AttendanceList extends AppCompatActivity {
@@ -48,28 +50,29 @@ public class AttendanceList extends AppCompatActivity {
     private AttendanceAdapter adapter;
 
     private List<AttendanceListItem> listItems;
-    private List<FacultyAttendance> attendanceItems;
+
 
     private static AhcfamsApi ahcfamsApi;
 
-    private static String userStaffId;
-    private static String userToken;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     String currentPhotoPath;
+
+    private String buildingName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance_list);
 
+        buildingName = getIntent().getStringExtra("building_name");
+
         createOptionMenu();
 
-        ArrayList<String> userCredential = MainActivity.myDB.getUserCredentials();
-        userStaffId = userCredential.get(0);
-        userToken = userCredential.get(1);
-
+        showList();
         createRetrofitClient();
+
+        showList();
     }
 
     @Override
@@ -79,34 +82,6 @@ public class AttendanceList extends AppCompatActivity {
             case R.id.action_refresh:
                 showList();
                 break;
-
-            case R.id.action_faculty_attendance:
-                MainActivity.myDB.createAttendance();
-                updateConfirmationNotice();
-                break;
-
-            case R.id.update_database:
-                updateFaculty();
-                updateRoute();
-                updateRoom();
-                updateClassSchedule();
-                updateAbsenceAppeal();
-                updateFacultyAttendance();
-                //updateConfirmationNotice();
-                break;
-            case R.id.upload_faculty_attendance:
-                uploadFacultyAttendance();
-                break;
-
-            case R.id.upload_confirmation_notice:
-                uploadConfirmationNotice();
-                uploadAbsenceAppeal();
-                break;
-
-            case R.id.settings:
-                openSettings();
-                break;
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -137,12 +112,6 @@ public class AttendanceList extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
-    private void openSettings(){
-
-        Intent intent = new Intent(getBaseContext(), Settings.class);
-        startActivity(intent);
-    }
-
     private void showList(){
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
@@ -150,7 +119,7 @@ public class AttendanceList extends AppCompatActivity {
 
         listItems = new ArrayList<>();
 
-        Cursor attendanceData = MainActivity.myDB.getAttendanceList();
+        Cursor attendanceData = MainActivity.myDB.getAttendanceList(buildingName);
 
         attendanceData.moveToFirst();
 
@@ -186,6 +155,7 @@ public class AttendanceList extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
                         MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file",currentPhotoPath,"first_check", MainActivity.getCurrentTime12Hours());
+                        MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
@@ -196,6 +166,7 @@ public class AttendanceList extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
                         MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "second_image_file", currentPhotoPath, "second_check", MainActivity.getCurrentTime12Hours());
+                        MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
@@ -209,15 +180,19 @@ public class AttendanceList extends AppCompatActivity {
                 if (isEmpty(listItems.get(position).getFirst())){
                     listItems.get(position).setFirst(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
-                    if(isUpdated)
+                    if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                        MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
+                    }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }else{
                     listItems.get(position).setSecond(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
-                    if(isUpdated)
+                    if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
+                        MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
+                    }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }
@@ -235,195 +210,7 @@ public class AttendanceList extends AppCompatActivity {
         });
     }
 
-    private void updateFaculty(){
-        Faculty faculty = new Faculty(userStaffId, userToken);
-        Call<List<Faculty>> call = ahcfamsApi.faculty(userStaffId,userToken);
 
-        call.enqueue(new Callback<List<Faculty>>() {
-            @Override
-            public void onResponse(Call<List<Faculty>> call, Response<List<Faculty>> response) {
-                if(!response.isSuccessful()){
-                    Toast.makeText(getApplicationContext(), response.message(), Toast.LENGTH_SHORT).show();
-                }else{
-                    List<Faculty> faculties = response.body();
-
-                    for(Faculty faculty1 : faculties){
-
-                        boolean isInserted = MainActivity.myDB.updateFaculty(faculty1.getFACULTY_ID(), faculty1.getNAME(),faculty1.getDEPARTMENT(), faculty1.getCOLLEGE());
-                        if (!isInserted)
-                            Toast.makeText(getApplicationContext(), "Faculty Error", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Faculty>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Faculty Error", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void updateRoute(){
-        Route route = new Route(userStaffId, userToken);
-        Call<List<Route>> call = ahcfamsApi.route(userStaffId, userToken);
-
-        call.enqueue(new Callback<List<Route>>() {
-            @Override
-            public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
-                List<Route> routes = response.body();
-
-                for (Route route1 : routes){
-                    boolean isInserted = MainActivity.myDB.updateRoute(route1.getROUTE_ID(), route1.getDESCRIPTION());
-                    if(!isInserted)
-                        Toast.makeText(getApplicationContext(),"Routes: Error" , Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Route>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(),"Routes: Error" , Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public static void updateClassSchedule(){
-        ClassSchedule classSchedule = new ClassSchedule(userStaffId, userToken);
-        Call<List<ClassSchedule>> call = ahcfamsApi.classSchedule(userStaffId,userToken);
-
-        call.enqueue(new Callback<List<ClassSchedule>>() {
-            @Override
-            public void onResponse(Call<List<ClassSchedule>> call, Response<List<ClassSchedule>> response) {
-                List<ClassSchedule> classSchedules = response.body();
-
-                for (ClassSchedule classSchedule1 : classSchedules){
-                    boolean isInserted = false;
-                    try {
-                        isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), classSchedule1.getCLASS_DAY(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHALF_DAY(), classSchedule1.getHOURS());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    if(isInserted){
-                        MainActivity.currentClassScheduleCount += 1;
-                    }
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ClassSchedule>> call, Throwable t) {
-            }
-        });
-    }
-
-    private void updateRoom(){
-        Room room = new Room(userStaffId, userToken);
-
-        Call<List<Room>> call = ahcfamsApi.room(userStaffId,userToken);
-        call.enqueue(new Callback<List<Room>>() {
-            @Override
-            public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
-                List<Room> rooms = response.body();
-
-                for (Room room1 : rooms){
-                    boolean isInserted = MainActivity.myDB.updateRoom(room1.getROOM_ID(), room1.getROUTE_ID(), room1.getBUILDING_NAME(), room1.getROOM_ORDER());
-                    if (!isInserted)
-                        Toast.makeText(getApplicationContext(), "Room: Error", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Room>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Room: Error", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }
-
-    private void uploadFacultyAttendance(){
-        attendanceItems = new ArrayList<>();
-
-        final Cursor facultyAttendance = MainActivity.myDB.getFacultyAttendance();
-
-        facultyAttendance.moveToFirst();
-
-        for (int i = 0; i < facultyAttendance.getCount(); i++){
-            File file1 = new File(facultyAttendance.getString(6));
-            File file2 = new File(facultyAttendance.getString(7));
-            MultipartBody.Part firstImage;
-            MultipartBody.Part secondImage;
-
-            if(isEmpty(facultyAttendance.getString(6))){ // checks if there's no image
-                /* Send an empty image*/
-                RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), "");
-
-                firstImage = MultipartBody.Part.createFormData("fipath", "", fileReqBody1);
-            }else{
-                RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), file1);
-                firstImage = MultipartBody.Part.createFormData("fipath", file1.getName(), fileReqBody1);
-            }
-
-            if(isEmpty(facultyAttendance.getString(7))){
-                RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), "");
-                secondImage = MultipartBody.Part.createFormData("sipath", "", fileReqBody2);
-            }else{
-                RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), file2);
-                secondImage = MultipartBody.Part.createFormData("sipath", file2.getName(), fileReqBody2);
-            }
-
-            RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
-            RequestBody token = RequestBody.create(MediaType.parse("text/plain"), userToken);
-            RequestBody faid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(0));
-            RequestBody sid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(1));
-            RequestBody csid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(2));
-            RequestBody adate = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(3));
-            RequestBody fcheck = null;
-            if(isEmpty(facultyAttendance.getString(4))){
-                fcheck = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(4));
-                Toast.makeText(getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
-            }else if(facultyAttendance.getString(4) == "Absent"){
-                fcheck = RequestBody.create(MediaType.parse("text/plain"), "null");
-            }else{
-                try {
-                    fcheck = RequestBody.create(MediaType.parse("text/plain"), MainActivity.convertTimeToDateTime(facultyAttendance.getString(4)));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            RequestBody scheck = null;
-            if(isEmpty(facultyAttendance.getString(5))){
-                scheck = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(5));
-            }else if(facultyAttendance.getString(5) == "Absent"){
-                scheck = RequestBody.create(MediaType.parse("text/plain"), "null");
-            }else{
-                try {
-                    scheck = RequestBody.create(MediaType.parse("text/plain"), MainActivity.convertTimeToDateTime(facultyAttendance.getString(5)));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            RequestBody sdeduct = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(8));
-            RequestBody status = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(9));
-
-            Call call = ahcfamsApi.faculty_attendance(id, token, faid, sid, csid, adate, fcheck, scheck, firstImage, secondImage, sdeduct, status);
-
-            call.enqueue(new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) {
-                    //MainActivity.myDB.changeSync(facultyAttendance.getString(0));
-                }
-
-                @Override
-                public void onFailure(Call call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            //if(MainActivity.myDB.changeSync(facultyAttendance.getString(0))){}
-            if(!facultyAttendance.isLast())
-                facultyAttendance.moveToNext();
-        }
-
-    }
 
     private void dispatchTakePictureIntent(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -458,146 +245,6 @@ public class AttendanceList extends AppCompatActivity {
 
         currentPhotoPath = image.getAbsolutePath();
         return image;
-    }
-
-    private void updateConfirmationNotice(){
-        ConfirmationNotice confirmationNotice = new ConfirmationNotice(userStaffId, userToken);
-
-        Call<List<ConfirmationNotice>> call = ahcfamsApi.confirmation_notice(userStaffId,userToken);
-        call.enqueue(new Callback<List<ConfirmationNotice>>() {
-            @Override
-            public void onResponse(Call<List<ConfirmationNotice>> call, Response<List<ConfirmationNotice>> response) {
-                List<ConfirmationNotice> confirmationNotices = response.body();
-                for (ConfirmationNotice confirmationNotice1: confirmationNotices){
-                    boolean isInserted = MainActivity.myDB.updateConfirmationNotice(confirmationNotice1.getCONFIRMATION_NOTICE_ID(), confirmationNotice1.getFACULTY_ATTENDANCE_ID(),confirmationNotice1.getCONFIRMATION_NOTICE_DATE(), confirmationNotice1.getELECTRONIC_SIGNATURE(),confirmationNotice1.getREMARKS());
-                    if(!isInserted)
-                        Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ConfirmationNotice>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void updateAbsenceAppeal(){
-        AbsenceAppeal absenceAppeal = new AbsenceAppeal(userStaffId, userToken);
-
-        Call<List<AbsenceAppeal>> call = ahcfamsApi.absence_appeal(userStaffId,userToken);
-        call.enqueue(new Callback<List<AbsenceAppeal>>() {
-            @Override
-            public void onResponse(Call<List<AbsenceAppeal>> call, Response<List<AbsenceAppeal>> response) {
-                List<AbsenceAppeal> absenceAppeals = response.body();
-                for (AbsenceAppeal absenceAppeal1: absenceAppeals){
-                    boolean isInserted = MainActivity.myDB.updateAbsenceAppeal(absenceAppeal1.getABSENCE_APPEAL_ID(), absenceAppeal1.getCONFIRMATION_NOTICE_ID(),absenceAppeal1.getSTAFF_ID(), absenceAppeal1.getCHAIRPERSON_ID(), absenceAppeal1.getABSENCE_APPEAL_REASON(), absenceAppeal1.getVALIDATED(), absenceAppeal1.getREMARKS());
-                    if(!isInserted)
-                        Toast.makeText(getApplicationContext(), "Absence Appeal: Error", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<AbsenceAppeal>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Absence Appeal: Error", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void updateFacultyAttendance(){
-        FacultyAttendance facultyAttendance = new FacultyAttendance(userStaffId, userToken);
-
-        Call<List<FacultyAttendance>> call = ahcfamsApi.faculty_attendance(userStaffId, userToken);
-        call.enqueue(new Callback<List<FacultyAttendance>>() {
-            @Override
-            public void onResponse(Call<List<FacultyAttendance>> call, Response<List<FacultyAttendance>> response) {
-                List<FacultyAttendance> facultyAttendances = response.body();
-                for (FacultyAttendance facultyAttendance1 : facultyAttendances){
-                    boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(),facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(),facultyAttendance1.getATTENDANCE_DATE(),facultyAttendance1.getFIRST_CHECK(),facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSALARY_DEDUCTION(), facultyAttendance1.getSTATUS());
-                    if(!isInserted)
-                        Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<FacultyAttendance>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public void uploadConfirmationNotice(){
-        List<ConfirmationNotice> confirmationNoticeItems = new ArrayList<>();
-
-        final Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
-        confirmationNotice.moveToFirst();
-
-        Integer count = confirmationNotice.getCount();
-
-        Toast.makeText(getApplicationContext(), count.toString(), Toast.LENGTH_SHORT).show();
-
-        for(int i = 0; i < confirmationNotice.getCount(); i++){
-            File file = new File(confirmationNotice.getString(3));
-            MultipartBody.Part signature;
-
-            if(isEmpty(confirmationNotice.getString(3))){
-                RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"),"");
-
-                signature = MultipartBody.Part.createFormData("spath", "", fileReqBody);
-            }else{
-                RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
-                signature = MultipartBody.Part.createFormData("spath", file.getName(), fileReqBody);
-            }
-
-            RequestBody id = RequestBody.create(MediaType.parse("text/plain"),MainActivity.userStaffId);
-            RequestBody token = RequestBody.create(MediaType.parse("text/plain"),MainActivity.userToken);
-            RequestBody cid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
-            RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(4));
-
-            Call call = ahcfamsApi.confirmation_notice(id, token, cid, remarks, signature);
-            call.enqueue(new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) {
-                    //change the synchronized to 1
-                }
-
-                @Override
-                public void onFailure(Call call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            if(!confirmationNotice.isLast()){
-                confirmationNotice.moveToNext();
-            }
-        }
-
-
-    }
-
-    public void uploadAbsenceAppeal(){
-        List<AbsenceAppeal> absenceAppealItems = new ArrayList<>();
-
-        final Cursor absenceAppeal = MainActivity.myDB.getAllAbsenceAppeal();
-
-        for(int i = 0; i < absenceAppeal.getCount(); i++){
-
-            Call<AbsenceAppeal> call = ahcfamsApi.absence_appeal(userStaffId, userToken, absenceAppeal.getString(0), absenceAppeal.getString(1), absenceAppeal.getString(2), absenceAppeal.getString(3), absenceAppeal.getString(4), absenceAppeal.getString(5), absenceAppeal.getString(6));
-            call.enqueue(new Callback<AbsenceAppeal>() {
-                @Override
-                public void onResponse(Call<AbsenceAppeal> call, Response<AbsenceAppeal> response) {
-                    //MainActivity.myDB.changeSync(absenceAppeal.getString(0), "absence_appeal_id", "ABSENCE_APPEAL");
-                }
-
-                @Override
-                public void onFailure(Call<AbsenceAppeal> call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            if(!(absenceAppeal.isLast())){
-                absenceAppeal.moveToNext();
-            }
-        }
     }
 
 

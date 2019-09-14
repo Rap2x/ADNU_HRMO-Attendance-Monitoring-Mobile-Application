@@ -345,9 +345,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public Cursor getAttendanceList(){
+    public Cursor getAttendanceList(String building_name){
 
-        Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check, faculty.faculty_id FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = class_schedule.room_id INNER JOIN route on route.route_id = room.route_id where attendance_date = '" + MainActivity.getCurrentDate()+ "' AND class_schedule.start_time <= '" + MainActivity.getCurrentTime()+ "' AND class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' AND route.route_id = '" + MainActivity.userRoute + "' ORDER BY room.room_order ASC",null);
+        Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check, faculty.faculty_id FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = class_schedule.room_id INNER JOIN route on route.route_id = room.route_id where attendance_date = '" + MainActivity.getCurrentDate()+ "' AND class_schedule.start_time <= '" + MainActivity.getCurrentTime()+ "' AND class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' AND route.route_id = '" + MainActivity.userRoute + "' AND room.building_name = '" + building_name + "' ORDER BY room.room_order ASC",null);
         return res;
     }
 
@@ -579,6 +579,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Integer count = res.getCount();
 
         return count.toString();
+    }
+
+    public Cursor getBuildings(){
+        Cursor res = readDB.rawQuery("select distinct room.building_name from room inner join class_schedule on class_schedule.room_id = room.room_id inner join faculty_attendance on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id inner join route on route.route_id = room.route_id where route.route_id = '" + MainActivity.userRoute + "' and faculty_attendance.attendance_date = '" + MainActivity.getCurrentDate() + "'", null);
+        res.moveToFirst();
+
+        return res;
+    }
+
+    public boolean changeAttendanceStatus(String attendance_id){
+        ContentValues contentValues = new ContentValues();
+
+        Cursor res = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id = '" + attendance_id +"' AND first_image_file = '' AND second_image_file = ''", null);
+        if(res.getCount() > 0)
+            contentValues.put("status", "Present");
+        else
+            contentValues.put("status", "Absent");
+
+        long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + attendance_id+ "'", null);
+
+        if(result == -1)
+            return false;
+        else
+            return true;
     }
 
 

@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
                         boolean isInserted = myDB.loginStaff(loginResponse.getUsername(), loginResponse.getToken(), loginResponse.getDateTime(), loginResponse.getRoute_id());
 
                         if(isInserted) { //Move to the next activity if inserted
-                            Intent in = new Intent(MainActivity.this, AttendanceList.class);
+                            Intent in = new Intent(MainActivity.this, BuildingList.class);
                             startActivity(in);
                             Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();
 
