@@ -124,9 +124,17 @@ public class BuildingList extends AppCompatActivity {
 
         Cursor buildingData = MainActivity.myDB.getBuildings();
 
+        Integer buildingCount = buildingData.getCount();
+
         for(int i = 0; i < buildingData.getCount(); i++){
             BuildingListItem listItem = new BuildingListItem(buildingData.getString(0));
-            listItems.add(listItem);
+            if(MainActivity.myDB.isClassAvailable(buildingData.getString(0))){
+                listItems.add(listItem);
+            }
+
+            if(!buildingData.isLast()){
+                buildingData.moveToNext();
+            }
         }
 
         adapter = new BuildingAdapter(listItems,this);
@@ -214,7 +222,8 @@ public class BuildingList extends AppCompatActivity {
                 for (ClassSchedule classSchedule1 : classSchedules){
                     boolean isInserted = false;
                     try {
-                        isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), classSchedule1.getCLASS_DAY(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHALF_DAY(), classSchedule1.getHOURS());
+                        Day day = new Day(classSchedule1.getCLASS_DAY());
+                        isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), day.parseDay(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHALF_DAY(), classSchedule1.getHOURS());
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -477,4 +486,5 @@ public class BuildingList extends AppCompatActivity {
         }
 
     }
+
 }

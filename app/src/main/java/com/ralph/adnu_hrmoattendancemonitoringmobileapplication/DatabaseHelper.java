@@ -351,7 +351,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public Cursor getFacultyAttendance(){
+    public Cursor getFacultyAttendance(){ // for uploading faculty attendance
 
         Cursor res = readDB.rawQuery("select * from faculty_attendance where synchronized = '0' and first_check != '' and second_check != ''", null);
         return res;
@@ -605,5 +605,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
+    public boolean isClassAvailable(String building_name){ // used for checking if there is a class in a building
+        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id from faculty_attendance inner join class_schedule on class_schedule.class_schedule_id = faculty_attendance.class_schedule_id inner join room on room.room_id = class_schedule.room_id inner join route on route.route_id = room.route_id where route.route_id = '" + MainActivity.userRoute+ "' and room.building_name = '" + building_name +"' and faculty_attendance.attendance_date = '" + MainActivity.getCurrentDate() + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "'", null);
+        res.moveToFirst();
 
+        if(res.getCount() > 0)
+            return true;
+        else
+            return false;
+
+    }
 }

@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
     public static int currentRouteCount = 0;
     public static int currentStaffCount = 0;
 
+    public static String currentDay;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
         createRetrofitClient();
 
         onClickListener();
+
+        currentDay = getDay();
+
     }
 
     private void onClickListener(){
@@ -93,11 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 login();
             }
         });
-        try {
-            Toast.makeText(getApplicationContext(), convertTimeToDateTime("11:30:00 PM"), Toast.LENGTH_SHORT).show();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
     private void requestPermission(){
@@ -315,5 +315,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public static String getDay(){
+        Calendar calendar = Calendar.getInstance();
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("E");
+        String currentDay = dateFormat.format(calendar.getTime());
+
+        return currentDay.toUpperCase();
+    }
 }

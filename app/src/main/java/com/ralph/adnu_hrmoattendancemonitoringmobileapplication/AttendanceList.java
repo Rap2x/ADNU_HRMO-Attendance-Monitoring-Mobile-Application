@@ -173,6 +173,9 @@ public class AttendanceList extends AppCompatActivity {
                 }
                 listItems.remove(position);
                 adapter.notifyItemRemoved(position);
+                if(adapter.getItemCount() == 0){
+                    finish();
+                }
             }
 
             @Override
@@ -198,6 +201,9 @@ public class AttendanceList extends AppCompatActivity {
                 }
                 listItems.remove(position);
                 adapter.notifyItemRemoved(position);
+                if(adapter.getItemCount() == 0){
+                    finish();
+                }
             }
 
             @Override
