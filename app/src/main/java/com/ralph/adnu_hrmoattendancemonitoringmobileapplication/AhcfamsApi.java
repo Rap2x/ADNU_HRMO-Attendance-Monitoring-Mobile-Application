@@ -72,6 +72,7 @@ public interface AhcfamsApi {
             @Part("token")RequestBody token,
             @Part("cid")RequestBody cid,
             @Part("remarks")RequestBody remarks,
+            @Part("reason") RequestBody reason,
             @Part MultipartBody.Part spath
     );
 

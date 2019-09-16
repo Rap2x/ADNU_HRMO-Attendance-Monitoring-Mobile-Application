@@ -51,9 +51,7 @@ public class AttendanceList extends AppCompatActivity {
 
     private List<AttendanceListItem> listItems;
 
-
     private static AhcfamsApi ahcfamsApi;
-
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     String currentPhotoPath;
@@ -215,8 +213,6 @@ public class AttendanceList extends AppCompatActivity {
             }
         });
     }
-
-
 
     private void dispatchTakePictureIntent(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

@@ -9,18 +9,20 @@ public class ConfirmationNotice {
     private String CONFIRMATION_NOTICE_DATE;
     private String ELECTRONIC_SIGNATURE;
     private String REMARKS;
+    private String REASON;
 
     public ConfirmationNotice(String id, String token) {
         this.id = id;
         this.token = token;
     }
 
-    public ConfirmationNotice(String id, String token, String CONFIRMATION_NOTICE_ID, String ELECTRONIC_SIGNATURE, String REMARKS) {
-        this.id = id;
-        this.token = token;
+    public ConfirmationNotice(String CONFIRMATION_NOTICE_ID, String FACULTY_ATTENDANCE_ID, String CONFIRMATION_NOTICE_DATE, String ELECTRONIC_SIGNATURE, String REMARKS, String REASON) {
         this.CONFIRMATION_NOTICE_ID = CONFIRMATION_NOTICE_ID;
+        this.FACULTY_ATTENDANCE_ID = FACULTY_ATTENDANCE_ID;
+        this.CONFIRMATION_NOTICE_DATE = CONFIRMATION_NOTICE_DATE;
         this.ELECTRONIC_SIGNATURE = ELECTRONIC_SIGNATURE;
         this.REMARKS = REMARKS;
+        this.REASON = REASON;
     }
 
     public String getId() {

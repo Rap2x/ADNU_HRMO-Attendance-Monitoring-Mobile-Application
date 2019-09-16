@@ -116,7 +116,7 @@ public class Signature extends AppCompatActivity {
 
         onClickListener();
 
-        absentReason.setEnabled(false);
+        absentReason.setEnabled(true);
     }
 
     @Override
@@ -220,10 +220,12 @@ public class Signature extends AppCompatActivity {
                     if(appeal){
                         Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
                         MainActivity.myDB.createAbsenceAppeal(confirmation_notice_id, absentReason.getText().toString());
-                    }
+                    }else
+                        MainActivity.myDB.addReason(confirmation_notice_id, absentReason.getText().toString());
 
                     if(isInserted) {
                         signaturePad.clear();
+                        MainActivity.myDB.changeSync("confirmation_notice_id", confirmation_notice_id, "confirmed", "CONFIRMATION_NOTICE");
                         finish();
                     }else
                         Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
@@ -256,7 +258,6 @@ public class Signature extends AppCompatActivity {
             case R.id.radioPresent:
                 if(checked){
                     Toast.makeText(getApplicationContext(), "Present", Toast.LENGTH_SHORT).show();
-                    absentReason.setEnabled(true);
                     appeal = true;
                 }
                 break;
@@ -264,7 +265,6 @@ public class Signature extends AppCompatActivity {
             case R.id.radioAbsent:
                 if(checked){
                     Toast.makeText(getApplicationContext(), "Absent", Toast.LENGTH_SHORT).show();
-                    absentReason.setEnabled(false);
                     appeal = false;
                 }
                 break;

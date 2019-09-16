@@ -45,6 +45,15 @@ public class ConfirmationNoticeList extends AppCompatActivity {
 
         onClickListener();
     }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        finish();
+        startActivity(getIntent());
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);

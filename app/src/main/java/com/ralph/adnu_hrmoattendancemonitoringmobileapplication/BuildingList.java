@@ -281,7 +281,7 @@ public class BuildingList extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<ConfirmationNotice>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Confirmation Notice: Errora", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -341,7 +341,7 @@ public class BuildingList extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), count.toString(), Toast.LENGTH_SHORT).show();
 
         for(int i = 0; i < confirmationNotice.getCount(); i++){
-            File file = new File(confirmationNotice.getString(3));
+            File file = new File(confirmationNotice.getString(4));
             MultipartBody.Part signature;
 
             if(isEmpty(confirmationNotice.getString(3))){
@@ -356,9 +356,10 @@ public class BuildingList extends AppCompatActivity {
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
             RequestBody token = RequestBody.create(MediaType.parse("text/plain"), userToken);
             RequestBody cid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
-            RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(4));
+            RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(5));
+            RequestBody reason = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(3));
 
-            Call call = ahcfamsApi.confirmation_notice(id, token, cid, remarks, signature);
+            Call call = ahcfamsApi.confirmation_notice(id, token, cid, remarks, reason, signature);
             call.enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) {
