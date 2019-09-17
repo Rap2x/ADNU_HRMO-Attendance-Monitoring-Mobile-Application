@@ -219,7 +219,6 @@ public class Signature extends AppCompatActivity {
 
                     if(appeal){
                         Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
-                        MainActivity.myDB.createAbsenceAppeal(confirmation_notice_id, absentReason.getText().toString());
                     }else
                         MainActivity.myDB.addReason(confirmation_notice_id, absentReason.getText().toString());
 

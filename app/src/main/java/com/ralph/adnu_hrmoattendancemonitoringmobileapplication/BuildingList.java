@@ -99,7 +99,6 @@ public class BuildingList extends AppCompatActivity {
                 break;
             case R.id.upload_confirmation_notice:
                 uploadConfirmationNotice();
-                uploadAbsenceAppeal();
                 break;
             case R.id.upload_faculty_attendance:
                 uploadFacultyAttendance();
@@ -375,31 +374,6 @@ public class BuildingList extends AppCompatActivity {
 
             if(!confirmationNotice.isLast()){
                 confirmationNotice.moveToNext();
-            }
-        }
-    }
-
-    public void uploadAbsenceAppeal(){
-        List<AbsenceAppeal> absenceAppealItems = new ArrayList<>();
-
-        final Cursor absenceAppeal = MainActivity.myDB.getAllAbsenceAppeal();
-
-        for(int i = 0; i < absenceAppeal.getCount(); i++){
-
-            Call<AbsenceAppeal> call = ahcfamsApi.absence_appeal(userStaffId, userToken, absenceAppeal.getString(0), absenceAppeal.getString(1), absenceAppeal.getString(2), absenceAppeal.getString(3), absenceAppeal.getString(4), absenceAppeal.getString(5), absenceAppeal.getString(6));
-            call.enqueue(new Callback<AbsenceAppeal>() {
-                @Override
-                public void onResponse(Call<AbsenceAppeal> call, Response<AbsenceAppeal> response) {
-                    //MainActivity.myDB.changeSync(absenceAppeal.getString(0), "absence_appeal_id", "ABSENCE_APPEAL");
-                }
-
-                @Override
-                public void onFailure(Call<AbsenceAppeal> call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            if(!(absenceAppeal.isLast())){
-                absenceAppeal.moveToNext();
             }
         }
     }

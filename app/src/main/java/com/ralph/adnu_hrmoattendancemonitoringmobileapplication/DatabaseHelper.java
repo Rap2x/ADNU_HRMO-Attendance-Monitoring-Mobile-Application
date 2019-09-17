@@ -32,7 +32,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, half_day INTEGER NOT NULL, hours FLOAT NOT NULL)");
         db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
         db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, reason TEXT,electronic_signature VARCHAR, remarks VARCHAR, synchronized INTEGER, confirmed INTEGER)");
-        db.execSQL("CREATE TABLE ABSENCE_APPEAL( absence_appeal_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_id VARCHAR NOT NULL, staff_id VARCHAR, chairperson_id VARCHAR, absence_appeal_reason VARCHAR, validated INTEGER, remarks INTEGER, synchronized INTEGER)");
     }
 
     @Override
@@ -545,13 +544,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put("synchronized", "0");
 
         writeDB.insert("ABSENCE_APPEAL",null, contentValues);
-    }
-
-    public Cursor getAllAbsenceAppeal(){
-        Cursor res = readDB.rawQuery("select * from absence_appeal where synchronized = 0", null);
-        res.moveToFirst();
-
-        return res;
     }
 
     public boolean changeRoute(String id, String route){
