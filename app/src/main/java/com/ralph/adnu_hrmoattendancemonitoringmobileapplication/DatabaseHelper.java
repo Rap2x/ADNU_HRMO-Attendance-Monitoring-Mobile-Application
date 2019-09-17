@@ -28,7 +28,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE FACULTY( faculty_id VARCHAR PRIMARY KEY NOT NULL, name VARCHAR NOT NULL, department VARCHAR NOT NULL, college VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE USER ( user_id VARCHAR PRIMARY KEY NOT NULL, last_login TEXT, route_id INTEGER, token VARCHAR)");
         db.execSQL("CREATE TABLE ROUTE( route_id INTEGER PRIMARY KEY NOT NULL, description VARCHAR)");
-        db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, route_id INTEGER, building_name VARCHAR NOT NULL, room_order VARCHAR NOT NULL)");
+        db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, route_id INTEGER NOT NULL, building_name VARCHAR NOT NULL, room_order VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, half_day INTEGER NOT NULL, hours FLOAT NOT NULL)");
         db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR, synchronized VARCHAR)");
         db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, faculty_attendance_id VARCHAR, confirmation_notice_date TEXT, reason TEXT,electronic_signature VARCHAR, remarks VARCHAR, synchronized INTEGER, confirmed INTEGER)");
@@ -447,7 +447,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getAllConfirmationNoticeOfAFaculty(String faculty_id){
-        Cursor res = readDB.rawQuery("SELECT confirmation_notice.confirmation_notice_id, faculty.faculty_id, faculty.name, class_schedule.subject_code, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section FROM faculty INNER JOIN class_schedule ON faculty.faculty_id = class_schedule.faculty_id INNER JOIN faculty_attendance ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN confirmation_notice ON confirmation_notice.faculty_attendance_id = faculty_attendance.faculty_attendance_id WHERE faculty.faculty_id = '" + faculty_id + "' AND CONFIRMED = 0",null);
+        Cursor res = readDB.rawQuery("SELECT confirmation_notice.confirmation_notice_id, faculty.faculty_id, faculty.name, class_schedule.subject_code, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, faculty_attendance.attendance_date FROM faculty INNER JOIN class_schedule ON faculty.faculty_id = class_schedule.faculty_id INNER JOIN faculty_attendance ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN confirmation_notice ON confirmation_notice.faculty_attendance_id = faculty_attendance.faculty_attendance_id WHERE faculty.faculty_id = '" + faculty_id + "' AND CONFIRMED = 0",null);
         res.moveToFirst();
         return res;
     }
@@ -621,6 +621,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("REASON", reason);
+        contentValues.put("CONFIRMED", 1);
 
         long result = writeDB.update("CONFIRMATION_NOTICE", contentValues, "CONFIRMATION_NOTICE_ID = '" + id + "'", null);
 

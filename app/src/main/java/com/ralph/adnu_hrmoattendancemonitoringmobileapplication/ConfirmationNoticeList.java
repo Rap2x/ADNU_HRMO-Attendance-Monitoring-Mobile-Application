@@ -103,9 +103,11 @@ public class ConfirmationNoticeList extends AppCompatActivity {
                     confirmationNoticeData.getString(1),
                     confirmationNoticeData.getString(2),
                     confirmationNoticeData.getString(3)+ "." + confirmationNoticeData.getString(5),
-                    confirmationNoticeData.getString(4)
+                    confirmationNoticeData.getString(4),
+                    confirmationNoticeData.getString(6)
             );
             listItems.add(listItem);
+            confirmationNoticeData.moveToNext();
         }
 
         adapter = new ConfirmationNoticeAdapter(listItems,this);

@@ -358,8 +358,9 @@ public class BuildingList extends AppCompatActivity {
             RequestBody cid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
             RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(5));
             RequestBody reason = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(3));
+            RequestBody confirmed = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(7));
 
-            Call call = ahcfamsApi.confirmation_notice(id, token, cid, remarks, reason, signature);
+            Call call = ahcfamsApi.confirmation_notice(id, token, cid, remarks, reason, confirmed ,signature);
             call.enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) {

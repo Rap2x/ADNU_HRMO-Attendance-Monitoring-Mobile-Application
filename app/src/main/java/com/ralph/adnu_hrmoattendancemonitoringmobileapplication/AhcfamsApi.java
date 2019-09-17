@@ -73,6 +73,7 @@ public interface AhcfamsApi {
             @Part("cid")RequestBody cid,
             @Part("remarks")RequestBody remarks,
             @Part("reason") RequestBody reason,
+            @Part("confirmed") RequestBody confirmed,
             @Part MultipartBody.Part spath
     );
 

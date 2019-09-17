@@ -6,13 +6,19 @@ public class ConfirmationNoticeListItem {
     private String facultyName;
     private String subjectCode;
     private String time;
+    private String date;
 
-    public ConfirmationNoticeListItem(String confirmationNoticeId, String facultyId, String facultyName, String subjectCode, String time) {
+    public ConfirmationNoticeListItem(String confirmationNoticeId, String facultyId, String facultyName, String subjectCode, String time, String date) {
         this.confirmationNoticeId = confirmationNoticeId;
         this.facultyId = facultyId;
         this.facultyName = facultyName;
         this.subjectCode = subjectCode;
         this.time = time;
+        this.date = date;
+    }
+
+    public String getDate() {
+        return date;
     }
 
     public String getConfirmationNoticeId() {
