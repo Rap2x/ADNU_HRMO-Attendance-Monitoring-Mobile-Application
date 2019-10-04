@@ -13,7 +13,6 @@ public class ClassSchedule {
     private String CLASS_SECTION;
     private String CLASS_DAY;
     private String SUBJECT_CODE;
-    private String HALF_DAY;
     private String HOURS;
 
     public ClassSchedule(String id, String token) {
@@ -59,10 +58,6 @@ public class ClassSchedule {
 
     public String getSUBJECT_CODE() {
         return SUBJECT_CODE;
-    }
-
-    public String getHALF_DAY() {
-        return HALF_DAY;
     }
 
     public String getHOURS() {

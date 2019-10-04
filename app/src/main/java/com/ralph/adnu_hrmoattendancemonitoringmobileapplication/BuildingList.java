@@ -83,18 +83,15 @@ public class BuildingList extends AppCompatActivity {
                 break;
             case R.id.action_faculty_attendance:
                 MainActivity.myDB.createAttendance();
-                updateConfirmationNotice();
                 break;
             case R.id.settings:
                 openSettings();
                 break;
             case R.id.update_database:
                 updateFaculty();
-                updateRoute();
                 updateClassSchedule();
                 updateRoom();
-                updateConfirmationNotice();
-                updateAbsenceAppeal();
+                //updateAbsenceAppeal();
                 updateFacultyAttendance();
                 break;
             case R.id.upload_confirmation_notice:
@@ -123,13 +120,15 @@ public class BuildingList extends AppCompatActivity {
 
         Cursor buildingData = MainActivity.myDB.getBuildings();
 
-        Integer buildingCount = buildingData.getCount();
+        Integer buildingCount = buildingData.getCount(); // remove
+        Toast.makeText(getApplicationContext(), buildingData.getString(0), Toast.LENGTH_SHORT).show();
 
         for(int i = 0; i < buildingData.getCount(); i++){
             BuildingListItem listItem = new BuildingListItem(buildingData.getString(0));
             if(MainActivity.myDB.isClassAvailable(buildingData.getString(0))){
                 listItems.add(listItem);
-            }
+            }else
+                Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
 
             if(!buildingData.isLast()){
                 buildingData.moveToNext();
@@ -174,6 +173,8 @@ public class BuildingList extends AppCompatActivity {
                         boolean isInserted = MainActivity.myDB.updateFaculty(faculty1.getFACULTY_ID(), faculty1.getNAME(),faculty1.getDEPARTMENT(), faculty1.getCOLLEGE());
                         if (!isInserted)
                             Toast.makeText(getApplicationContext(), "Faculty Error", Toast.LENGTH_SHORT).show();
+                        else
+                            MainActivity.currentFacultyCount += 1;
                     }
 
                 }
@@ -222,7 +223,7 @@ public class BuildingList extends AppCompatActivity {
                     boolean isInserted = false;
                     try {
                         Day day = new Day(classSchedule1.getCLASS_DAY());
-                        isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), day.parseDay(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHALF_DAY(), classSchedule1.getHOURS());
+                        isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), day.parseDay(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHOURS());
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -249,7 +250,7 @@ public class BuildingList extends AppCompatActivity {
                 List<Room> rooms = response.body();
 
                 for (Room room1 : rooms){
-                    boolean isInserted = MainActivity.myDB.updateRoom(room1.getROOM_ID(), room1.getROUTE_ID(), room1.getBUILDING_NAME(), room1.getROOM_ORDER());
+                    boolean isInserted = MainActivity.myDB.updateRoom(room1.getROOM_ID(), room1.getROOM_NAME(), room1.getBUILDING_NAME(), room1.getROUTE_ID());
                     if (!isInserted)
                         Toast.makeText(getApplicationContext(), "Room: Error", Toast.LENGTH_SHORT).show();
                 }
@@ -316,7 +317,7 @@ public class BuildingList extends AppCompatActivity {
             public void onResponse(Call<List<FacultyAttendance>> call, Response<List<FacultyAttendance>> response) {
                 List<FacultyAttendance> facultyAttendances = response.body();
                 for (FacultyAttendance facultyAttendance1 : facultyAttendances){
-                    boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(),facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(),facultyAttendance1.getATTENDANCE_DATE(),facultyAttendance1.getFIRST_CHECK(),facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSALARY_DEDUCTION(), facultyAttendance1.getSTATUS());
+                    boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(), facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(), facultyAttendance1.getATTENDANCE_DATE(), facultyAttendance1.getFIRST_CHECK(), facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSTATUS(),facultyAttendance1.getCONFIRMATION_NOTICE_DATE(), facultyAttendance1.getREASON(), facultyAttendance1.getELECTRONIC_SIGNATURE(), facultyAttendance1.getREMARKS());
                     if(!isInserted)
                         Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
                 }

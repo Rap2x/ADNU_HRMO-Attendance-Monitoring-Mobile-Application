@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                             userToken = userCredentials.get(1).toString();
                             userRoute = userCredentials.get(2).toString();
 
-                            getTableRowCounts();
+                            //getTableRowCounts();
                         }
                         else
                             Toast.makeText(getApplicationContext(), "Error: Database not Updated", Toast.LENGTH_SHORT).show();

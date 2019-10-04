@@ -22,9 +22,11 @@ public class FacultyAttendance {
     private String SECOND_CHECK;
     private String FIRST_IMAGE_FILE;
     private String SECOND_IMAGE_FILE;
-    private String SALARY_DEDUCTION;
     private String STATUS;
-    private String NOTIFIED;
+    private String CONFIRMATION_NOTICE_DATE;
+    private String REASON;
+    private String ELECTRONIC_SIGNATURE;
+    private String REMARKS;
 
 
 
@@ -169,15 +171,23 @@ public class FacultyAttendance {
         return SECOND_IMAGE_FILE;
     }
 
-    public String getSALARY_DEDUCTION() {
-        return SALARY_DEDUCTION;
-    }
-
     public String getSTATUS() {
         return STATUS;
     }
 
-    public String getNOTIFIED() {
-        return NOTIFIED;
+    public String getCONFIRMATION_NOTICE_DATE() {
+        return CONFIRMATION_NOTICE_DATE;
+    }
+
+    public String getREASON() {
+        return REASON;
+    }
+
+    public String getELECTRONIC_SIGNATURE() {
+        return ELECTRONIC_SIGNATURE;
+    }
+
+    public String getREMARKS() {
+        return REMARKS;
     }
 }
