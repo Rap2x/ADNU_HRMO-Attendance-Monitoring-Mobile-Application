@@ -89,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
 
         currentDay = getDay();
 
+        myDB.clearUser();
+
     }
 
     private void onClickListener(){
@@ -191,11 +193,12 @@ public class MainActivity extends AppCompatActivity {
                             userStaffId = userCredentials.get(0).toString();
                             userToken = userCredentials.get(1).toString();
                             userRoute = userCredentials.get(2).toString();
+                            Toast.makeText(getApplicationContext(), userStaffId + userToken, Toast.LENGTH_SHORT).show();
 
                             //getTableRowCounts();
                         }
                         else
-                            Toast.makeText(getApplicationContext(), "Error: Database not Updated", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), loginResponse.getMessage(), Toast.LENGTH_SHORT).show();
                     }
 
                 }

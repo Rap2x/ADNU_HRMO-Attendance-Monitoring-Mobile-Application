@@ -64,7 +64,7 @@ public class Signature extends AppCompatActivity {
 
     private AhcfamsApi ahcfamsApi;
 
-    private String confirmation_notice_id;
+    private String faculty_attendance_id;
 
     private Cursor confirmationNoticeData;
     private Cursor facultyData;
@@ -72,10 +72,6 @@ public class Signature extends AppCompatActivity {
     private String faculty_id;
 
     private EditText absentReason;
-
-    private boolean appeal = false;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +83,7 @@ public class Signature extends AppCompatActivity {
         createRetrofitClient();
 
         faculty_id = getIntent().getStringExtra("faculty_id");
-        confirmation_notice_id = getIntent().getStringExtra("confirmation_notice_id");
+        faculty_attendance_id = getIntent().getStringExtra("faculty_attendance_id");
 
         bindData();
 
@@ -215,16 +211,14 @@ public class Signature extends AppCompatActivity {
                 Bitmap signatureBitmap = signaturePad.getSignatureBitmap();
 
                 try {
-                    Boolean isInserted = MainActivity.myDB.saveSignature(confirmation_notice_id, saveSignature(signatureBitmap));
-
-                    if(appeal){
-                        Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
-                    }else
-                        MainActivity.myDB.addReason(confirmation_notice_id, absentReason.getText().toString());
+                    Boolean isInserted = MainActivity.myDB.saveSignature(faculty_attendance_id, saveSignature(signatureBitmap));
 
                     if(isInserted) {
                         signaturePad.clear();
-                        MainActivity.myDB.changeSync("confirmation_notice_id", confirmation_notice_id, "confirmed", "CONFIRMATION_NOTICE");
+                        MainActivity.myDB.changeSync("faculty_attendance_id", faculty_attendance_id, "confirmed", "FACULTY_ATTENDANCE");
+                        Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
+                        MainActivity.myDB.addReason(faculty_attendance_id, absentReason.getText().toString());
+                        Toast.makeText(getApplicationContext(), absentReason.getText().toString(), Toast.LENGTH_SHORT).show();
                         finish();
                     }else
                         Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
@@ -234,13 +228,10 @@ public class Signature extends AppCompatActivity {
                 }
             }
         });
-
-
-
     }
 
     private void showConfirmationNoticeDetails(){
-        confirmationNoticeData = MainActivity.myDB.getConfirmationNotice(faculty_id, confirmation_notice_id);
+        confirmationNoticeData = MainActivity.myDB.getConfirmationNotice(faculty_id, faculty_attendance_id);
         facultyData = MainActivity.myDB.getFacultyDetails(faculty_id);
 
         name.setText("Name: "+facultyData.getString(1));
@@ -257,14 +248,12 @@ public class Signature extends AppCompatActivity {
             case R.id.radioPresent:
                 if(checked){
                     Toast.makeText(getApplicationContext(), "Present", Toast.LENGTH_SHORT).show();
-                    appeal = true;
                 }
                 break;
 
             case R.id.radioAbsent:
                 if(checked){
                     Toast.makeText(getApplicationContext(), "Absent", Toast.LENGTH_SHORT).show();
-                    appeal = false;
                 }
                 break;
         }

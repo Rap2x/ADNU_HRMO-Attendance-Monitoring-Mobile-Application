@@ -333,7 +333,7 @@ public class BuildingList extends AppCompatActivity {
     public void uploadConfirmationNotice(){
         List<ConfirmationNotice> confirmationNoticeItems = new ArrayList<>();
 
-        final Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
+        Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
         confirmationNotice.moveToFirst();
 
         Integer count = confirmationNotice.getCount();
@@ -344,27 +344,28 @@ public class BuildingList extends AppCompatActivity {
             File file = new File(confirmationNotice.getString(4));
             MultipartBody.Part signature;
 
-            if(isEmpty(confirmationNotice.getString(3))){
+            if(isEmpty(confirmationNotice.getString(4))){
                 RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"),"");
 
-                signature = MultipartBody.Part.createFormData("spath", "", fileReqBody);
+                signature = MultipartBody.Part.createFormData("esignature", "", fileReqBody);
             }else{
                 RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
-                signature = MultipartBody.Part.createFormData("spath", file.getName(), fileReqBody);
+                signature = MultipartBody.Part.createFormData("esignature", file.getName(), fileReqBody);
             }
 
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
             RequestBody token = RequestBody.create(MediaType.parse("text/plain"), userToken);
-            RequestBody cid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
-            RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(5));
+            RequestBody faid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
+            RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(2));
             RequestBody reason = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(3));
-            RequestBody confirmed = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(7));
+            RequestBody confirmed = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(5));
+            RequestBody date = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(1));
 
-            Call call = ahcfamsApi.confirmation_notice(id, token, cid, remarks, reason, confirmed ,signature);
+            Call call = ahcfamsApi.confirmation_notice(id, token, faid, date, remarks, reason, confirmed ,signature);
             call.enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) {
-                    //change the synchronized to 1
+
                 }
 
                 @Override
@@ -387,6 +388,7 @@ public class BuildingList extends AppCompatActivity {
         facultyAttendance.moveToFirst();
 
         for (int i = 0; i < facultyAttendance.getCount(); i++){
+            Toast.makeText(getApplicationContext(), facultyAttendance.getString(0), Toast.LENGTH_SHORT).show();
             File file1 = new File(facultyAttendance.getString(6));
             File file2 = new File(facultyAttendance.getString(7));
             MultipartBody.Part firstImage;
@@ -441,15 +443,14 @@ public class BuildingList extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            RequestBody sdeduct = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(8));
-            RequestBody status = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(9));
+            RequestBody status = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(8));
 
-            Call call = ahcfamsApi.faculty_attendance(id, token, faid, sid, csid, adate, fcheck, scheck, firstImage, secondImage, sdeduct, status);
+            Call call = ahcfamsApi.faculty_attendance(id, token, faid, sid, csid, adate, fcheck, scheck, firstImage, secondImage, status);
 
             call.enqueue(new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) {
-                    //MainActivity.myDB.changeSync(facultyAttendance.getString(0));
+                    MainActivity.myDB.changeSync("faculty_attendance_id",facultyAttendance.getString(0), "attendance_synchronized", "FACULTY_ATTENDANCE");
                 }
 
                 @Override

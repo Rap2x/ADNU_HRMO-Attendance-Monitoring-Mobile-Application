@@ -1,15 +1,15 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 public class ConfirmationNoticeListItem {
-    private String confirmationNoticeId;
+    private String facultyAttendanceId;
     private String facultyId;
     private String facultyName;
     private String subjectCode;
     private String time;
     private String date;
 
-    public ConfirmationNoticeListItem(String confirmationNoticeId, String facultyId, String facultyName, String subjectCode, String time, String date) {
-        this.confirmationNoticeId = confirmationNoticeId;
+    public ConfirmationNoticeListItem(String facultyAttendanceId, String facultyId, String facultyName, String subjectCode, String time, String date) {
+        this.facultyAttendanceId = facultyAttendanceId;
         this.facultyId = facultyId;
         this.facultyName = facultyName;
         this.subjectCode = subjectCode;
@@ -21,8 +21,8 @@ public class ConfirmationNoticeListItem {
         return date;
     }
 
-    public String getConfirmationNoticeId() {
-        return confirmationNoticeId;
+    public String getFacultyAttendanceId() {
+        return facultyAttendanceId;
     }
 
     public String getFacultyId() {
@@ -41,8 +41,8 @@ public class ConfirmationNoticeListItem {
         return time;
     }
 
-    public void setConfirmationNoticeId(String confirmationNoticeId) {
-        this.confirmationNoticeId = confirmationNoticeId;
+    public void setFacultyAttendanceId(String facultyAttendanceId) {
+        this.facultyAttendanceId = facultyAttendanceId;
     }
 
     public void setFacultyId(String facultyId) {

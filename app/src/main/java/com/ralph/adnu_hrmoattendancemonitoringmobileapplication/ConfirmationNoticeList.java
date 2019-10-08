@@ -76,9 +76,9 @@ public class ConfirmationNoticeList extends AppCompatActivity {
             @Override
             public void onItemClick(int position) {
                 Intent intent = new Intent(getBaseContext(), Signature.class);
-                String confirmationNoticeId = listItems.get(position).getConfirmationNoticeId();
+                String facultyAttendanceId = listItems.get(position).getFacultyAttendanceId();
                 intent.putExtra("faculty_id", faculty_id);
-                intent.putExtra("confirmation_notice_id", confirmationNoticeId);
+                intent.putExtra("faculty_attendance_id", facultyAttendanceId);
                 startActivity(intent);
             }
         });

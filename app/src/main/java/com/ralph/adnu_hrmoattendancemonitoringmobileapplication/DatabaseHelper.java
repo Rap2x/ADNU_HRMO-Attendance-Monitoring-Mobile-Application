@@ -29,7 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE USER ( user_id VARCHAR PRIMARY KEY NOT NULL, last_login TEXT, route_id INTEGER, token VARCHAR)");
         db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, room_name VARCHAR NOT NULL, route_id INTEGER NOT NULL, building_name VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, hours FLOAT NOT NULL )");
-        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, salary_deduction CHARACTER, status VARCHAR, attendance_synchronized INTEGER, confirmation_notice_date TEXT, reason VARCHAR, electronic_signature VARCHAR, remarks VARCHAR, notice_synchronized INTEGER )");
+        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, status VARCHAR, attendance_synchronized INTEGER, confirmation_notice_date TEXT, reason VARCHAR, electronic_signature VARCHAR, remarks VARCHAR, confirmed INTEGER, notice_synchronized INTEGER )");
     }
 
     @Override
@@ -38,6 +38,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //db.execSQL("DROP TABLE IF EXISTS  FACULTY");
         //db.execSQL("DROP TABLE IF EXISTS STAFF");
         db.execSQL("DROP TABLE IF EXISTS USER");
+        db.execSQL("DROP TABLE IF EXISTS FACULTY_ATTENDANCE");
         onCreate(db);
     }
 
@@ -67,6 +68,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         else
             return true;
 
+    }
+
+    public void clearUser(){
+        writeDB.execSQL("delete from USER");
     }
 
     public ArrayList getUserCredentials(){
@@ -307,6 +312,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 contentValues.put("reason", "");
                 contentValues.put("electronic_signature", "");
                 contentValues.put("remarks", "");
+                contentValues.put("confirmed", "0");
                 contentValues.put("notice_synchronized", "0");
 
             }while(isRecorded(faculty_attendance_id, "faculty_attendance_id", "FACULTY_ATTENDANCE"));
@@ -354,7 +360,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getFacultyAttendance(){ // for uploading faculty attendance
 
-        Cursor res = readDB.rawQuery("select * from faculty_attendance where synchronized = '0' and first_check != '' and second_check != ''", null);
+        Cursor res = readDB.rawQuery("select faculty_attendance_id, staff_id, class_schedule_id, attendance_date, first_check, second_check, first_image_file, second_image_file, status  from faculty_attendance where attendance_synchronized = '0' and first_check != '' and second_check != ''", null);
         return res;
     }
 
@@ -447,13 +453,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getAllConfirmationNoticeOfAFaculty(String faculty_id){
-        Cursor res = readDB.rawQuery("SELECT confirmation_notice.confirmation_notice_id, faculty.faculty_id, faculty.name, class_schedule.subject_code, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, faculty_attendance.attendance_date FROM faculty INNER JOIN class_schedule ON faculty.faculty_id = class_schedule.faculty_id INNER JOIN faculty_attendance ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN confirmation_notice ON confirmation_notice.faculty_attendance_id = faculty_attendance.faculty_attendance_id WHERE faculty.faculty_id = '" + faculty_id + "' AND CONFIRMED = 0",null);
+        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id, faculty.faculty_id ,faculty.name, class_schedule.subject_code, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, faculty_attendance.attendance_date, faculty_attendance.confirmed from faculty_attendance inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id inner join faculty on class_schedule.faculty_id = faculty.faculty_id where faculty.faculty_id = '" + faculty_id + "' and faculty_attendance.status = 'Absent' and notice_synchronized = '0' and confirmed = '0' and attendance_synchronized = '1'",null);
         res.moveToFirst();
         return res;
     }
 
-    public Cursor getConfirmationNotice(String faculty_id, String confirmation_notice_id){
-        Cursor res = readDB.rawQuery("SELECT confirmation_notice.confirmation_notice_id, faculty.faculty_id, faculty.name, class_schedule.subject_code, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, confirmation_notice.remarks, class_schedule.room_id FROM faculty INNER JOIN class_schedule ON faculty.faculty_id = class_schedule.faculty_id INNER JOIN faculty_attendance ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN confirmation_notice ON confirmation_notice.faculty_attendance_id = faculty_attendance.faculty_attendance_id WHERE faculty.faculty_id = '" + faculty_id + "' AND confirmation_notice.confirmation_notice_id = '" + confirmation_notice_id + "'",null);
+    public Cursor getConfirmationNotice(String faculty_id, String faculty_attendance_id){
+        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id, faculty.faculty_id, faculty.name, class_schedule.subject_code, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, faculty_attendance.remarks, class_schedule.room_id from faculty_attendance inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id inner join faculty on class_schedule.faculty_id = faculty.faculty_id where faculty.faculty_id = '" + faculty_id + "' and faculty_attendance.faculty_attendance_id = '" + faculty_attendance_id + "'",null);
         res.moveToLast();
         return res;
     }
@@ -499,14 +505,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public boolean saveSignature(String confirmation_notice_id, String signaturePath){
+    public boolean saveSignature(String faculty_attendance_id, String signaturePath){
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("electronic_signature", signaturePath);
+        contentValues.put("confirmation_notice_date",MainActivity.getCurrentTime12Hours());
 
         long result;
 
-        result = writeDB.update("CONFIRMATION_NOTICE", contentValues, "confirmation_notice_id = '" + confirmation_notice_id + "'",null);
+        result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + faculty_attendance_id + "'",null);
 
         if(result == -1)
             return false;
@@ -515,7 +522,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getAllConfirmationNotice(){
-        Cursor res = readDB.rawQuery("select * from CONFIRMATION_NOTICE where synchronized <> '1'", null);
+        Cursor res = readDB.rawQuery("select faculty_attendance_id, attendance_date, remarks, reason, electronic_signature, confirmed from faculty_attendance where confirmed = '1' and notice_synchronized <> '1'", null);
 
         res.moveToFirst();
         return res;
@@ -572,7 +579,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public String getConfirmationNoticeCount(String faculty_id){
-        Cursor res = readDB.rawQuery("SELECT confirmation_notice.confirmation_notice_id FROM faculty INNER JOIN class_schedule ON faculty.faculty_id = class_schedule.faculty_id INNER JOIN faculty_attendance ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN confirmation_notice ON confirmation_notice.faculty_attendance_id = faculty_attendance.faculty_attendance_id WHERE faculty.faculty_id = '" + faculty_id + "' AND confirmed = 0", null);
+        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id from faculty_attendance inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id where faculty_attendance.status = 'Absent' and faculty_attendance.notice_synchronized = '0' and class_schedule.faculty_id = '" + faculty_id + "' and faculty_attendance.confirmed = '0' and faculty_attendance.attendance_synchronized = '1'", null);
 
         Integer count = res.getCount();
 
@@ -620,7 +627,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put("REASON", reason);
         contentValues.put("CONFIRMED", 1);
 
-        long result = writeDB.update("CONFIRMATION_NOTICE", contentValues, "CONFIRMATION_NOTICE_ID = '" + id + "'", null);
+        long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + id + "'", null);
 
         if(result == -1){
             return false;

@@ -30,7 +30,7 @@ public class FacultyAttendance {
 
 
 
-    public FacultyAttendance(String id, String token, String faid, String sid, String csid, String adate, String fcheck, String scheck, String fipath, String sipath, String sdeduct, String status) {
+    public FacultyAttendance(String id, String token, String faid, String sid, String csid, String adate, String fcheck, String scheck, String fipath, String sipath, String status) {
         this.id = id;
         this.token = token;
         this.faid = faid;
