@@ -69,6 +69,7 @@ public interface AhcfamsApi {
     Call<ConfirmationNotice> confirmation_notice(
             @Part("id")RequestBody id,
             @Part("token")RequestBody token,
+            @Part("cnid")RequestBody cnid,
             @Part("faid")RequestBody faid,
             @Part("date")RequestBody date,
             @Part("remarks")RequestBody remarks,

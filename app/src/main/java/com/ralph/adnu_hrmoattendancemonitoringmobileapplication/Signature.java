@@ -58,7 +58,6 @@ public class Signature extends AppCompatActivity {
     private TextView schedule;
     private TextView room;
     private TextView timeChecked;
-    private TextView remarks;
 
     private String currentPhotoPath;
 
@@ -85,6 +84,7 @@ public class Signature extends AppCompatActivity {
         faculty_id = getIntent().getStringExtra("faculty_id");
         faculty_attendance_id = getIntent().getStringExtra("faculty_attendance_id");
 
+        Toast.makeText(getApplicationContext(), faculty_attendance_id, Toast.LENGTH_SHORT).show();
         bindData();
 
         showConfirmationNoticeDetails();
@@ -129,7 +129,7 @@ public class Signature extends AppCompatActivity {
 
     private String saveSignature(Bitmap bitMapImage) throws IOException{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" ;
+        String imageFileName = "JPEG_" + timeStamp + "_" + MainActivity.userRoute + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 
@@ -191,7 +191,6 @@ public class Signature extends AppCompatActivity {
         schedule = (TextView) findViewById(R.id.schedule);
         room = (TextView)findViewById(R.id.signature_pad_room_id);
         timeChecked = (TextView) findViewById(R.id.timeChecked);
-        remarks = (TextView) findViewById(R.id.remarks);
 
         absentReason = (EditText) findViewById(R.id.reasonTextView);
     }
@@ -211,17 +210,19 @@ public class Signature extends AppCompatActivity {
                 Bitmap signatureBitmap = signaturePad.getSignatureBitmap();
 
                 try {
-                    Boolean isInserted = MainActivity.myDB.saveSignature(faculty_attendance_id, saveSignature(signatureBitmap));
+                    String confirmationNoticeId = MainActivity.myDB.getConfirmationNoticeId(faculty_attendance_id);
+                    Boolean isInserted = MainActivity.myDB.saveSignature(confirmationNoticeId, saveSignature(signatureBitmap));
 
                     if(isInserted) {
                         signaturePad.clear();
-                        MainActivity.myDB.changeSync("faculty_attendance_id", faculty_attendance_id, "confirmed", "FACULTY_ATTENDANCE");
+                        MainActivity.myDB.changeSync("confirmation_notice_id", confirmationNoticeId, "confirmed", "CONFIRMATION_NOTICE");
                         Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
-                        MainActivity.myDB.addReason(faculty_attendance_id, absentReason.getText().toString());
-                        Toast.makeText(getApplicationContext(), absentReason.getText().toString(), Toast.LENGTH_SHORT).show();
+                        MainActivity.myDB.addReason(confirmationNoticeId, absentReason.getText().toString());
                         finish();
-                    }else
+                    }else{
                         Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -234,11 +235,10 @@ public class Signature extends AppCompatActivity {
         confirmationNoticeData = MainActivity.myDB.getConfirmationNotice(faculty_id, faculty_attendance_id);
         facultyData = MainActivity.myDB.getFacultyDetails(faculty_id);
 
-        name.setText("Name: "+facultyData.getString(1));
-        time.setText("Time Schedule: " + confirmationNoticeData.getString(4));
-        schedule.setText("Subject Code and Section: " + confirmationNoticeData.getString(3)+ "." + confirmationNoticeData.getString(5));
-        room.setText("Room: " + confirmationNoticeData.getString(7));
-        remarks.setText("Remarks: " + confirmationNoticeData.getString(6));
+        name.setText("Name: "+ confirmationNoticeData.getString(0));
+        time.setText("Time Schedule: " + confirmationNoticeData.getString(1));
+        schedule.setText("Subject Code and Section: " + confirmationNoticeData.getString(3)+ "." + confirmationNoticeData.getString(2));
+        room.setText("Room: " + confirmationNoticeData.getString(4));
     }
 
     public void onRadioButtonClicked(View view){

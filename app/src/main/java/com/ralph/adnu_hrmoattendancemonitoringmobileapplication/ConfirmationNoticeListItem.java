@@ -41,23 +41,5 @@ public class ConfirmationNoticeListItem {
         return time;
     }
 
-    public void setFacultyAttendanceId(String facultyAttendanceId) {
-        this.facultyAttendanceId = facultyAttendanceId;
-    }
 
-    public void setFacultyId(String facultyId) {
-        this.facultyId = facultyId;
-    }
-
-    public void setFacultyName(String facultyName) {
-        this.facultyName = facultyName;
-    }
-
-    public void setSubjectCode(String subjectCode) {
-        this.subjectCode = subjectCode;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
 }

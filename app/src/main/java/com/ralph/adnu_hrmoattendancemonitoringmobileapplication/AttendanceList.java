@@ -241,7 +241,7 @@ public class AttendanceList extends AppCompatActivity {
 
     private File createImageFile() throws IOException{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" ;
+        String imageFileName = "JPEG_" + timeStamp + "_" + MainActivity.userRoute + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 

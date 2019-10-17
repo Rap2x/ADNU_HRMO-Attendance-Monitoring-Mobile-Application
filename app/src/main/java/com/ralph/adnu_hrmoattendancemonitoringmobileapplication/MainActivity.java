@@ -3,6 +3,7 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
@@ -76,6 +77,11 @@ public class MainActivity extends AppCompatActivity {
 
     public static String currentDay;
 
+    SharedPreferences sharedPreferences;
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String sessionId = "id";
+    public static final String sessionToken = "token";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
         currentDay = getDay();
 
         myDB.clearUser();
+
+        sharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
     }
 
@@ -185,16 +193,21 @@ public class MainActivity extends AppCompatActivity {
                         boolean isInserted = myDB.loginStaff(loginResponse.getUsername(), loginResponse.getToken(), loginResponse.getDateTime(), loginResponse.getRoute_id());
 
                         if(isInserted) { //Move to the next activity if inserted
-                            Intent in = new Intent(MainActivity.this, BuildingList.class);
-                            startActivity(in);
-                            Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();
-
                             ArrayList userCredentials = myDB.getUserCredentials();
                             userStaffId = userCredentials.get(0).toString();
                             userToken = userCredentials.get(1).toString();
                             userRoute = userCredentials.get(2).toString();
-                            Toast.makeText(getApplicationContext(), userStaffId + userToken, Toast.LENGTH_SHORT).show();
 
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                            editor.putString(sessionId, userStaffId);
+                            editor.putString(sessionToken, userToken);
+
+                            editor.commit();
+
+                            Intent in = new Intent(MainActivity.this, BuildingList.class);
+                            startActivity(in);
+                            Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();
                             //getTableRowCounts();
                         }
                         else

@@ -14,9 +14,12 @@ public class FacultyAttendance {
     private String sdeduct;
     private String status;
 
+    private String message;
+
     private String FACULTY_ATTENDANCE_ID;
     private String STAFF_ID;
     private String CLASS_SCHEDULE_ID;
+    private String CONFIRMATION_NOTICE_ID;
     private String ATTENDANCE_DATE;
     private String FIRST_CHECK;
     private String SECOND_CHECK;
@@ -189,5 +192,13 @@ public class FacultyAttendance {
 
     public String getREMARKS() {
         return REMARKS;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getCONFIRMATION_NOTICE_ID() {
+        return CONFIRMATION_NOTICE_ID;
     }
 }

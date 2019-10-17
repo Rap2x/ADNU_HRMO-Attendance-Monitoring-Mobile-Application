@@ -67,7 +67,7 @@ public class ConfirmationNoticeList extends AppCompatActivity {
     }
 
     private void createOptionMenu(){
-        android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
     }
 
@@ -91,6 +91,9 @@ public class ConfirmationNoticeList extends AppCompatActivity {
         confirmationNoticeData = MainActivity.myDB.getAllConfirmationNoticeOfAFaculty(faculty_id);
         confirmationNoticeData.moveToFirst();
 
+        Integer count = confirmationNoticeData.getCount();
+        Toast.makeText(getApplicationContext(), count.toString(), Toast.LENGTH_SHORT).show();
+
         recyclerView = (RecyclerView) findViewById(R.id.confirmation_notice_list_recyclerview);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -100,11 +103,11 @@ public class ConfirmationNoticeList extends AppCompatActivity {
         for(int i = 0; i < confirmationNoticeData.getCount(); i++){
             ConfirmationNoticeListItem listItem = new ConfirmationNoticeListItem(
                     confirmationNoticeData.getString(0),
-                    confirmationNoticeData.getString(1),
-                    confirmationNoticeData.getString(2),
-                    confirmationNoticeData.getString(3)+ "." + confirmationNoticeData.getString(5),
-                    confirmationNoticeData.getString(4),
-                    confirmationNoticeData.getString(6)
+                    "",
+                    "",
+                    confirmationNoticeData.getString(3) + "." + confirmationNoticeData.getString(4),
+                    confirmationNoticeData.getString(5),
+                    confirmationNoticeData.getString(7)
             );
             listItems.add(listItem);
             confirmationNoticeData.moveToNext();
