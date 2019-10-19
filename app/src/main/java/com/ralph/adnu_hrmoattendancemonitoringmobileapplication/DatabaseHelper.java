@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -617,5 +616,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         res.moveToFirst();
 
         return res.getString(0);
+    }
+
+    public boolean clearFirstImage(String faculty_attendance_id){
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("first_image_file", "");
+
+        long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + faculty_attendance_id + "'", null);
+        if (result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    public boolean clearSecondImage(String faculty_attendance_id){
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put("second_image_file", "");
+
+        long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + faculty_attendance_id + "'", null);
+        if (result == -1)
+            return false;
+        else
+            return true;
     }
 }

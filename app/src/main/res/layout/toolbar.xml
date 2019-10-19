@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#1C558D"
+    android:background="#0F1536"
     android:elevation="5dp"
     app:titleTextColor="@color/colorWhite">
 </android.support.v7.widget.Toolbar>

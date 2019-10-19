@@ -15,9 +15,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.text.ParseException;
@@ -326,7 +323,7 @@ public class BuildingList extends AppCompatActivity {
     public void uploadConfirmationNotice(){
         List<ConfirmationNotice> confirmationNoticeItems = new ArrayList<>();
 
-        Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
+        final Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
         confirmationNotice.moveToFirst();
 
         /*Integer count = confirmationNotice.getCount();
@@ -348,7 +345,7 @@ public class BuildingList extends AppCompatActivity {
 
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
             RequestBody token = RequestBody.create(MediaType.parse("text/plain"), userToken);
-            RequestBody cnid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
+            final RequestBody cnid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(0));
             RequestBody faid = RequestBody.create(MediaType.parse("text/plain"), confirmationNotice.getString(1));
             RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), "");
             RequestBody reason = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(3));
@@ -361,8 +358,9 @@ public class BuildingList extends AppCompatActivity {
                 @Override
                 public void onResponse(Call call, Response response) {
                     ConfirmationNotice noticeResponse = (ConfirmationNotice) response.body();
-                    if(noticeResponse.getStatus().equals(201)){
+                    if(noticeResponse.getStatus().equals("201")){
                         Toast.makeText(getApplicationContext(), noticeResponse.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                        MainActivity.myDB.changeSync("confirmation_notice_id", confirmationNotice.getString(0), "notice_synchronized", "CONFIRMATION_NOTICE");
                     }
                 }
 
@@ -450,10 +448,7 @@ public class BuildingList extends AppCompatActivity {
                 public void onResponse(Call<FacultyAttendance> call, Response<FacultyAttendance> response) {
                     FacultyAttendance attendanceResponse = response.body();
 
-                    String status = "201";
-
-                    if(attendanceResponse.getStatus().equals(status)){
-                        Toast.makeText(getApplicationContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+                    if(attendanceResponse.getStatus().equals("201")){
                         MainActivity.myDB.changeSync("faculty_attendance_id",facultyAttendance.getString(0), "attendance_synchronized", "FACULTY_ATTENDANCE");
                     }
                 }

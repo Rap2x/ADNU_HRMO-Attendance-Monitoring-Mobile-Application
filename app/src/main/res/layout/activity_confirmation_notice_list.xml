@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ConfirmationNoticeList"
-    android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+    android:background="@color/colorDarkBlue">
 
     <include
         android:id="@+id/app_bar"
@@ -22,7 +22,8 @@
         android:text="Fullname"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar" />
+        app:layout_constraintTop_toBottomOf="@+id/app_bar"
+        android:textColor="@color/colorDarkWhite"/>
 
     <TextView
         android:id="@+id/department"
@@ -32,7 +33,8 @@
         android:layout_marginTop="16dp"
         android:text="department"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name" />
+        app:layout_constraintTop_toBottomOf="@+id/name"
+        android:textColor="@color/colorDarkWhite"/>
 
     <TextView
         android:id="@+id/college"
@@ -42,7 +44,8 @@
         android:layout_marginTop="16dp"
         android:text="college"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/department" />
+        app:layout_constraintTop_toBottomOf="@+id/department"
+        android:textColor="@color/colorDarkWhite"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/confirmation_notice_list_recyclerview"

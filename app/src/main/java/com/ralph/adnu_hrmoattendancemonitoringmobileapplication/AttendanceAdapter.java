@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         void setAbsent(int position);
         void setPresent(int position);
         void viewConfirmationNotice(int position);
+        void onRadioButtonClicked(int position, View view);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){
@@ -38,6 +40,8 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         public Button buttonPresent;
         public Button buttonAbsent;
         public TextView noticeCount;
+        public RadioButton radioFirst;
+        public RadioButton radioSecond;
 
         public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
@@ -51,6 +55,8 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             buttonAbsent = (Button) itemView.findViewById(R.id.absent);
             buttonPresent = (Button) itemView.findViewById(R.id.present);
             noticeCount = (TextView) itemView.findViewById(R.id.notice_count);
+            radioFirst = (RadioButton) itemView.findViewById(R.id.firstCheck);
+            radioSecond = (RadioButton) itemView.findViewById(R.id.secondCheck);
 
             buttonAbsent.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -83,6 +89,30 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
                         int position = getAdapterPosition();
                         if(position != RecyclerView.NO_POSITION){
                             listener.viewConfirmationNotice(position);
+                        }
+                    }
+                }
+            });
+
+            radioFirst.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listener.onRadioButtonClicked(position, view);
+                        }
+                    }
+                }
+            });
+
+            radioSecond.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listener.onRadioButtonClicked(position, view);
                         }
                     }
                 }

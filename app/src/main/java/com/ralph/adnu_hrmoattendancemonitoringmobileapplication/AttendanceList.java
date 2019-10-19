@@ -2,6 +2,10 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,35 +17,28 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static android.text.TextUtils.isEmpty;
-import static com.ralph.adnu_hrmoattendancemonitoringmobileapplication.MainActivity.userStaffId;
-import static com.ralph.adnu_hrmoattendancemonitoringmobileapplication.MainActivity.userToken;
+import static android.graphics.Color.RED;
 
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class AttendanceList extends AppCompatActivity {
@@ -57,6 +54,8 @@ public class AttendanceList extends AppCompatActivity {
     String currentPhotoPath;
 
     private String buildingName;
+
+    private static String info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +135,6 @@ public class AttendanceList extends AppCompatActivity {
             );
 
             listItems.add(listItem);
-            Toast.makeText(getApplicationContext(), "Refreshed", Toast.LENGTH_SHORT).show();
             attendanceData.moveToNext();
         }
         adapter = new AttendanceAdapter(listItems, this);
@@ -144,33 +142,40 @@ public class AttendanceList extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         adapter.setOnItemClickListener(new AttendanceAdapter.OnItemClickListener() {
+            Integer set = 0;
+
             @Override
             public void setAbsent(int position) {
-                if (isEmpty(listItems.get(position).getFirst())){
+
+                if(set == 0){
                     listItems.get(position).setFirst("Absent");
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
                     if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
+
+                        info = "Name: " + listItems.get(position).getName() + " Subject Code: " + listItems.get(position).getSubjectCode() + " Room: " + listItems.get(position).getRoomNumber() + " Class Schedule: " + listItems.get(position).getClassTime();
                         MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file",currentPhotoPath,"first_check", MainActivity.getCurrentTime12Hours());
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
-                }else{
+                }else if(set == 1){
                     listItems.get(position).setSecond("Absent");
                     boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
                     if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
+                        info = "Name: " + listItems.get(position).getName() + " Subject Code: " + listItems.get(position).getSubjectCode() + " Room: " + listItems.get(position).getRoomNumber() + " Class Schedule: " + listItems.get(position).getClassTime();
                         MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "second_image_file", currentPhotoPath, "second_check", MainActivity.getCurrentTime12Hours());
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }
-                listItems.remove(position);
-                adapter.notifyItemRemoved(position);
+                //listItems.remove(position);
+                //adapter.notifyItemRemoved(position);
+                adapter.notifyItemChanged(position);
                 if(adapter.getItemCount() == 0){
                     finish();
                 }
@@ -178,27 +183,30 @@ public class AttendanceList extends AppCompatActivity {
 
             @Override
             public void setPresent(int position) {
-                if (isEmpty(listItems.get(position).getFirst())){
+                if(set == 0){
                     listItems.get(position).setFirst(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
-                    if(isUpdated) {
+                    boolean isCleared = MainActivity.myDB.clearFirstImage(listItems.get(position).getFacultyAttendance_Id());
+                    if(isUpdated && isCleared) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
-                }else{
+                }else if(set == 1){
                     listItems.get(position).setSecond(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
-                    if(isUpdated) {
+                    boolean isCleared = MainActivity.myDB.clearSecondImage(listItems.get(position).getFacultyAttendance_Id());
+                    if(isUpdated && isCleared) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }
-                listItems.remove(position);
-                adapter.notifyItemRemoved(position);
+                //listItems.remove(position);
+                //adapter.notifyItemRemoved(position);
+                adapter.notifyItemChanged(position);
                 if(adapter.getItemCount() == 0){
                     finish();
                 }
@@ -210,6 +218,25 @@ public class AttendanceList extends AppCompatActivity {
                 String faculty_id = listItems.get(position).getFaculty_id();
                 intent.putExtra("faculty_id", faculty_id);
                 startActivity(intent);
+            }
+
+            @Override
+            public void onRadioButtonClicked(int position, View view) {
+                boolean checked = ((RadioButton)view).isChecked();
+
+                switch (view.getId()){
+                    case R.id.firstCheck:
+                        if(checked){
+                            set = 0;
+                        }
+                        break;
+
+                    case R.id.secondCheck:
+                        if(checked){
+                            set = 1;
+                        }
+                        break;
+                }
             }
         });
     }
@@ -236,6 +263,7 @@ public class AttendanceList extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK){
             Toast.makeText(getApplicationContext(), "Image Saved", Toast.LENGTH_SHORT).show();
+            compressImage(currentPhotoPath);
         }
     }
 
@@ -249,5 +277,41 @@ public class AttendanceList extends AppCompatActivity {
         return image;
     }
 
+    private void compressImage(String photoPath){
+        File dir = new File(photoPath);
+        if(dir.exists()){
+            Toast.makeText(getApplicationContext(), "Current Photo Path", Toast.LENGTH_SHORT).show();
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap image = BitmapFactory.decodeFile(photoPath, options);
+            image = addWaterMark(image);
 
+            try(FileOutputStream out = new FileOutputStream(photoPath)){
+                image.compress(Bitmap.CompressFormat.JPEG, 20, out);
+            }catch(IOException e){
+                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private static Bitmap addWaterMark(Bitmap source){
+        int w = source.getWidth();
+        int h = source.getHeight();
+
+        Bitmap result = Bitmap.createBitmap(w, h, source.getConfig());
+
+        //Location of the watermark in the photo
+        float x = (float) (w * 0.6);
+        float y = (float) (h * 0.95);
+
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(source, 0, 0, null);
+
+        Paint paint = new Paint();
+        paint.setColor(RED);
+        paint.setTextSize(50);
+        paint.setAntiAlias(true);
+        canvas.drawText("Date: " + MainActivity.getCurrentDate() + " Time: " + MainActivity.getCurrentTime12Hours() + " " + info,x, y, paint);
+
+        return result;
+    }
 }
