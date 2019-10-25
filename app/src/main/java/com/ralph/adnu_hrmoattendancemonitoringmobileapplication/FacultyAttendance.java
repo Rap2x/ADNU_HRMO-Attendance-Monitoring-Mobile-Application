@@ -20,16 +20,13 @@ public class FacultyAttendance {
     private String STAFF_ID;
     private String CLASS_SCHEDULE_ID;
     private String CONFIRMATION_NOTICE_ID;
+    private String ROOM_ID;
     private String ATTENDANCE_DATE;
     private String FIRST_CHECK;
     private String SECOND_CHECK;
     private String FIRST_IMAGE_FILE;
     private String SECOND_IMAGE_FILE;
     private String STATUS;
-    private String CONFIRMATION_NOTICE_DATE;
-    private String REASON;
-    private String ELECTRONIC_SIGNATURE;
-    private String REMARKS;
 
 
 
@@ -178,20 +175,8 @@ public class FacultyAttendance {
         return STATUS;
     }
 
-    public String getCONFIRMATION_NOTICE_DATE() {
-        return CONFIRMATION_NOTICE_DATE;
-    }
-
-    public String getREASON() {
-        return REASON;
-    }
-
-    public String getELECTRONIC_SIGNATURE() {
-        return ELECTRONIC_SIGNATURE;
-    }
-
-    public String getREMARKS() {
-        return REMARKS;
+    public String getROOM_ID() {
+        return ROOM_ID;
     }
 
     public String getMessage() {

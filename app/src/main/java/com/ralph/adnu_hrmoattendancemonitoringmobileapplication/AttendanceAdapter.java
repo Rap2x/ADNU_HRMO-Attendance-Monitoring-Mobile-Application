@@ -149,7 +149,6 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         viewHolder.textViewSecond.setText(listItem.getSecond());
         viewHolder.noticeCount.setText(listItem.getNoticeCount());
         if(!(listItem.getNoticeCount().equals("0"))){
-            //viewHolder.noticeCount.setTextColor(Color.RED);
             viewHolder.noticeCount.setTextColor(Color.RED);
         }
     }

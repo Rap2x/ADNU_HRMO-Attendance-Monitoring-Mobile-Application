@@ -26,9 +26,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE FACULTY( faculty_id VARCHAR PRIMARY KEY NOT NULL, name VARCHAR NOT NULL, department VARCHAR NOT NULL, college VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE USER ( user_id VARCHAR PRIMARY KEY NOT NULL, last_login TEXT, route_id INTEGER, token VARCHAR)");
-        db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, room_name VARCHAR NOT NULL, route_id INTEGER NOT NULL, building_name VARCHAR NOT NULL)");
-        db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, room_id VARCHAR, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, hours FLOAT NOT NULL )");
-        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR NOT NULL, class_schedule_id VARCHAR NOT NULL, confirmation_notice_id VARCHAR, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, status VARCHAR, attendance_synchronized INTEGER)");
+        db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, room_name VARCHAR NOT NULL, route INTEGER NOT NULL, building_name VARCHAR NOT NULL)");
+        db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, hours FLOAT NOT NULL )");
+        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR, class_schedule_id VARCHAR NOT NULL, room_id VARCHAR, confirmation_notice_id VARCHAR, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, status VARCHAR, attendance_synchronized INTEGER)");
         db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_date TEXT, reason VARCHAR, electronic_signature VARCHAR, remarks VARCHAR, confirmed INTEGER, notice_synchronized INTEGER)");
     }
 
@@ -229,11 +229,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    public boolean updateClassSchedule(String class_schedule_id, String room_id, String faculty_id, String semester, String school_year, String start_time, String end_time, String class_section, String class_day, String subject_code, String hours){
+    public boolean updateClassSchedule(String class_schedule_id, String faculty_id, String semester, String school_year, String start_time, String end_time, String class_section, String class_day, String subject_code, String hours){
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("class_schedule_id", class_schedule_id);
-        contentValues.put("room_id", room_id);
         contentValues.put("faculty_id", faculty_id);
         contentValues.put("semester", semester);
         contentValues.put("school_year", school_year);
@@ -347,7 +346,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAttendanceList(String building_name){
 
-        Cursor res = readDB.rawQuery("SELECT faculty_attendance_id, class_schedule.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check, faculty.faculty_id FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = class_schedule.room_id where attendance_date = '" + MainActivity.getCurrentDate()+ "' AND class_schedule.start_time <= '" + MainActivity.getCurrentTime()+ "' AND class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' AND room.route_id = '" + MainActivity.userRoute + "' AND room.building_name = '" + building_name + "' ORDER BY room.room_name ASC",null);
+        Cursor res = readDB.rawQuery("SELECT faculty_attendance.faculty_attendance_id, faculty_attendance.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check, faculty.faculty_id FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = faculty_attendance.room_id where attendance_date = '" + MainActivity.getCurrentDayOracleFormat() + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "'",null);
         return res;
     }
 
@@ -404,7 +403,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    public boolean updateRoom(String room_id, String room_name, String building_name, String route_id){
+    public boolean updateRoom(String room_id, String room_name, String building_name, String route){
 
         ContentValues contentValues = new ContentValues();
 
@@ -412,7 +411,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         contentValues.put("room_id", room_id);
         contentValues.put("room_name", room_name);
-        contentValues.put("route_id", route_id);
+        contentValues.put("route", route);
         contentValues.put("building_name", building_name);
 
         if(isRecorded(room_id, "room_id", "room")){
@@ -452,7 +451,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getConfirmationNotice(String faculty_id, String faculty_attendance_id){
-        Cursor res = readDB.rawQuery("select faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, class_schedule.subject_code, class_schedule.room_id from faculty inner join class_schedule on faculty.faculty_id = class_schedule.faculty_id",null);
+        Cursor res = readDB.rawQuery("select faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, class_schedule.subject_code, faculty_attendance.room_id from faculty inner join class_schedule on faculty.faculty_id = class_schedule.faculty_id inner join faculty_attendance on class_schedule.class_schedule_id = faculty_attendance.class_schedule_id",null);
         res.moveToLast();
         return res;
     }
@@ -463,20 +462,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public boolean updateFacultyAttendance(String faculty_attendance_id, String staff_id, String class_schedule_id,String confirmation_notice_id, String attendance_date, String first_check, String second_check, String first_image_file, String second_image_file, String status){
+    public boolean updateFacultyAttendance(String faculty_attendance_id, String staff_id, String class_schedule_id,String confirmation_notice_id, String room_id, String attendance_date, String first_check, String second_check, String first_image_file, String second_image_file, String status){
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("faculty_attendance_id", faculty_attendance_id);
         contentValues.put("staff_id", staff_id);
         contentValues.put("class_schedule_id", class_schedule_id);
         contentValues.put("confirmation_notice_id", confirmation_notice_id);
+        contentValues.put("room_id", room_id);
         contentValues.put("attendance_date", attendance_date);
         contentValues.put("first_check", first_check);
         contentValues.put("second_check", second_check);
         contentValues.put("first_image_file", first_image_file);
         contentValues.put("second_image_file", second_image_file);
-        contentValues.put("status", status);
-        contentValues.put("attendance_synchronized", "1");
+        contentValues.put("status", "");
+        contentValues.put("attendance_synchronized", "0");
 
         long result;
 
@@ -580,7 +580,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean isClassAvailable(String building_name){ // used for checking if there is a class in a building
-        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id from faculty_attendance inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id inner join room on class_schedule.room_id = room.room_id where room.route_id = '" + MainActivity.userRoute + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "'", null);
+        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id from faculty_attendance inner join room on faculty_attendance.room_id = room.room_id inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id where room.route = '" + MainActivity.userRoute + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "'", null);
         res.moveToFirst();
 
         if(res.getCount() > 0)

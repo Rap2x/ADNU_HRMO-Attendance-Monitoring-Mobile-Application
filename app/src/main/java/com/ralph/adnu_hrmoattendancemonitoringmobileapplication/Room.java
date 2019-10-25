@@ -3,7 +3,7 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 public class Room {
     private String ROOM_ID;
     private String ROOM_NAME;
-    private String ROUTE_ID;
+    private String ROUTE;
     private String BUILDING_NAME;
     private String id;
     private String token;
@@ -17,8 +17,8 @@ public class Room {
         return ROOM_ID;
     }
 
-    public String getROUTE_ID() {
-        return ROUTE_ID;
+    public String getROUTE() {
+        return ROUTE;
     }
 
     public String getBUILDING_NAME() {

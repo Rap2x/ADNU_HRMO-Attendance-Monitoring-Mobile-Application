@@ -1,11 +1,14 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -70,6 +73,14 @@ public class AttendanceList extends AppCompatActivity {
         createRetrofitClient();
 
         showList();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        BuildingList.uploadConfirmationNotice();
+        BuildingList.uploadFacultyAttendance();
     }
 
     @Override
@@ -147,8 +158,8 @@ public class AttendanceList extends AppCompatActivity {
             @Override
             public void setAbsent(int position) {
 
-                if(set == 0){
-                    listItems.get(position).setFirst("Absent");
+                if(listItems.get(position).getSet() == "0"){
+                    listItems.get(position).setFirst(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
                     if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
@@ -160,8 +171,8 @@ public class AttendanceList extends AppCompatActivity {
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
-                }else if(set == 1){
-                    listItems.get(position).setSecond("Absent");
+                }else if(listItems.get(position).getSet() == "1"){
+                    listItems.get(position).setSecond(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
                     if(isUpdated) {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
@@ -183,7 +194,7 @@ public class AttendanceList extends AppCompatActivity {
 
             @Override
             public void setPresent(int position) {
-                if(set == 0){
+                if(listItems.get(position).getSet() == "0"){
                     listItems.get(position).setFirst(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
                     boolean isCleared = MainActivity.myDB.clearFirstImage(listItems.get(position).getFacultyAttendance_Id());
@@ -193,7 +204,7 @@ public class AttendanceList extends AppCompatActivity {
                     }
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
-                }else if(set == 1){
+                }else if(listItems.get(position).getSet() == "1"){
                     listItems.get(position).setSecond(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
                     boolean isCleared = MainActivity.myDB.clearSecondImage(listItems.get(position).getFacultyAttendance_Id());
@@ -227,13 +238,12 @@ public class AttendanceList extends AppCompatActivity {
                 switch (view.getId()){
                     case R.id.firstCheck:
                         if(checked){
-                            set = 0;
+                            listItems.get(position).setSet("0");
                         }
                         break;
-
                     case R.id.secondCheck:
                         if(checked){
-                            set = 1;
+                            listItems.get(position).setSet("1");
                         }
                         break;
                 }
@@ -293,6 +303,7 @@ public class AttendanceList extends AppCompatActivity {
             }
         }
     }
+
     private static Bitmap addWaterMark(Bitmap source){
         int w = source.getWidth();
         int h = source.getHeight();
@@ -300,7 +311,7 @@ public class AttendanceList extends AppCompatActivity {
         Bitmap result = Bitmap.createBitmap(w, h, source.getConfig());
 
         //Location of the watermark in the photo
-        float x = (float) (w * 0.6);
+        float x = (float) (w * 0.01);
         float y = (float) (h * 0.95);
 
         Canvas canvas = new Canvas(result);

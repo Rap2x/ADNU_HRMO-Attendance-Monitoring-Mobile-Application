@@ -3,5 +3,9 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
+    
+    <style name="ToolbarButtonMenu" parent="AppTheme">
+        <item name="android:textColorSecondary">@color/colorDarkWhite</item>
+    </style>
 
 </resources>

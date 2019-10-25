@@ -5,16 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:background="#FFFEFF">
+    android:background="#FFFEFF"
+    android:id="@+id/loginPage">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/appName"
         android:layout_width="347dp"
-        android:layout_height="70dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="32dp"
-        android:text="ADNU-HR Attendance Checking Mobile Application"
+        android:text="ADNU-HRMO ATTENDANCE MONITORING APPLICATION"
         android:textAlignment="center"
         android:textColor="#666"
         android:textSize="24sp"
@@ -27,11 +28,12 @@
         android:layout_width="259dp"
         android:layout_height="259dp"
         android:layout_marginStart="76dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="76dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/appName"
         app:srcCompat="@drawable/adnuseal" />
 
     <EditText

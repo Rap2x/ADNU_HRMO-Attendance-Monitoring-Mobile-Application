@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,7 +44,7 @@ public class BuildingList extends AppCompatActivity {
 
     private static AhcfamsApi ahcfamsApi;
 
-    private List<FacultyAttendance> attendanceItems;
+    private static List<FacultyAttendance> attendanceItems;
 
     private String buildingName;
     @Override
@@ -93,9 +94,8 @@ public class BuildingList extends AppCompatActivity {
                 updateFaculty();
                 updateClassSchedule();
                 updateRoom();
-                //updateAbsenceAppeal();
-                updateConfirmationNotice();
                 updateFacultyAttendance();
+                updateConfirmationNotice();
                 break;
             case R.id.upload_confirmation_notice:
                 uploadConfirmationNotice();
@@ -230,7 +230,7 @@ public class BuildingList extends AppCompatActivity {
                         boolean isInserted = false;
                         try {
                             Day day = new Day(classSchedule1.getCLASS_DAY());
-                            isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getROOM_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), day.parseDay(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHOURS());
+                            isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), day.parseDay(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHOURS());
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
@@ -258,7 +258,7 @@ public class BuildingList extends AppCompatActivity {
 
                 if(rooms != null){
                     for (Room room1 : rooms){
-                        boolean isInserted = MainActivity.myDB.updateRoom(room1.getROOM_ID(), room1.getROOM_NAME(), room1.getBUILDING_NAME(), room1.getROUTE_ID());
+                        boolean isInserted = MainActivity.myDB.updateRoom(room1.getROOM_ID(), room1.getROOM_NAME(), room1.getBUILDING_NAME(), room1.getROUTE());
                         if (!isInserted)
                             Toast.makeText(getApplicationContext(), "Room: Error", Toast.LENGTH_SHORT).show();
                     }
@@ -306,7 +306,7 @@ public class BuildingList extends AppCompatActivity {
 
                 if(facultyAttendances != null){
                     for (FacultyAttendance facultyAttendance1 : facultyAttendances){
-                        boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(), facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(), facultyAttendance1.getCONFIRMATION_NOTICE_ID(),facultyAttendance1.getATTENDANCE_DATE(), facultyAttendance1.getFIRST_CHECK(), facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSTATUS());
+                        boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(), facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(), facultyAttendance1.getCONFIRMATION_NOTICE_ID(), facultyAttendance1.getROOM_ID(), facultyAttendance1.getATTENDANCE_DATE(), facultyAttendance1.getFIRST_CHECK(), facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSTATUS());
                         if(!isInserted)
                             Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
                     }
@@ -320,7 +320,7 @@ public class BuildingList extends AppCompatActivity {
         });
     }
 
-    public void uploadConfirmationNotice(){
+    public static void uploadConfirmationNotice(){
         List<ConfirmationNotice> confirmationNoticeItems = new ArrayList<>();
 
         final Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
@@ -350,7 +350,6 @@ public class BuildingList extends AppCompatActivity {
             RequestBody remarks = RequestBody.create(MediaType.parse("text/plain"), "");
             RequestBody reason = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(3));
             RequestBody confirmed = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(6));
-            Toast.makeText(getApplicationContext(), confirmationNotice.getString(2), Toast.LENGTH_SHORT).show();
             RequestBody date = RequestBody.create(MediaType.parse("type/plain"), confirmationNotice.getString(2));
 
             Call call = ahcfamsApi.confirmation_notice(id, token, cnid, faid, date, remarks, reason, confirmed ,signature);
@@ -359,14 +358,12 @@ public class BuildingList extends AppCompatActivity {
                 public void onResponse(Call call, Response response) {
                     ConfirmationNotice noticeResponse = (ConfirmationNotice) response.body();
                     if(noticeResponse.getStatus().equals("201")){
-                        Toast.makeText(getApplicationContext(), noticeResponse.getMessage().toString(), Toast.LENGTH_SHORT).show();
                         MainActivity.myDB.changeSync("confirmation_notice_id", confirmationNotice.getString(0), "notice_synchronized", "CONFIRMATION_NOTICE");
                     }
                 }
 
                 @Override
                 public void onFailure(Call call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -376,15 +373,18 @@ public class BuildingList extends AppCompatActivity {
         }
     }
 
-    private void uploadFacultyAttendance(){
+    public static void uploadFacultyAttendance(){
+        Log.d("Faculty Attendance", "Called");
         attendanceItems = new ArrayList<>();
 
         final Cursor facultyAttendance = MainActivity.myDB.getFacultyAttendance();
-
         facultyAttendance.moveToFirst();
 
+        Integer temp = facultyAttendance.getCount();
+
+        Log.d("Faculty_Attendance", temp.toString());
+
         for (int i = 0; i < facultyAttendance.getCount(); i++){
-            Toast.makeText(getApplicationContext(), facultyAttendance.getString(0), Toast.LENGTH_SHORT).show();
             File file1 = new File(facultyAttendance.getString(6));
             File file2 = new File(facultyAttendance.getString(7));
             MultipartBody.Part firstImage;
@@ -411,13 +411,12 @@ public class BuildingList extends AppCompatActivity {
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
             RequestBody token = RequestBody.create(MediaType.parse("text/plain"), userToken);
             RequestBody faid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(0));
-            RequestBody sid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(1));
+            RequestBody sid = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
             RequestBody csid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(2));
             RequestBody adate = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(3));
             RequestBody fcheck = null;
             if(isEmpty(facultyAttendance.getString(4))){
                 fcheck = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(4));
-                Toast.makeText(getApplicationContext(), "Empty", Toast.LENGTH_SHORT).show();
             }else if(facultyAttendance.getString(4) == "Absent"){
                 fcheck = RequestBody.create(MediaType.parse("text/plain"), "null");
             }else{
@@ -447,18 +446,20 @@ public class BuildingList extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<FacultyAttendance> call, Response<FacultyAttendance> response) {
                     FacultyAttendance attendanceResponse = response.body();
+                    Log.d("Faculty Attendance", attendanceResponse.getStatus());
 
                     if(attendanceResponse.getStatus().equals("201")){
-                        MainActivity.myDB.changeSync("faculty_attendance_id",facultyAttendance.getString(0), "attendance_synchronized", "FACULTY_ATTENDANCE");
+                        MainActivity.myDB.changeSync("faculty_attendance_id", facultyAttendance.getString(0), "attendance_synchronized", "FACULTY_ATTENDANCE");
                     }
+
                 }
 
                 @Override
                 public void onFailure(Call<FacultyAttendance> call, Throwable t) {
-
+                    Log.d("Faculty_Attenadnce", t.getMessage());
                 }
             });
-            //if(MainActivity.myDB.changeSync(facultyAttendance.getString(0))){}
+
             if(!facultyAttendance.isLast())
                 facultyAttendance.moveToNext();
         }

@@ -11,6 +11,8 @@ public class AttendanceListItem {
     private String faculty_id;
     private String noticeCount;
 
+    private String set;
+
     public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id, String noticeCount) {
         this.name = name;
         this.subjectCode = subjectCode;
@@ -65,5 +67,13 @@ public class AttendanceListItem {
 
     public String getNoticeCount() {
         return noticeCount;
+    }
+
+    public String getSet() {
+        return set;
+    }
+
+    public void setSet(String set) {
+        this.set = set;
     }
 }

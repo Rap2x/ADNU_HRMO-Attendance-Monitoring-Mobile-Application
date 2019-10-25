@@ -5,9 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.icu.text.SimpleDateFormat;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -87,6 +93,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        View view = findViewById(R.id.loginPage);
+
+        TextView appName = findViewById(R.id.appName);
+
         requestPermission();
 
         createRetrofitClient();
@@ -98,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
         myDB.clearUser();
 
         sharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-
     }
 
     private void onClickListener(){
@@ -205,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
                             editor.commit();
 
-                            Intent in = new Intent(MainActivity.this, BuildingList.class);
+                            Intent in = new Intent(MainActivity.this, DashBoard.class);
                             startActivity(in);
                             Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();
                             //getTableRowCounts();
@@ -243,6 +252,15 @@ public class MainActivity extends AppCompatActivity {
         String currentDate = dateFormat.format(calendar.getTime());
 
         return currentDate;
+    }
+    public static String getCurrentDayOracleFormat(){
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YY");
+
+        String currentDate = dateFormat.format(calendar.getTime());
+
+        return currentDate.toUpperCase();
     }
 
     public static String getCurrentDateDash(){
