@@ -64,7 +64,6 @@ public class Settings extends AppCompatActivity implements AdapterView.OnItemSel
         classScheduleProgress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BuildingList.updateClassSchedule();
 
                 /*while(MainActivity.currentClassScheduleCount != MainActivity.classScheduleCount){
                     double classSchedulePercent = (MainActivity.currentClassScheduleCount / MainActivity.classScheduleCount) * 100;

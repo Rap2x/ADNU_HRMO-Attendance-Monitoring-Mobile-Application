@@ -73,14 +73,11 @@ public class AttendanceList extends AppCompatActivity {
         createRetrofitClient();
 
         showList();
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        BuildingList.uploadConfirmationNotice();
-        BuildingList.uploadFacultyAttendance();
     }
 
     @Override
