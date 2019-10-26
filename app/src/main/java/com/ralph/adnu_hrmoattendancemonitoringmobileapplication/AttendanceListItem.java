@@ -10,10 +10,12 @@ public class AttendanceListItem {
     private String second;
     private String faculty_id;
     private String noticeCount;
+    private String firstImageFile;
+    private String secondImageFile;
 
     private String set;
 
-    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id, String noticeCount) {
+    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id, String noticeCount, String firstImageFile, String secondImageFile) {
         this.name = name;
         this.subjectCode = subjectCode;
         this.roomNumber = roomNumber;
@@ -23,6 +25,8 @@ public class AttendanceListItem {
         this.second = second;
         this.faculty_id = faculty_id;
         this.noticeCount = noticeCount;
+        this.firstImageFile = firstImageFile;
+        this.secondImageFile = secondImageFile;
     }
 
     public String getName() {
@@ -75,5 +79,13 @@ public class AttendanceListItem {
 
     public void setSet(String set) {
         this.set = set;
+    }
+
+    public String getFirstImageFile() {
+        return firstImageFile;
+    }
+
+    public String getSecondImageFile() {
+        return secondImageFile;
     }
 }

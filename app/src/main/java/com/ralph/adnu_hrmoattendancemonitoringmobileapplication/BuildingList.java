@@ -82,12 +82,6 @@ public class BuildingList extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()){
-            case R.id.action_refresh:
-                showList();
-                break;
-            case R.id.action_faculty_attendance:
-                MainActivity.myDB.createAttendance();
-                break;
             case R.id.settings:
                 openSettings();
                 break;

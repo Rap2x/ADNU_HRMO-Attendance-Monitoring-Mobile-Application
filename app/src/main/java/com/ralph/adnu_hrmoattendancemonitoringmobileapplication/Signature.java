@@ -129,7 +129,7 @@ public class Signature extends AppCompatActivity {
 
     private String saveSignature(Bitmap bitMapImage) throws IOException{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" + MainActivity.userRoute + "_";
+        String imageFileName = "JPEG_" + timeStamp + "_" + MainActivity.userRoute + "_" + MainActivity.userStaffId;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 

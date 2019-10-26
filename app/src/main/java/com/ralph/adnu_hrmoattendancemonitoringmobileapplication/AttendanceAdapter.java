@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -117,7 +118,6 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
                     }
                 }
             });
-
         }
     }
 
@@ -138,7 +138,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int position) {
         AttendanceListItem listItem = listItems.get(position);
 
         viewHolder.textViewName.setText(listItem.getName());
@@ -148,16 +148,35 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         viewHolder.textViewFirst.setText(listItem.getFirst());
         viewHolder.textViewSecond.setText(listItem.getSecond());
         viewHolder.noticeCount.setText(listItem.getNoticeCount());
+
         if(!(listItem.getNoticeCount().equals("0"))){
             viewHolder.noticeCount.setTextColor(Color.RED);
         }
-    }
 
+        if(viewHolder.textViewFirst.getText().toString().matches("")) { // if the textview is empty
+            viewHolder.radioSecond.setEnabled(false);
+            viewHolder.radioFirst.setEnabled(true);
+        }else {
+            viewHolder.radioFirst.setEnabled(false);
+            viewHolder.radioSecond.setEnabled(true);
+        }
+        if(!viewHolder.textViewFirst.getText().toString().matches("") && !viewHolder.textViewSecond.getText().toString().matches("")){
+            viewHolder.radioFirst.setEnabled(false);
+            viewHolder.radioSecond.setEnabled(false);
+        }
+
+        if(listItem.getFirstImageFile() != null){
+            if(!listItem.getFirstImageFile().equals("") )
+                viewHolder.textViewFirst.setTextColor(Color.RED);
+        }
+
+        if(listItem.getSecondImageFile() != null){
+            if(!listItem.getSecondImageFile().equals(""))
+                viewHolder.textViewSecond.setTextColor(Color.RED);
+        }
+    }
     @Override
     public int getItemCount() {
         return listItems.size();
     }
-
-
-
 }

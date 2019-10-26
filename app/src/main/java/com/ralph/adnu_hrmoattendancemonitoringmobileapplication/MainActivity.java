@@ -253,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
 
         return currentDate;
     }
+
     public static String getCurrentDayOracleFormat(){
         Calendar calendar = Calendar.getInstance();
 
@@ -318,6 +319,18 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat displayFormat = new SimpleDateFormat("hh.mm.ss a");
             SimpleDateFormat parseFormat = new SimpleDateFormat("hh:mm:ss a");
             Date date = parseFormat.parse(time);
+            return getCurrentDateDash()+ " " + displayFormat.format(date);
+        }
+    }
+
+    public static String convertTimestampToTime(String timeStamp) throws ParseException{
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            String result = LocalTime.parse(timeStamp, DateTimeFormatter.ofPattern("dd-MMM-YY hh.mm.ss aa", Locale.TAIWAN)).format(DateTimeFormatter.ofPattern("hh:mm:ss a"));
+            return result;
+        }else{
+            SimpleDateFormat displayFormat = new SimpleDateFormat("hh.mm.ss a");
+            SimpleDateFormat parseFormat = new SimpleDateFormat("hh:mm:ss a");
+            Date date = parseFormat.parse(timeStamp);
             return getCurrentDateDash()+ " " + displayFormat.format(date);
         }
     }

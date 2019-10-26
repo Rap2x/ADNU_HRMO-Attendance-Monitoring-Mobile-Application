@@ -91,7 +91,6 @@ public class DashBoard extends AppCompatActivity {
 
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
@@ -222,17 +221,18 @@ public class DashBoard extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<ConfirmationNotice>> call, Response<List<ConfirmationNotice>> response) {
                 List<ConfirmationNotice> confirmationNotices = response.body();
+                boolean isInserted;
                 for (ConfirmationNotice confirmationNotice1: confirmationNotices){
-                    boolean isInserted = MainActivity.myDB.updateConfirmationNotice(confirmationNotice1.getCONFIRMATION_NOTICE_ID(), confirmationNotice1.getCONFIRMATION_NOTICE_DATE(), confirmationNotice1.getELECTRONIC_SIGNATURE(),confirmationNotice1.getREMARKS(), confirmationNotice1.getCONFIRMED());
+                    isInserted = MainActivity.myDB.updateConfirmationNotice(confirmationNotice1.getCONFIRMATION_NOTICE_ID(), confirmationNotice1.getCONFIRMATION_NOTICE_DATE(), confirmationNotice1.getELECTRONIC_SIGNATURE(),confirmationNotice1.getREMARKS(), confirmationNotice1.getCONFIRMED());
                     if(!isInserted)
                         Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
-                    Toast.makeText(getApplicationContext(), "Confirmation Notice Updated", Toast.LENGTH_SHORT).show();
                 }
+                Toast.makeText(getApplicationContext(), "Confirmation Notice Updated", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<List<ConfirmationNotice>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Confirmation Notice: Errora", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -251,8 +251,8 @@ public class DashBoard extends AppCompatActivity {
                         boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(), facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(), facultyAttendance1.getCONFIRMATION_NOTICE_ID(), facultyAttendance1.getROOM_ID(), facultyAttendance1.getATTENDANCE_DATE(), facultyAttendance1.getFIRST_CHECK(), facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSTATUS());
                         if(!isInserted)
                             Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
-                        Toast.makeText(getApplicationContext(), "Faculty Attendance Updated", Toast.LENGTH_SHORT).show();
                     }
+                    Toast.makeText(getApplicationContext(), "Faculty Attendance Updated", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -394,7 +394,7 @@ public class DashBoard extends AppCompatActivity {
 
                     if(attendanceResponse.getStatus().equals("201")){
                         MainActivity.myDB.changeSync("faculty_attendance_id", facultyAttendance.getString(0), "attendance_synchronized", "FACULTY_ATTENDANCE");
-                        Toast.makeText(getApplicationContext(), "Faculty Attendance Uploaded", Toast.LENGTH_SHORT).show();
+
                     }
                 }
 
@@ -403,10 +403,10 @@ public class DashBoard extends AppCompatActivity {
                     Log.d("Faculty_Attendance", t.getMessage());
                 }
             });
-
             if(!facultyAttendance.isLast())
                 facultyAttendance.moveToNext();
         }
+        Toast.makeText(getApplicationContext(), "Faculty Attendance Uploaded", Toast.LENGTH_SHORT).show();
 
     }
 

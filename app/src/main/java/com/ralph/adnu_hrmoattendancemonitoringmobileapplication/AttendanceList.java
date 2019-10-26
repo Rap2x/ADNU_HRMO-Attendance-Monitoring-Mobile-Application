@@ -84,9 +84,7 @@ public class AttendanceList extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()){
-            case R.id.action_refresh:
-                showList();
-                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -96,6 +94,13 @@ public class AttendanceList extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu,menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        showList();
     }
 
     private void createRetrofitClient(){
@@ -139,7 +144,9 @@ public class AttendanceList extends AppCompatActivity {
                     attendanceData.getString(5),
                     attendanceData.getString(6),
                     attendanceData.getString(7),
-                    noticeCount
+                    noticeCount,
+                    attendanceData.getString(8),
+                    attendanceData.getString(9)
             );
 
             listItems.add(listItem);
@@ -276,7 +283,7 @@ public class AttendanceList extends AppCompatActivity {
 
     private File createImageFile() throws IOException{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" + MainActivity.userRoute + "_";
+        String imageFileName = "JPEG_" + timeStamp + "_" + MainActivity.userRoute + "_" + MainActivity.userStaffId;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 

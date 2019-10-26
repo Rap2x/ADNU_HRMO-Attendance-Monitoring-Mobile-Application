@@ -7,36 +7,6 @@ xmlns:app="http://schemas.android.com/apk/res-auto">
         app:showAsAction="never">
     </item>
     <item
-        android:id="@+id/action_refresh"
-        android:title="Refresh List"
-        app:showAsAction="never">
-    </item>
-
-
-    <item
-        android:id="@+id/action_faculty_attendance"
-        android:title="Update Faculty Attendance Table"
-        app:showAsAction="never">
-    </item>
-
-    <item
-        android:id="@+id/update_database"
-        android:title="Update Database"
-        app:showAsAction="never">
-    </item>
-
-    <item
-        android:id="@+id/upload_faculty_attendance"
-        android:title="Upload Attendance"
-        app:showAsAction="never">
-    </item>
-
-    <item
-        android:id="@+id/upload_confirmation_notice"
-        android:title="Upload Confirmation Notice"
-        app:showAsAction="never">
-    </item>
-    <item
         android:id="@+id/settings"
         android:title="Settings"
         app:showAsAction="never">
