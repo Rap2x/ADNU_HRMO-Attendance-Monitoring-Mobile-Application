@@ -2,27 +2,44 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.text.Layout;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,10 +60,19 @@ public class DashBoard extends AppCompatActivity {
     private static AhcfamsApi ahcfamsApi;
     private static List<FacultyAttendance> attendanceItems;
 
+    String base_url = "http://" + MainActivity.ip + "/ADNU_HRMO-College-Faculty-Attendance-Monitoring-System/assets/images/";
+    String root = Environment.getExternalStorageDirectory().toString(); // deprecated in API level 29.
+    File imageDir;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
+
+        imageDir = new File(root + "/images");
+        if (!imageDir.exists()){
+            imageDir.mkdirs();
+        }
 
         createOptionMenu();
         createRetrofitClient();
@@ -55,6 +81,7 @@ public class DashBoard extends AppCompatActivity {
         updateDatabase = (CardView)findViewById(R.id.updateDatabase);
         uploadConfirmationNotice = (CardView)findViewById(R.id.uploadConfirmationNotice);
         uploadFacultyAttendance = (CardView)findViewById(R.id.uploadFacultyAttendance);
+
 
         buildingList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,6 +99,7 @@ public class DashBoard extends AppCompatActivity {
                 updateRoom();
                 updateFacultyAttendance();
                 updateConfirmationNotice();
+                downloadImages();
             }
         });
 
@@ -79,6 +107,7 @@ public class DashBoard extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 uploadFacultyAttendance();
+
             }
         });
 
@@ -154,7 +183,7 @@ public class DashBoard extends AppCompatActivity {
         });
     }
 
-    public void updateClassSchedule(){
+    private void updateClassSchedule(){
         ClassSchedule classSchedule = new ClassSchedule(userStaffId, userToken);
         Call<List<ClassSchedule>> call = ahcfamsApi.classSchedule(userStaffId,userToken);
 
@@ -263,7 +292,7 @@ public class DashBoard extends AppCompatActivity {
         });
     }
 
-    public void uploadConfirmationNotice(){
+    private void uploadConfirmationNotice(){
         List<ConfirmationNotice> confirmationNoticeItems = new ArrayList<>();
 
         final Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
@@ -317,7 +346,7 @@ public class DashBoard extends AppCompatActivity {
         }
     }
 
-    public void uploadFacultyAttendance(){
+    private void uploadFacultyAttendance(){
         Log.d("Faculty Attendance", "Called");
         attendanceItems = new ArrayList<>();
 
@@ -410,4 +439,52 @@ public class DashBoard extends AppCompatActivity {
 
     }
 
+    private void downloadImages(){
+        final Pattern pattern  = Pattern.compile("/(.*?).");
+        OkHttpClient client = new OkHttpClient();
+
+        Request request;
+
+        final Cursor imageFileNames = MainActivity.myDB.getImageFileNames();
+        imageFileNames.moveToFirst();
+
+        for (int i = 0; i <= 1; i ++){
+            for (int j = 0; j < imageFileNames.getCount(); j++){
+                final String fname = imageFileNames.getString(i);
+                if(fname != null){
+                    request = new Request.Builder()
+                            .url(base_url + fname)
+                            .build();
+
+                    client.newCall(request).enqueue(new okhttp3.Callback() {
+                        @Override
+                        public void onFailure(okhttp3.Call call, IOException e) {
+                            Log.d("DownloadImage", "Fail");
+                        }
+
+                        @Override
+                        public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                            InputStream inputStream = response.body().byteStream();
+                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+                            File file = new File(root, fname);
+
+                            try{
+                                FileOutputStream out = new FileOutputStream(file);
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                                Log.d("DownloadImage", fname + " has been downloaded and saved");
+                                out.flush();
+                                out.close();
+                            }catch (Exception e){
+                                Log.d("DownloadImage", "Error");
+                            }
+                        }
+                    });
+                    
+                    if(!imageFileNames.isLast())
+                        imageFileNames.moveToNext();
+                }
+            }
+        }
+    }
 }

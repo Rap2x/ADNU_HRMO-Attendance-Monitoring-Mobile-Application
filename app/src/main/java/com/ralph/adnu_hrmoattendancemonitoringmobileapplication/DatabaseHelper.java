@@ -641,4 +641,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         else
             return true;
     }
+
+    public Cursor getImageFileNames(){
+        Cursor res = readDB.rawQuery("select first_image_file, second_image_file from faculty_attendance inner join confirmation_notice on faculty_attendance.confirmation_notice_id = confirmation_notice.confirmation_notice_id where confirmation_notice.confirmed = 0", null);
+        res.moveToFirst();
+
+        return res;
+    }
 }

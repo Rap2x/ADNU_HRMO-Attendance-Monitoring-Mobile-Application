@@ -216,7 +216,6 @@ public class MainActivity extends AppCompatActivity {
 
                             Intent in = new Intent(MainActivity.this, DashBoard.class);
                             startActivity(in);
-                            Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();
                             //getTableRowCounts();
                         }
                         else
