@@ -183,18 +183,20 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         if(listItem.getFirstImageFile() != null){
             if(!listItem.getFirstImageFile().equals("")) {
                 viewHolder.textViewFirst.setTextColor(Color.RED);
-                viewHolder.viewImagesButton.setEnabled(true);
-            }else
-                viewHolder.viewImagesButton.setEnabled(false);
+            }
         }
 
         if(listItem.getSecondImageFile() != null){
             if(!listItem.getSecondImageFile().equals("")){
                 viewHolder.textViewSecond.setTextColor(Color.RED);
-                viewHolder.viewImagesButton.setEnabled(true);
-            }else
-                viewHolder.viewImagesButton.setEnabled(false);
+            }
         }
+
+        if(listItem.getFirstImageFile() != null || listItem.getSecondImageFile() != null)
+            viewHolder.viewImagesButton1.setEnabled(true);
+        else
+            viewHolder.viewImagesButton1.setEnabled(false);
+
     }
     @Override
     public int getItemCount() {

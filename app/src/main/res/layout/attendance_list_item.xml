@@ -7,10 +7,11 @@
     android:layout_height="wrap_content"
     android:id="@+id/faculty_attendance_id"
     app:cardBackgroundColor="#19235A"
-    android:layout_marginBottom="2.5dp"
-    android:layout_marginTop="2.5dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginTop="5dp"
     android:layout_marginLeft="1dp"
-    android:layout_marginRight="1dp">
+    android:layout_marginRight="1dp"
+    app:cardCornerRadius="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -35,6 +36,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="8dp"
                 android:text="FullName"
+                android:textSize="30dp"
                 android:textColor="@color/colorDarkWhite"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
@@ -47,6 +49,7 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:text="Time"
+                android:textSize="15dp"
                 android:textColor="@color/colorDarkWhite"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/subject" />
@@ -57,6 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
+                android:textSize="15dp"
                 android:text="Subject Code"
                 android:textColor="@color/colorDarkWhite"
                 app:layout_constraintStart_toStartOf="parent"
@@ -67,9 +71,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 android:text="Room Number"
                 android:textColor="@color/colorDarkWhite"
+                android:textSize="15dp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/fullName" />
@@ -78,6 +83,7 @@
                 android:id="@+id/present"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/checkingbutton"
                 android:text="Present"
@@ -89,32 +95,35 @@
                 android:id="@+id/absent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
                 android:layout_marginEnd="8dp"
+                android:background="@drawable/checkingbutton"
                 android:text="Absent"
                 android:textColor="@color/colorRed"
                 app:layout_constraintEnd_toStartOf="@+id/present"
-                app:layout_constraintTop_toTopOf="parent"
-                android:background="@drawable/checkingbutton"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/firstTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="14dp"
                 android:layout_marginEnd="8dp"
                 android:text="7:30:35 AM"
+                android:textColor="@color/colorDarkWhite"
+                android:textSize="15dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/present"
-                android:textColor="@color/colorDarkWhite"/>
+                app:layout_constraintTop_toBottomOf="@+id/present" />
 
             <TextView
                 android:id="@+id/secondTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:text="8:20:49 AM"
                 android:textColor="@color/colorDarkWhite"
+                android:textSize="15dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/firstTime" />
 
@@ -141,34 +150,37 @@
                 <RadioButton
                     android:id="@+id/firstCheck"
                     android:layout_width="wrap_content"
-                    android:layout_height="20dp"
+                    android:layout_height="wrap_content"
                     android:text="First Check"
+                    android:textColor="@color/colorDarkWhite"
+                    android:textSize="15dp"
                     tools:layout_editor_absoluteX="187dp"
-                    tools:layout_editor_absoluteY="56dp"
-                    android:textColor="@color/colorDarkWhite"/>
+                    tools:layout_editor_absoluteY="56dp" />
 
                 <RadioButton
                     android:id="@+id/secondCheck"
                     android:layout_width="wrap_content"
-                    android:layout_height="20dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Second Check"
+                    android:textColor="@color/colorDarkWhite"
+                    android:textSize="15dp"
                     tools:layout_editor_absoluteX="187dp"
-                    tools:layout_editor_absoluteY="56dp"
-                    android:textColor="@color/colorDarkWhite"/>
+                    tools:layout_editor_absoluteY="56dp" />
             </RadioGroup>
 
             <Button
                 android:id="@+id/viewImageButton2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/checkingbutton"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 android:text="View Image/s"
-                android:textColor="@color/colorRed"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/secondTime" />
+                android:textColor="@color/colorTimeBlue"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/classTime" />
 
         </android.support.constraint.ConstraintLayout>
     </LinearLayout>
