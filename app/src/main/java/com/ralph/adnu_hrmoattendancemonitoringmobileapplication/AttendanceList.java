@@ -20,6 +20,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.MyApp;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -37,6 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -170,7 +174,7 @@ public class AttendanceList extends AppCompatActivity {
                         dispatchTakePictureIntent();
 
                         info = "Name: " + listItems.get(position).getName() + " Subject Code: " + listItems.get(position).getSubjectCode() + " Room: " + listItems.get(position).getRoomNumber() + " Class Schedule: " + listItems.get(position).getClassTime();
-                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file",currentPhotoPath,"first_check", MainActivity.getCurrentTime12Hours());
+                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file",getFileName(currentPhotoPath),"first_check", MainActivity.getCurrentTime12Hours());
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                     else
@@ -182,7 +186,7 @@ public class AttendanceList extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
                         info = "Name: " + listItems.get(position).getName() + " Subject Code: " + listItems.get(position).getSubjectCode() + " Room: " + listItems.get(position).getRoomNumber() + " Class Schedule: " + listItems.get(position).getClassTime();
-                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "second_image_file", currentPhotoPath, "second_check", MainActivity.getCurrentTime12Hours());
+                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "second_image_file", getFileName(currentPhotoPath), "second_check", MainActivity.getCurrentTime12Hours());
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                     else
@@ -252,6 +256,14 @@ public class AttendanceList extends AppCompatActivity {
                         break;
                 }
             }
+
+            @Override
+            public void viewImages(int position) {
+                Intent in = new Intent(AttendanceList.this, ImageActivity.class);
+                in.putExtra("first_image_file", listItems.get(position).getFirstImageFile());
+                in.putExtra("second_image_file", listItems.get(position).getSecondImageFile());
+                startActivity(in);
+            }
         });
     }
 
@@ -283,9 +295,14 @@ public class AttendanceList extends AppCompatActivity {
 
     private File createImageFile() throws IOException{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" + MainActivity.userRoute + "_" + MainActivity.userStaffId;
+        String imageFileName = timeStamp + "_" + MainActivity.userRoute + "_" + MainActivity.userStaffId;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        File image = new File(storageDir, MD5.getMd5(imageFileName) + ".jpg");
+        if (image.exists())
+            Log.d("createImageFile", "Image File Created");
+        else
+            Log.d("createImageFile", "Image File not Created");
+        //File image = File.createTempFile(MD5.getMd5(imageFileName), ".jpg", storageDir);
 
         currentPhotoPath = image.getAbsolutePath();
         return image;
@@ -301,7 +318,7 @@ public class AttendanceList extends AppCompatActivity {
             image = addWaterMark(image);
 
             try(FileOutputStream out = new FileOutputStream(photoPath)){
-                image.compress(Bitmap.CompressFormat.JPEG, 20, out);
+                image.compress(Bitmap.CompressFormat.JPEG, 10, out);
             }catch(IOException e){
                 Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
             }
@@ -328,5 +345,13 @@ public class AttendanceList extends AppCompatActivity {
         canvas.drawText("Date: " + MainActivity.getCurrentDate() + " Time: " + MainActivity.getCurrentTime12Hours() + " " + info,x, y, paint);
 
         return result;
+    }
+
+    public static String getFileName(String absolutePath){
+        String fileName = "";
+
+        fileName = absolutePath.substring(absolutePath.length() - 36);
+
+        return fileName;
     }
 }

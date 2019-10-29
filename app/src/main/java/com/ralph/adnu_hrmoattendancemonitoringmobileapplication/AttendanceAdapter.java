@@ -25,6 +25,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         void setPresent(int position);
         void viewConfirmationNotice(int position);
         void onRadioButtonClicked(int position, View view);
+        void viewImages(int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){
@@ -43,6 +44,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         public TextView noticeCount;
         public RadioButton radioFirst;
         public RadioButton radioSecond;
+        public Button viewImagesButton1;
 
         public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
@@ -58,6 +60,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             noticeCount = (TextView) itemView.findViewById(R.id.notice_count);
             radioFirst = (RadioButton) itemView.findViewById(R.id.firstCheck);
             radioSecond = (RadioButton) itemView.findViewById(R.id.secondCheck);
+            viewImagesButton1 = (Button) itemView.findViewById(R.id.viewImageButton2);
 
             buttonAbsent.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -118,6 +121,18 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
                     }
                 }
             });
+
+            viewImagesButton1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION){
+                            listener.viewImages(position);
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -166,13 +181,19 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         }
 
         if(listItem.getFirstImageFile() != null){
-            if(!listItem.getFirstImageFile().equals("") )
+            if(!listItem.getFirstImageFile().equals("")) {
                 viewHolder.textViewFirst.setTextColor(Color.RED);
+                viewHolder.viewImagesButton.setEnabled(true);
+            }else
+                viewHolder.viewImagesButton.setEnabled(false);
         }
 
         if(listItem.getSecondImageFile() != null){
-            if(!listItem.getSecondImageFile().equals(""))
+            if(!listItem.getSecondImageFile().equals("")){
                 viewHolder.textViewSecond.setTextColor(Color.RED);
+                viewHolder.viewImagesButton.setEnabled(true);
+            }else
+                viewHolder.viewImagesButton.setEnabled(false);
         }
     }
     @Override

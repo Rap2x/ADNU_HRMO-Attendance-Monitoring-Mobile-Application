@@ -5,13 +5,9 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,29 +26,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import static android.text.TextUtils.isEmpty;
 
 public class Signature extends AppCompatActivity {
 
     private SignaturePad signaturePad;
     private Button clearButton;
     private Button saveButton;
-    private Button appealButton;
+    private Button viewImageButton;
     private TextView name;
     private TextView time;
     private TextView schedule;
@@ -69,6 +54,7 @@ public class Signature extends AppCompatActivity {
     private Cursor facultyData;
 
     private String faculty_id;
+    private String confirmation_notice_id;
 
     private EditText absentReason;
 
@@ -83,8 +69,7 @@ public class Signature extends AppCompatActivity {
 
         faculty_id = getIntent().getStringExtra("faculty_id");
         faculty_attendance_id = getIntent().getStringExtra("faculty_attendance_id");
-
-        Toast.makeText(getApplicationContext(), faculty_attendance_id, Toast.LENGTH_SHORT).show();
+        confirmation_notice_id = getIntent().getStringExtra("confirmation_notice_id");
         bindData();
 
         showConfirmationNoticeDetails();
@@ -129,9 +114,9 @@ public class Signature extends AppCompatActivity {
 
     private String saveSignature(Bitmap bitMapImage) throws IOException{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" + MainActivity.userRoute + "_" + MainActivity.userStaffId;
+        String imageFileName = timeStamp + "_" + MainActivity.userRoute + "_" + MainActivity.userStaffId;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        File image = new File(storageDir, MD5.getMd5(imageFileName) + ".jpg");
 
         FileOutputStream fos = null;
 
@@ -185,6 +170,7 @@ public class Signature extends AppCompatActivity {
 
         clearButton = (Button) findViewById(R.id.clearButton);
         saveButton = (Button) findViewById(R.id.saveButton);
+        viewImageButton = (Button) findViewById(R.id.viewImageButton);
 
         name = (TextView) findViewById(R.id.confirmation_notice_name);
         time = (TextView) findViewById(R.id.signature_pad_time);
@@ -210,14 +196,13 @@ public class Signature extends AppCompatActivity {
                 Bitmap signatureBitmap = signaturePad.getSignatureBitmap();
 
                 try {
-                    String confirmationNoticeId = MainActivity.myDB.getConfirmationNoticeId(faculty_attendance_id);
-                    Boolean isInserted = MainActivity.myDB.saveSignature(confirmationNoticeId, saveSignature(signatureBitmap));
+                    Boolean isInserted = MainActivity.myDB.saveSignature(confirmation_notice_id, AttendanceList.getFileName(saveSignature(signatureBitmap)));
 
                     if(isInserted) {
                         signaturePad.clear();
-                        MainActivity.myDB.changeSync("confirmation_notice_id", confirmationNoticeId, "confirmed", "CONFIRMATION_NOTICE");
+                        MainActivity.myDB.changeSync("confirmation_notice_id", confirmation_notice_id, "confirmed", "CONFIRMATION_NOTICE");
                         Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
-                        MainActivity.myDB.addReason(confirmationNoticeId, absentReason.getText().toString());
+                        MainActivity.myDB.addReason(confirmation_notice_id, absentReason.getText().toString());
                         finish();
                     }else{
                         Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
@@ -229,10 +214,25 @@ public class Signature extends AppCompatActivity {
                 }
             }
         });
+
+        viewImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Signature.this, ImageActivity.class);
+                Cursor imageFileNames = MainActivity.myDB.getAttendanceImageFileNames(confirmation_notice_id);
+                imageFileNames.moveToFirst();
+
+                intent.putExtra("first_image_file", imageFileNames.getString(0));
+                intent.putExtra("second_image_file", imageFileNames.getString(1));
+                //Send the file name
+                intent.putExtra("faculty_attendance_id", faculty_attendance_id);
+                startActivity(intent);
+            }
+        });
     }
 
     private void showConfirmationNoticeDetails(){
-        confirmationNoticeData = MainActivity.myDB.getConfirmationNotice(faculty_id, faculty_attendance_id);
+        confirmationNoticeData = MainActivity.myDB.getConfirmationNotice(confirmation_notice_id);
         facultyData = MainActivity.myDB.getFacultyDetails(faculty_id);
 
         name.setText("Name: "+ confirmationNoticeData.getString(0));

@@ -8,19 +8,11 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
-import android.text.Layout;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -33,7 +25,6 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.MediaType;
@@ -56,23 +47,21 @@ public class DashBoard extends AppCompatActivity {
     private CardView updateDatabase;
     private CardView uploadConfirmationNotice;
     private CardView uploadFacultyAttendance;
+    private CardView downloadImages;
+    private CardView updateSchedAndFaculty;
 
     private static AhcfamsApi ahcfamsApi;
     private static List<FacultyAttendance> attendanceItems;
 
     String base_url = "http://" + MainActivity.ip + "/ADNU_HRMO-College-Faculty-Attendance-Monitoring-System/assets/images/";
     String root = Environment.getExternalStorageDirectory().toString(); // deprecated in API level 29.
-    File imageDir;
-
+    public static File imageDir;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
 
-        imageDir = new File(root + "/images");
-        if (!imageDir.exists()){
-            imageDir.mkdirs();
-        }
+        imageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         createOptionMenu();
         createRetrofitClient();
@@ -81,7 +70,8 @@ public class DashBoard extends AppCompatActivity {
         updateDatabase = (CardView)findViewById(R.id.updateDatabase);
         uploadConfirmationNotice = (CardView)findViewById(R.id.uploadConfirmationNotice);
         uploadFacultyAttendance = (CardView)findViewById(R.id.uploadFacultyAttendance);
-
+        downloadImages = (CardView)findViewById(R.id.downloadImages);
+        updateSchedAndFaculty = (CardView)findViewById(R.id.updateSchedAndFaculty);
 
         buildingList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,12 +84,9 @@ public class DashBoard extends AppCompatActivity {
         updateDatabase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateFaculty();
-                updateClassSchedule();
-                updateRoom();
-                updateFacultyAttendance();
-                updateConfirmationNotice();
-                downloadImages();
+                    if (updateFacultyAttendance())
+                        if(updateConfirmationNotice())
+                            Log.d("Updated Database", "Done");
             }
         });
 
@@ -118,6 +105,21 @@ public class DashBoard extends AppCompatActivity {
             }
         });
 
+        downloadImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                downloadImages();
+            }
+        });
+
+        updateSchedAndFaculty.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(updateFaculty())
+                    if(updateClassSchedule())
+                        updateRoom();
+            }
+        });
     }
 
     @Override
@@ -151,7 +153,7 @@ public class DashBoard extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
-    private void updateFaculty(){
+    private boolean updateFaculty(){
         Faculty faculty = new Faculty(userStaffId, userToken);
         Call<List<Faculty>> call = ahcfamsApi.faculty(userStaffId, userToken);
 
@@ -181,9 +183,10 @@ public class DashBoard extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Faculty Error", Toast.LENGTH_SHORT).show();
             }
         });
+        return true;
     }
 
-    private void updateClassSchedule(){
+    private boolean updateClassSchedule(){
         ClassSchedule classSchedule = new ClassSchedule(userStaffId, userToken);
         Call<List<ClassSchedule>> call = ahcfamsApi.classSchedule(userStaffId,userToken);
 
@@ -213,9 +216,10 @@ public class DashBoard extends AppCompatActivity {
             public void onFailure(Call<List<ClassSchedule>> call, Throwable t) {
             }
         });
+        return true;
     }
 
-    private void updateRoom(){
+    private boolean updateRoom(){
         Room room = new Room(userStaffId, userToken);
 
         Call<List<Room>> call = ahcfamsApi.room(userStaffId,userToken);
@@ -239,10 +243,10 @@ public class DashBoard extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Room: Error", Toast.LENGTH_SHORT).show();
             }
         });
-
+        return true;
     }
 
-    private void updateConfirmationNotice(){
+    private boolean updateConfirmationNotice(){
         ConfirmationNotice confirmationNotice = new ConfirmationNotice(userStaffId, userToken);
 
         Call<List<ConfirmationNotice>> call = ahcfamsApi.confirmation_notice(userStaffId,userToken);
@@ -264,9 +268,10 @@ public class DashBoard extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Confirmation Notice: Error", Toast.LENGTH_SHORT).show();
             }
         });
+        return true;
     }
 
-    private void updateFacultyAttendance(){
+    private boolean updateFacultyAttendance(){
         FacultyAttendance facultyAttendance = new FacultyAttendance(userStaffId, userToken);
 
         Call<List<FacultyAttendance>> call = ahcfamsApi.faculty_attendance(userStaffId, userToken);
@@ -290,20 +295,16 @@ public class DashBoard extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
             }
         });
+        return true;
     }
 
-    private void uploadConfirmationNotice(){
+    private boolean uploadConfirmationNotice(){
         List<ConfirmationNotice> confirmationNoticeItems = new ArrayList<>();
 
         final Cursor confirmationNotice = MainActivity.myDB.getAllConfirmationNotice();
         confirmationNotice.moveToFirst();
 
-        /*Integer count = confirmationNotice.getCount();
-
-        Toast.makeText(getApplicationContext(), count.toString(), Toast.LENGTH_SHORT).show();*/
-
         for(int i = 0; i < confirmationNotice.getCount(); i++){
-            File file = new File(confirmationNotice.getString(5));
             MultipartBody.Part signature;
 
             if(isEmpty(confirmationNotice.getString(5))){
@@ -311,6 +312,7 @@ public class DashBoard extends AppCompatActivity {
 
                 signature = MultipartBody.Part.createFormData("esignature", "", fileReqBody);
             }else{
+                File file = new File(imageDir ,confirmationNotice.getString(5));
                 RequestBody fileReqBody = RequestBody.create(MediaType.parse("image/*"), file);
                 signature = MultipartBody.Part.createFormData("esignature", file.getName(), fileReqBody);
             }
@@ -344,9 +346,10 @@ public class DashBoard extends AppCompatActivity {
                 confirmationNotice.moveToNext();
             }
         }
+        return true;
     }
 
-    private void uploadFacultyAttendance(){
+    private boolean uploadFacultyAttendance(){
         Log.d("Faculty Attendance", "Called");
         attendanceItems = new ArrayList<>();
 
@@ -358,8 +361,8 @@ public class DashBoard extends AppCompatActivity {
         Log.d("Faculty_Attendance", temp.toString());
 
         for (int i = 0; i < facultyAttendance.getCount(); i++){
-            File file1 = new File(facultyAttendance.getString(6));
-            File file2 = new File(facultyAttendance.getString(7));
+            File file1;
+            File file2;
             MultipartBody.Part firstImage;
             MultipartBody.Part secondImage;
 
@@ -369,6 +372,7 @@ public class DashBoard extends AppCompatActivity {
 
                 firstImage = MultipartBody.Part.createFormData("fipath", "", fileReqBody1);
             }else{
+                file1 = new File(imageDir, facultyAttendance.getString(6));
                 RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), file1);
                 firstImage = MultipartBody.Part.createFormData("fipath", file1.getName(), fileReqBody1);
             }
@@ -377,6 +381,7 @@ public class DashBoard extends AppCompatActivity {
                 RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), "");
                 secondImage = MultipartBody.Part.createFormData("sipath", "", fileReqBody2);
             }else{
+                file2 = new File(imageDir, facultyAttendance.getString(7));
                 RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), file2);
                 secondImage = MultipartBody.Part.createFormData("sipath", file2.getName(), fileReqBody2);
             }
@@ -436,11 +441,11 @@ public class DashBoard extends AppCompatActivity {
                 facultyAttendance.moveToNext();
         }
         Toast.makeText(getApplicationContext(), "Faculty Attendance Uploaded", Toast.LENGTH_SHORT).show();
-
+        return true;
     }
 
-    private void downloadImages(){
-        final Pattern pattern  = Pattern.compile("/(.*?).");
+    private boolean downloadImages(){
+        //final Pattern pattern  = Pattern.compile("/(.*?).");\
         OkHttpClient client = new OkHttpClient();
 
         Request request;
@@ -466,25 +471,25 @@ public class DashBoard extends AppCompatActivity {
                         public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
                             InputStream inputStream = response.body().byteStream();
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-                            File file = new File(root, fname);
+                            File file = new File(imageDir, fname);
 
                             try{
                                 FileOutputStream out = new FileOutputStream(file);
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                                Log.d("DownloadImage", fname + " has been downloaded and saved");
+                                if(bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out))
+                                    Log.d("DownloadImage", fname + " has been downloaded and saved");
                                 out.flush();
                                 out.close();
                             }catch (Exception e){
-                                Log.d("DownloadImage", "Error");
+                                Log.d("DownloadImage", "Error " + e.getMessage());
                             }
                         }
                     });
-                    
+
                     if(!imageFileNames.isLast())
                         imageFileNames.moveToNext();
                 }
             }
         }
+        return true;
     }
 }
