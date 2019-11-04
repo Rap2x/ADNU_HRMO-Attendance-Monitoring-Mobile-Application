@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,6 +64,8 @@ public class AttendanceList extends AppCompatActivity {
     private String buildingName;
 
     private static String info;
+
+    private String TAG = "AttendanceList";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,13 +101,6 @@ public class AttendanceList extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu,menu);
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        showList();
     }
 
     private void createRetrofitClient(){
@@ -150,7 +146,9 @@ public class AttendanceList extends AppCompatActivity {
                     attendanceData.getString(7),
                     noticeCount,
                     attendanceData.getString(8),
-                    attendanceData.getString(9)
+                    attendanceData.getString(9),
+                    "",
+                    ""
             );
 
             listItems.add(listItem);
@@ -161,43 +159,36 @@ public class AttendanceList extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         adapter.setOnItemClickListener(new AttendanceAdapter.OnItemClickListener() {
-            Integer set = 0;
-
             @Override
             public void setAbsent(int position) {
-
                 if(listItems.get(position).getSet() == "0"){
+                    listItems.get(position).setFirstCheckStatus("Absent");
                     listItems.get(position).setFirst(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
                     if(isUpdated) {
-                        Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
-
                         info = "Name: " + listItems.get(position).getName() + " Subject Code: " + listItems.get(position).getSubjectCode() + " Room: " + listItems.get(position).getRoomNumber() + " Class Schedule: " + listItems.get(position).getClassTime();
                         MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file",getFileName(currentPhotoPath),"first_check", MainActivity.getCurrentTime12Hours());
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
-                    else
-                        Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }else if(listItems.get(position).getSet() == "1"){
+                    listItems.get(position).setSecondCheckStatus("Absent");
                     listItems.get(position).setSecond(MainActivity.getCurrentTime12Hours());
                     boolean isUpdated = MainActivity.myDB.checkSecondAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getSecond());
                     if(isUpdated) {
-                        Toast.makeText(getApplicationContext(), "Local Database Update", Toast.LENGTH_SHORT).show();
                         dispatchTakePictureIntent();
                         info = "Name: " + listItems.get(position).getName() + " Subject Code: " + listItems.get(position).getSubjectCode() + " Room: " + listItems.get(position).getRoomNumber() + " Class Schedule: " + listItems.get(position).getClassTime();
                         MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "second_image_file", getFileName(currentPhotoPath), "second_check", MainActivity.getCurrentTime12Hours());
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
-                    else
-                        Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }
-                //listItems.remove(position);
                 //adapter.notifyItemRemoved(position);
-                adapter.notifyItemChanged(position);
-                if(adapter.getItemCount() == 0){
-                    finish();
+                try {
+                    TimeUnit.MILLISECONDS.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+                adapter.notifyItemChanged(position);
             }
 
             @Override
@@ -223,12 +214,8 @@ public class AttendanceList extends AppCompatActivity {
                     else
                         Toast.makeText(getApplicationContext(), "Error: Local Database not Updated", Toast.LENGTH_SHORT).show();
                 }
-                //listItems.remove(position);
                 //adapter.notifyItemRemoved(position);
                 adapter.notifyItemChanged(position);
-                if(adapter.getItemCount() == 0){
-                    finish();
-                }
             }
 
             @Override
@@ -242,7 +229,6 @@ public class AttendanceList extends AppCompatActivity {
             @Override
             public void onRadioButtonClicked(int position, View view) {
                 boolean checked = ((RadioButton)view).isChecked();
-
                 switch (view.getId()){
                     case R.id.firstCheck:
                         if(checked){
@@ -260,8 +246,11 @@ public class AttendanceList extends AppCompatActivity {
             @Override
             public void viewImages(int position) {
                 Intent in = new Intent(AttendanceList.this, ImageActivity.class);
+
+                //send the faculty attendance id
                 in.putExtra("first_image_file", listItems.get(position).getFirstImageFile());
                 in.putExtra("second_image_file", listItems.get(position).getSecondImageFile());
+                in.putExtra("faculty_attendance_id", listItems.get(position).getFacultyAttendance_Id());
                 startActivity(in);
             }
         });
@@ -351,6 +340,7 @@ public class AttendanceList extends AppCompatActivity {
         String fileName = "";
 
         fileName = absolutePath.substring(absolutePath.length() - 36);
+        Log.d("getFileName", fileName);
 
         return fileName;
     }

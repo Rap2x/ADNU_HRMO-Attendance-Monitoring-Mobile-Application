@@ -219,7 +219,7 @@ public class Signature extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Signature.this, ImageActivity.class);
-                Cursor imageFileNames = MainActivity.myDB.getAttendanceImageFileNames(confirmation_notice_id);
+                Cursor imageFileNames = MainActivity.myDB.getImageFileNames(confirmation_notice_id);
                 imageFileNames.moveToFirst();
 
                 intent.putExtra("first_image_file", imageFileNames.getString(0));

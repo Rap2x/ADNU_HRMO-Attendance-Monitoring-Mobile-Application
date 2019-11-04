@@ -12,10 +12,12 @@ public class AttendanceListItem {
     private String noticeCount;
     private String firstImageFile;
     private String secondImageFile;
+    private String firstCheckStatus;
+    private String secondCheckStatus;
 
     private String set;
 
-    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id, String noticeCount, String firstImageFile, String secondImageFile) {
+    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id, String noticeCount, String firstImageFile, String secondImageFile, String firstCheckStatus, String secondCheckStatus) {
         this.name = name;
         this.subjectCode = subjectCode;
         this.roomNumber = roomNumber;
@@ -27,6 +29,24 @@ public class AttendanceListItem {
         this.noticeCount = noticeCount;
         this.firstImageFile = firstImageFile;
         this.secondImageFile = secondImageFile;
+        this.firstCheckStatus = firstCheckStatus;
+        this.secondCheckStatus = secondCheckStatus;
+    }
+
+    public String getFirstCheckStatus() {
+        return firstCheckStatus;
+    }
+
+    public String getSecondCheckStatus() {
+        return secondCheckStatus;
+    }
+
+    public void setFirstCheckStatus(String firstCheckStatus) {
+        this.firstCheckStatus = firstCheckStatus;
+    }
+
+    public void setSecondCheckStatus(String secondCheckStatus) {
+        this.secondCheckStatus = secondCheckStatus;
     }
 
     public String getName() {

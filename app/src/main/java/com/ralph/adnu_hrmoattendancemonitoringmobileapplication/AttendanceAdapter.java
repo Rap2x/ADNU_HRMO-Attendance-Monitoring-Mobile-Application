@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -180,22 +181,32 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             viewHolder.radioSecond.setEnabled(false);
         }
 
-        if(listItem.getFirstImageFile() != null){
-            if(!listItem.getFirstImageFile().equals("")) {
+        //Fix this
+        viewHolder.viewImagesButton1.setEnabled(false);
+
+        if (listItem.getFirstImageFile() != null) {
+            if(!listItem.getFirstImageFile().equals("null")) {
+                viewHolder.viewImagesButton1.setEnabled(true);
                 viewHolder.textViewFirst.setTextColor(Color.RED);
             }
         }
+        if(listItem.getFirstCheckStatus() == "Absent") {
+            viewHolder.textViewFirst.setTextColor(Color.RED);
+            viewHolder.viewImagesButton1.setEnabled(true);
+        }
+
 
         if(listItem.getSecondImageFile() != null){
-            if(!listItem.getSecondImageFile().equals("")){
+            if(!listItem.getSecondImageFile().equals("null")){
                 viewHolder.textViewSecond.setTextColor(Color.RED);
+                viewHolder.viewImagesButton1.setEnabled(true);
             }
         }
 
-        if(listItem.getFirstImageFile() != null || listItem.getSecondImageFile() != null)
+        if (listItem.getSecondCheckStatus() == "Absent") {
+            viewHolder.textViewSecond.setTextColor(Color.RED);
             viewHolder.viewImagesButton1.setEnabled(true);
-        else
-            viewHolder.viewImagesButton1.setEnabled(false);
+        }
 
     }
     @Override

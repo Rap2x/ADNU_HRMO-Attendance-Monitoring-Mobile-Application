@@ -568,9 +568,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res1 = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id = '" + attendance_id +"' and first_image_file = ''", null);
         Cursor res2 = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id = '" + attendance_id + "' and second_image_file = ''",null);
         if(res1.getCount() > 0 || res2.getCount() > 0)
-            contentValues.put("status", "Absent");
-        else
             contentValues.put("status", "Present");
+        else
+            contentValues.put("status", "Absent");
 
         long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + attendance_id+ "'", null);
 
@@ -579,6 +579,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         else
             return true;
     }
+
     public boolean isClassAvailable(String building_name){ // used for checking if there is a class in a building
         Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id from faculty_attendance inner join room on faculty_attendance.room_id = room.room_id inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id where room.route = '" + MainActivity.userRoute + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "'", null);
         res.moveToFirst();
@@ -621,7 +622,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean clearFirstImage(String faculty_attendance_id){
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put("first_image_file", "");
+        contentValues.put("first_image_file", "null");
 
         long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + faculty_attendance_id + "'", null);
         if (result == -1)
@@ -633,7 +634,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean clearSecondImage(String faculty_attendance_id){
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put("second_image_file", "");
+        contentValues.put("second_image_file", "null");
 
         long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + faculty_attendance_id + "'", null);
         if (result == -1)
@@ -649,8 +650,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public Cursor getAttendanceImageFileNames(String confirmation_notice_id){
+    public Cursor getImageFileNames(String confirmation_notice_id){
         Cursor res = readDB.rawQuery("select faculty_attendance.first_image_file, faculty_attendance.second_image_file from faculty_attendance inner join confirmation_notice on faculty_attendance.confirmation_notice_id = confirmation_notice.confirmation_notice_id where confirmation_notice.confirmation_notice_id = '" + confirmation_notice_id + "'",null);
+        res.moveToFirst();
+
+        return res;
+    }
+
+    public Cursor getAttendanceImageFileNames(String faculty_attendance_id){
+        Cursor res = readDB.rawQuery("select first_image_file, second_image_file from faculty_attendance where faculty_attendance_id = '" + faculty_attendance_id + "'", null);
         res.moveToFirst();
 
         return res;

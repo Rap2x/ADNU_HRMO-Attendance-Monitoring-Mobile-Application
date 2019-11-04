@@ -1,5 +1,6 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -37,9 +38,13 @@ public class ImageActivity extends AppCompatActivity {
         createOptionMenu();
 
         facultyAttendanceId = getIntent().getStringExtra("faculty_attendance_id");
-        firstImage = getIntent().getStringExtra("first_image_file");
-        secondImage = getIntent().getStringExtra("second_image_file");
 
+        Cursor image_file_names = MainActivity.myDB.getAttendanceImageFileNames(facultyAttendanceId);
+        firstImage = image_file_names.getString(0);
+        secondImage = image_file_names.getString(1);
+
+        Log.d(TAG, "onCreate: " + firstImage);
+        Log.d(TAG, "onCreate: " + secondImage);
         dataBind();
 
         Toast.makeText(getApplicationContext(), firstImage, Toast.LENGTH_SHORT).show();

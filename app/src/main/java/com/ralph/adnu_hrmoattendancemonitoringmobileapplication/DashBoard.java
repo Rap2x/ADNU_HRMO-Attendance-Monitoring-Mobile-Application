@@ -73,6 +73,22 @@ public class DashBoard extends AppCompatActivity {
         downloadImages = (CardView)findViewById(R.id.downloadImages);
         updateSchedAndFaculty = (CardView)findViewById(R.id.updateSchedAndFaculty);
 
+        onClickListener();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void onClickListener(){
         buildingList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,9 +100,9 @@ public class DashBoard extends AppCompatActivity {
         updateDatabase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    if (updateFacultyAttendance())
-                        if(updateConfirmationNotice())
-                            Log.d("Updated Database", "Done");
+                if (updateFacultyAttendance())
+                    if(updateConfirmationNotice())
+                        Log.d("Updated Database", "Done");
             }
         });
 
@@ -120,18 +136,6 @@ public class DashBoard extends AppCompatActivity {
                         updateRoom();
             }
         });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu,menu);
-        return super.onCreateOptionsMenu(menu);
     }
 
     private void createRetrofitClient(){
@@ -366,7 +370,7 @@ public class DashBoard extends AppCompatActivity {
             MultipartBody.Part firstImage;
             MultipartBody.Part secondImage;
 
-            if(isEmpty(facultyAttendance.getString(6))){ // checks if there's no image
+            if(facultyAttendance.getString(6).equals("null")){ // checks if there's no image
                 /* Send an empty image*/
                 RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), "");
 
@@ -377,7 +381,7 @@ public class DashBoard extends AppCompatActivity {
                 firstImage = MultipartBody.Part.createFormData("fipath", file1.getName(), fileReqBody1);
             }
 
-            if(isEmpty(facultyAttendance.getString(7))){
+            if(facultyAttendance.getString(7).equals("null")){
                 RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), "");
                 secondImage = MultipartBody.Part.createFormData("sipath", "", fileReqBody2);
             }else{
