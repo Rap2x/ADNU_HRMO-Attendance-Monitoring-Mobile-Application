@@ -13,6 +13,7 @@ public class FacultyAttendance {
     private String sipath;
     private String sdeduct;
     private String status;
+    private String validated;
 
     private String message;
 
@@ -27,10 +28,10 @@ public class FacultyAttendance {
     private String FIRST_IMAGE_FILE;
     private String SECOND_IMAGE_FILE;
     private String STATUS;
+    private String VALIDATED;
 
 
-
-    public FacultyAttendance(String id, String token, String faid, String sid, String csid, String adate, String fcheck, String scheck, String fipath, String sipath, String status) {
+    public FacultyAttendance(String id, String token, String faid, String sid, String csid, String adate, String fcheck, String scheck, String fipath, String sipath, String sdeduct, String status, String validated) {
         this.id = id;
         this.token = token;
         this.faid = faid;
@@ -43,6 +44,7 @@ public class FacultyAttendance {
         this.sipath = sipath;
         this.sdeduct = sdeduct;
         this.status = status;
+        this.validated = validated;
     }
 
     public FacultyAttendance(String id, String token) {
@@ -138,6 +140,9 @@ public class FacultyAttendance {
         return status;
     }
 
+    public String getValidated() {
+        return validated;
+    }
 
     public String getFACULTY_ATTENDANCE_ID() {
         return FACULTY_ATTENDANCE_ID;
@@ -185,5 +190,9 @@ public class FacultyAttendance {
 
     public String getCONFIRMATION_NOTICE_ID() {
         return CONFIRMATION_NOTICE_ID;
+    }
+
+    public String getVALIDATED() {
+        return VALIDATED;
     }
 }

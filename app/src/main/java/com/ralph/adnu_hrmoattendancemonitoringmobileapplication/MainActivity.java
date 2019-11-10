@@ -287,6 +287,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static String time12HourTo24Hour(String time) throws ParseException {
 
+        time = time.replace("NN", "PM");
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             String result = LocalTime.parse(time, DateTimeFormatter.ofPattern("hh:mma", Locale.US)).format(DateTimeFormatter.ofPattern("HH:mm"));
             return result;

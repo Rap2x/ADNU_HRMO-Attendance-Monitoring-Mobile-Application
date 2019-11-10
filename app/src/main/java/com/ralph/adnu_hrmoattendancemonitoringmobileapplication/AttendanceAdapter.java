@@ -165,9 +165,12 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         viewHolder.textViewSecond.setText(listItem.getSecond());
         viewHolder.noticeCount.setText(listItem.getNoticeCount());
 
-        if(!(listItem.getNoticeCount().equals("0"))){
+        if(!(listItem.getNoticeCount().equals(""))){
             viewHolder.noticeCount.setTextColor(Color.RED);
         }
+
+        viewHolder.radioFirst.setChecked(false);
+        viewHolder.radioSecond.setChecked(false);
 
         if(viewHolder.textViewFirst.getText().toString().matches("")) { // if the textview is empty
             viewHolder.radioSecond.setEnabled(false);
@@ -179,9 +182,11 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         if(!viewHolder.textViewFirst.getText().toString().matches("") && !viewHolder.textViewSecond.getText().toString().matches("")){
             viewHolder.radioFirst.setEnabled(false);
             viewHolder.radioSecond.setEnabled(false);
+
+            viewHolder.buttonAbsent.setEnabled(false);
+            viewHolder.buttonPresent.setEnabled(false);
         }
 
-        //Fix this
         viewHolder.viewImagesButton1.setEnabled(false);
 
         if (listItem.getFirstImageFile() != null) {

@@ -24,11 +24,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE FACULTY( faculty_id VARCHAR PRIMARY KEY NOT NULL, name VARCHAR NOT NULL, department VARCHAR NOT NULL, college VARCHAR NOT NULL)");
+        db.execSQL("CREATE TABLE FACULTY( faculty_id VARCHAR PRIMARY KEY NOT NULL, name VARCHAR NOT NULL, department VARCHAR NOT NULL, college VARCHAR)");
         db.execSQL("CREATE TABLE USER ( user_id VARCHAR PRIMARY KEY NOT NULL, last_login TEXT, route_id INTEGER, token VARCHAR)");
         db.execSQL("CREATE TABLE ROOM( room_id VARCHAR PRIMARY KEY NOT NULL, room_name VARCHAR NOT NULL, route INTEGER NOT NULL, building_name VARCHAR NOT NULL)");
         db.execSQL("CREATE TABLE CLASS_SCHEDULE( class_schedule_id VARCHAR PRIMARY KEY NOT NULL, faculty_id VARCHAR, semester INTEGER NOT NULL, school_year VARCHAR NOT NULL, start_time TEXT, end_time TEXT, class_section VARCHAR NOT NULL, class_day VARCHAR, subject_code VARCHAR NOT NULL, hours FLOAT NOT NULL )");
-        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR, class_schedule_id VARCHAR NOT NULL, room_id VARCHAR, confirmation_notice_id VARCHAR, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, status VARCHAR, attendance_synchronized INTEGER)");
+        db.execSQL("CREATE TABLE FACULTY_ATTENDANCE( faculty_attendance_id VARCHAR PRIMARY KEY NOT NULL, staff_id VARCHAR, class_schedule_id VARCHAR NOT NULL, room_id VARCHAR, confirmation_notice_id VARCHAR, attendance_date TEXT NOT NULL, first_check TEXT, second_check TEXT, first_image_file VARCHAR, second_image_file VARCHAR, status VARCHAR, validated VARCHAR,attendance_synchronized INTEGER)");
         db.execSQL("CREATE TABLE CONFIRMATION_NOTICE( confirmation_notice_id VARCHAR PRIMARY KEY NOT NULL, confirmation_notice_date TEXT, reason VARCHAR, electronic_signature VARCHAR, remarks VARCHAR, confirmed INTEGER, notice_synchronized INTEGER)");
     }
 
@@ -346,13 +346,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAttendanceList(String building_name){
 
-        Cursor res = readDB.rawQuery("SELECT faculty_attendance.faculty_attendance_id, faculty_attendance.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check, faculty.faculty_id, faculty_attendance.first_image_file, faculty_attendance.second_image_file FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = faculty_attendance.room_id where attendance_date = '" + MainActivity.getCurrentDayOracleFormat() + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "'",null);
+        Cursor res = readDB.rawQuery("SELECT faculty_attendance.faculty_attendance_id, faculty_attendance.room_id, class_schedule.subject_code,faculty.name, class_schedule.start_time || ' - ' || class_schedule.end_time AS Class_Time, faculty_attendance.first_check, faculty_attendance.second_check, faculty.faculty_id, faculty_attendance.first_image_file, faculty_attendance.second_image_file FROM faculty_attendance INNER JOIN class_schedule ON faculty_attendance.class_schedule_id = class_schedule.class_schedule_id INNER JOIN faculty ON class_schedule.faculty_id = faculty.faculty_id INNER JOIN room on room.room_id = faculty_attendance.room_id where attendance_date = '" + MainActivity.getCurrentDayOracleFormat() + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "' and room.route = '" + MainActivity.userRoute + "' order by faculty_attendance.room_id asc",null);
         return res;
     }
 
     public Cursor getFacultyAttendance(){ // for uploading faculty attendance
 
-        Cursor res = readDB.rawQuery("select faculty_attendance_id, staff_id, class_schedule_id, attendance_date, first_check, second_check, first_image_file, second_image_file, status  from faculty_attendance where attendance_synchronized = 0 and first_check != '' and second_check != ''", null);
+        Cursor res = readDB.rawQuery("select faculty_attendance_id, staff_id, class_schedule_id, attendance_date, first_check, second_check, first_image_file, second_image_file, status, validated  from faculty_attendance where attendance_synchronized = 0 and first_check != 'null' and second_check != 'null'", null);
         return res;
     }
 
@@ -445,7 +445,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getAllConfirmationNoticeOfAFaculty(String faculty_id){
-        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id, class_schedule.faculty_id, faculty.name, class_schedule.subject_code, class_schedule.class_section, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, faculty_attendance.attendance_date, confirmation_notice.confirmation_notice_id from confirmation_notice left outer join faculty_attendance on confirmation_notice.confirmation_notice_id = faculty_attendance.confirmation_notice_id inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id inner join faculty on class_schedule.faculty_id = faculty.faculty_id where class_schedule.faculty_id = '" + faculty_id + "' and confirmation_notice.confirmed = 0",null);
+        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id, class_schedule.faculty_id, faculty.name, class_schedule.subject_code, class_schedule.class_section, class_schedule.start_time || ' - ' || class_schedule.end_time AS Time, class_schedule.class_section, faculty_attendance.attendance_date, confirmation_notice.confirmation_notice_id from confirmation_notice left outer join faculty_attendance on confirmation_notice.confirmation_notice_id = faculty_attendance.confirmation_notice_id inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id inner join faculty on class_schedule.faculty_id = faculty.faculty_id where class_schedule.faculty_id = '" + faculty_id + "' and confirmation_notice.confirmed = 0 and confirmation_notice.notice_synchronized = 0",null);
         res.moveToFirst();
         return res;
     }
@@ -462,7 +462,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public boolean updateFacultyAttendance(String faculty_attendance_id, String staff_id, String class_schedule_id,String confirmation_notice_id, String room_id, String attendance_date, String first_check, String second_check, String first_image_file, String second_image_file, String status){
+    public boolean updateFacultyAttendance(String faculty_attendance_id, String staff_id, String class_schedule_id,String confirmation_notice_id, String room_id, String attendance_date, String first_check, String second_check, String first_image_file, String second_image_file, String status, String validated){
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("faculty_attendance_id", faculty_attendance_id);
@@ -475,8 +475,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put("second_check", second_check);
         contentValues.put("first_image_file", first_image_file);
         contentValues.put("second_image_file", second_image_file);
-        contentValues.put("status", "");
+        contentValues.put("status", status);
         contentValues.put("attendance_synchronized", "0");
+        contentValues.put("validated", validated);
 
         long result;
 
@@ -512,7 +513,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getAllConfirmationNotice(){
-        Cursor res = readDB.rawQuery("select confirmation_notice.confirmation_notice_id, faculty_attendance.confirmation_notice_id, confirmation_notice.confirmation_notice_date, confirmation_notice.reason, confirmation_notice.remarks, confirmation_notice.electronic_signature, confirmation_notice.confirmed from confirmation_notice inner join faculty_attendance on confirmation_notice.confirmation_notice_id = faculty_attendance.confirmation_notice_id where confirmation_notice.confirmed = '1' and confirmation_notice.notice_synchronized <> '1'", null);
+        Cursor res = readDB.rawQuery("select confirmation_notice.confirmation_notice_id, faculty_attendance.confirmation_notice_id, confirmation_notice.confirmation_notice_date, confirmation_notice.reason, confirmation_notice.remarks, confirmation_notice.electronic_signature, confirmation_notice.confirmed from confirmation_notice inner join faculty_attendance on confirmation_notice.confirmation_notice_id = faculty_attendance.confirmation_notice_id where confirmation_notice.confirmed = '1' and confirmation_notice.notice_synchronized = 0", null);
 
         res.moveToFirst();
         return res;
@@ -565,9 +566,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean changeAttendanceStatus(String attendance_id){
         ContentValues contentValues = new ContentValues();
 
-        Cursor res1 = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id = '" + attendance_id +"' and first_image_file = ''", null);
-        Cursor res2 = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id = '" + attendance_id + "' and second_image_file = ''",null);
-        if(res1.getCount() > 0 || res2.getCount() > 0)
+        Cursor res1 = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id = '" + attendance_id +"' and first_image_file = 'null'", null);
+        Cursor res2 = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id = '" + attendance_id + "' and second_image_file = 'null'",null);
+        if(res1.getCount() > 0 && res2.getCount() > 0)
             contentValues.put("status", "Present");
         else
             contentValues.put("status", "Absent");
@@ -578,6 +579,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return false;
         else
             return true;
+
     }
 
     public boolean isClassAvailable(String building_name){ // used for checking if there is a class in a building
@@ -670,4 +672,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return count.toString();
     }
+
+    public boolean confirmNotice(String confirmation_notice_id){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("confirmed", 1);
+
+        long result = writeDB.update("CONFIRMATION_NOTICE", contentValues, "CONFIRMATION_NOTICE_ID ='" + confirmation_notice_id + "'", null);
+
+        if(result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    public boolean confirmPresent(String faculty_attendance_id){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("STATUS", "Present");
+        contentValues.put("VALIDATED", 0);
+
+        long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID ='" + faculty_attendance_id + "'", null);
+        if (result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    public boolean changeUnSync(String colId, String id,String colName, String table){
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(colName, 0);
+
+        long result;
+
+        result = writeDB.update(table, contentValues, colId + " = '" + id + "'", null);
+
+        if(result == -1)
+            return false;
+        else
+            return true;
+    }
+
+    public String getFacultyAttendanceId(String confirmation_notice_id){
+        Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where confirmation_notice_id = '" +confirmation_notice_id +"'", null);
+
+        res.moveToFirst();
+        return res.getString(0);
+    }
+
+
 }

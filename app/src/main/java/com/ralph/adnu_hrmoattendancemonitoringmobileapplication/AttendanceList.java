@@ -135,6 +135,9 @@ public class AttendanceList extends AppCompatActivity {
 
         for(int i = 0 ;i < attendanceData.getCount(); i++){
             String noticeCount = MainActivity.myDB.getConfirmationNoticeCount(attendanceData.getString(7));
+            if(noticeCount.equals("0")){
+                noticeCount = "";
+            }
             AttendanceListItem listItem = new AttendanceListItem(
                     attendanceData.getString(3),
                     attendanceData.getString(2),
@@ -167,8 +170,11 @@ public class AttendanceList extends AppCompatActivity {
                     boolean isUpdated = MainActivity.myDB.checkFirstAttendance(listItems.get(position).getFacultyAttendance_Id(),listItems.get(position).getFirst());
                     if(isUpdated) {
                         dispatchTakePictureIntent();
+                        Log.d(TAG, "setAbsent: " + getFileName(currentPhotoPath));
                         info = "Name: " + listItems.get(position).getName() + " Subject Code: " + listItems.get(position).getSubjectCode() + " Room: " + listItems.get(position).getRoomNumber() + " Class Schedule: " + listItems.get(position).getClassTime();
-                        MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file",getFileName(currentPhotoPath),"first_check", MainActivity.getCurrentTime12Hours());
+                        if(MainActivity.myDB.saveImage(listItems.get(position).getFacultyAttendance_Id(), "first_image_file",getFileName(currentPhotoPath),"first_check", MainActivity.getCurrentTime12Hours())){
+                            Toast.makeText(getApplicationContext(), "Image Saved", Toast.LENGTH_SHORT).show();
+                        }
                         MainActivity.myDB.changeAttendanceStatus(listItems.get(position).getFacultyAttendance_Id());
                     }
                 }else if(listItems.get(position).getSet() == "1"){

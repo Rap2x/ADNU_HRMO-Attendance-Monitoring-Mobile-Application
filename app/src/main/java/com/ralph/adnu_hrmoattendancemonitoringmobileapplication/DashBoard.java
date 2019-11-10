@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -45,10 +45,9 @@ import static com.ralph.adnu_hrmoattendancemonitoringmobileapplication.MainActiv
 public class DashBoard extends AppCompatActivity {
     private CardView buildingList;
     private CardView updateDatabase;
-    private CardView uploadConfirmationNotice;
     private CardView uploadFacultyAttendance;
-    private CardView downloadImages;
     private CardView updateSchedAndFaculty;
+    private CardView downloadImages;
 
     private static AhcfamsApi ahcfamsApi;
     private static List<FacultyAttendance> attendanceItems;
@@ -56,6 +55,8 @@ public class DashBoard extends AppCompatActivity {
     String base_url = "http://" + MainActivity.ip + "/ADNU_HRMO-College-Faculty-Attendance-Monitoring-System/assets/images/";
     String root = Environment.getExternalStorageDirectory().toString(); // deprecated in API level 29.
     public static File imageDir;
+
+    private String TAG = "DashBoard";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,10 +69,9 @@ public class DashBoard extends AppCompatActivity {
 
         buildingList = (CardView)findViewById(R.id.buildingList);
         updateDatabase = (CardView)findViewById(R.id.updateDatabase);
-        uploadConfirmationNotice = (CardView)findViewById(R.id.uploadConfirmationNotice);
-        uploadFacultyAttendance = (CardView)findViewById(R.id.uploadFacultyAttendance);
-        downloadImages = (CardView)findViewById(R.id.downloadImages);
+        uploadFacultyAttendance = (CardView)findViewById(R.id.sendRecords);
         updateSchedAndFaculty = (CardView)findViewById(R.id.updateSchedAndFaculty);
+        downloadImages = (CardView)findViewById(R.id.downloadImages);
 
         onClickListener();
     }
@@ -101,30 +101,25 @@ public class DashBoard extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (updateFacultyAttendance())
-                    if(updateConfirmationNotice())
-                        Log.d("Updated Database", "Done");
+                    if(updateConfirmationNotice()){
+                            Log.d("Updated Database", "Done");
+                            Toast.makeText(getApplicationContext(), "Local database updated", Toast.LENGTH_SHORT).show();
+                    }
+
             }
         });
 
         uploadFacultyAttendance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                uploadFacultyAttendance();
+                if(uploadFacultyAttendance()){
+                    if(uploadConfirmationNotice()){
+                        Toast.makeText(getApplicationContext(), "Attendance and Confirmation Notice has been sent", Toast.LENGTH_SHORT).show();
+                    }else
+                        Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+                }
 
-            }
-        });
 
-        uploadConfirmationNotice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                uploadConfirmationNotice();
-            }
-        });
-
-        downloadImages.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                downloadImages();
             }
         });
 
@@ -133,7 +128,21 @@ public class DashBoard extends AppCompatActivity {
             public void onClick(View view) {
                 if(updateFaculty())
                     if(updateClassSchedule())
-                        updateRoom();
+                        if(updateRoom()){
+                            Toast.makeText(getApplicationContext(), "Faculty, Class Schedule, and Room has been saved", Toast.LENGTH_SHORT).show();
+                        }else
+                            Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        downloadImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(downloadImages()){
+                    Toast.makeText(getApplicationContext(), "Images Downloaded and Saved", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getApplicationContext(), "Download Images: ERROR", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -203,8 +212,8 @@ public class DashBoard extends AppCompatActivity {
                     for (ClassSchedule classSchedule1 : classSchedules){
                         boolean isInserted = false;
                         try {
-                            Day day = new Day(classSchedule1.getCLASS_DAY());
-                            isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), day.parseDay(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHOURS());
+                            //Day day = new Day(classSchedule1.getCLASS_DAY());
+                            isInserted = MainActivity.myDB.updateClassSchedule(classSchedule1.getCLASS_SCHEDULE_ID(), classSchedule1.getFACULTY_ID(), classSchedule1.getSEMESTER(), classSchedule1.getSCHOOL_YEAR(), MainActivity.time12HourTo24Hour(classSchedule1.getSTART_TIME()), MainActivity.time12HourTo24Hour(classSchedule1.getEND_TIME()), classSchedule1.getCLASS_SECTION(), classSchedule1.getCLASS_DAY(), classSchedule1.getSUBJECT_CODE(), classSchedule1.getHOURS());
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
@@ -286,7 +295,7 @@ public class DashBoard extends AppCompatActivity {
 
                 if(facultyAttendances != null){
                     for (FacultyAttendance facultyAttendance1 : facultyAttendances){
-                        boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(), facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(), facultyAttendance1.getCONFIRMATION_NOTICE_ID(), facultyAttendance1.getROOM_ID(), facultyAttendance1.getATTENDANCE_DATE(), facultyAttendance1.getFIRST_CHECK(), facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSTATUS());
+                        boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(), facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(), facultyAttendance1.getCONFIRMATION_NOTICE_ID(), facultyAttendance1.getROOM_ID(), facultyAttendance1.getATTENDANCE_DATE(), facultyAttendance1.getFIRST_CHECK(), facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSTATUS(), facultyAttendance1.getVALIDATED());
                         if(!isInserted)
                             Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
                     }
@@ -369,25 +378,35 @@ public class DashBoard extends AppCompatActivity {
             File file2;
             MultipartBody.Part firstImage;
             MultipartBody.Part secondImage;
+            Log.d(TAG, "uploadFacultyAttendance: " + facultyAttendance.getString(6) + ":" + facultyAttendance.getString(7));
 
-            if(facultyAttendance.getString(6).equals("null")){ // checks if there's no image
-                /* Send an empty image*/
-                RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), "");
-
-                firstImage = MultipartBody.Part.createFormData("fipath", "", fileReqBody1);
+            if(facultyAttendance.getString(6) != null){
+                if(facultyAttendance.getString(6).equals("null")){ // checks if there's no image
+                    /* Send an empty image*/
+                    RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), "");
+                    firstImage = MultipartBody.Part.createFormData("fipath", "", fileReqBody1);
+                }else{
+                    file1 = new File(imageDir, facultyAttendance.getString(6));
+                    RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), file1);
+                    firstImage = MultipartBody.Part.createFormData("fipath", file1.getName(), fileReqBody1);
+                }
             }else{
-                file1 = new File(imageDir, facultyAttendance.getString(6));
-                RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), file1);
-                firstImage = MultipartBody.Part.createFormData("fipath", file1.getName(), fileReqBody1);
+                RequestBody fileReqBody1 = RequestBody.create(MediaType.parse("image/*"), "");
+                firstImage = MultipartBody.Part.createFormData("fipath", "", fileReqBody1);
             }
 
-            if(facultyAttendance.getString(7).equals("null")){
+            if(facultyAttendance.getString(7) != null){
+                if(facultyAttendance.getString(7).equals("null")){
+                    RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), "");
+                    secondImage = MultipartBody.Part.createFormData("sipath", "", fileReqBody2);
+                }else{
+                    file2 = new File(imageDir, facultyAttendance.getString(7));
+                    RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), file2);
+                    secondImage = MultipartBody.Part.createFormData("sipath", file2.getName(), fileReqBody2);
+                }
+            }else{
                 RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), "");
                 secondImage = MultipartBody.Part.createFormData("sipath", "", fileReqBody2);
-            }else{
-                file2 = new File(imageDir, facultyAttendance.getString(7));
-                RequestBody fileReqBody2 = RequestBody.create(MediaType.parse("image/*"), file2);
-                secondImage = MultipartBody.Part.createFormData("sipath", file2.getName(), fileReqBody2);
             }
 
             RequestBody id = RequestBody.create(MediaType.parse("text/plain"), userStaffId);
@@ -397,6 +416,17 @@ public class DashBoard extends AppCompatActivity {
             RequestBody csid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(2));
             RequestBody adate = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(3));
             RequestBody fcheck = null;
+
+            RequestBody validated;
+            if(facultyAttendance.getString(9) != null){
+                if(facultyAttendance.getString(9).equals("null")){
+                    validated = RequestBody.create(MediaType.parse("text/plain"), "");
+                }else
+                    validated = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(9));
+            }else{
+                validated = RequestBody.create(MediaType.parse("text/plain"), "");
+            }
+
             if(isEmpty(facultyAttendance.getString(4))){
                 fcheck = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(4));
             }else if(facultyAttendance.getString(4) == "Absent"){
@@ -422,7 +452,7 @@ public class DashBoard extends AppCompatActivity {
             }
             RequestBody status = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(8));
 
-            Call<FacultyAttendance> call = ahcfamsApi.faculty_attendance(id, token, faid, sid, csid, adate, fcheck, scheck, firstImage, secondImage, status);
+            Call<FacultyAttendance> call = ahcfamsApi.faculty_attendance(id, token, faid, sid, csid, adate, fcheck, scheck, firstImage, secondImage, status, validated);
 
             call.enqueue(new Callback<FacultyAttendance>() {
                 @Override

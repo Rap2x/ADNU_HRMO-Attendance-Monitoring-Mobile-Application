@@ -7,12 +7,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:cardBackgroundColor="#00FFFFFF"
-        app:cardCornerRadius="5dp"
+        app:cardCornerRadius="10dp"
         app:cardElevation="5dp"
-    android:layout_marginLeft="2.5dp"
-    android:layout_marginRight="2.5dp"
-    android:layout_marginTop="1dp"
-    android:layout_marginBottom="1dp">
+        android:layout_marginLeft="2.5dp"
+        android:layout_marginRight="2.5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -26,9 +26,9 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="5dp"
                 android:paddingBottom="5dp"
-                android:text="Building Name"
+                android:text="@string/building_name"
                 android:textColor="#AEB4D5"
-                android:textSize="35dp"
+                android:textSize="60sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </android.support.constraint.ConstraintLayout>

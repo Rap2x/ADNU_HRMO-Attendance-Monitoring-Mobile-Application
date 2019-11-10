@@ -107,7 +107,9 @@ public class BuildingList extends AppCompatActivity {
         listItems = new ArrayList<>();
 
         Cursor buildingData = MainActivity.myDB.getBuildings();
+        Integer count = buildingData.getCount();
 
+        Toast.makeText(getApplicationContext(), count.toString(), Toast.LENGTH_SHORT).show();
         for(int i = 0; i < buildingData.getCount(); i++){
             BuildingListItem listItem = new BuildingListItem(buildingData.getString(0));
             if(MainActivity.myDB.isClassAvailable(buildingData.getString(0))){

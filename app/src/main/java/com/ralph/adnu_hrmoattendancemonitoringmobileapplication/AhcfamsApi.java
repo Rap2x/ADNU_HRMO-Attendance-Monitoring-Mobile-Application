@@ -61,7 +61,8 @@ public interface AhcfamsApi {
             @Part("scheck")RequestBody scheck,
             @Part MultipartBody.Part fipath,
             @Part MultipartBody.Part sipath,
-            @Part("status")RequestBody status
+            @Part("status")RequestBody status,
+            @Part("validated")RequestBody validated
             );
 
     @Multipart
