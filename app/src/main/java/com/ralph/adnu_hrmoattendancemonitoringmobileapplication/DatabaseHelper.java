@@ -204,31 +204,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    public boolean updateAbsenceAppeal(String absence_appeal_id, String confirmation_notice_id, String staff_id, String chairperson_id, String absence_appeal_reason, String validated, String remarks){
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put("absence_appeal_id", absence_appeal_id);
-        contentValues.put("confirmation_notice_id", confirmation_notice_id);
-        contentValues.put("staff_id", staff_id);
-        contentValues.put("chairperson_id", chairperson_id);
-        contentValues.put("absence_appeal_reason",absence_appeal_reason);
-        contentValues.put("validated", validated);
-        contentValues.put("remarks", remarks);
-
-        long result;
-
-        if(isRecorded(absence_appeal_id, "absence_appeal_id", "ABSENCE_APPEAL")){
-            result = writeDB.update("ABSENCE_APPEAL", contentValues, "absence_appeal_id = '" + absence_appeal_id + "'",null);
-            if(result == -1)
-                return false;
-        }else{
-            result = writeDB.insert("ABSENCE_APPEAL", null,contentValues);
-        }if(result == -1)
-            return false;
-        else
-            return true;
-    }
-
     public boolean updateClassSchedule(String class_schedule_id, String faculty_id, String semester, String school_year, String start_time, String end_time, String class_section, String class_day, String subject_code, String hours){
         ContentValues contentValues = new ContentValues();
 
@@ -286,36 +261,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return randomString;
     }
 
-    public void createAttendance() {
-        ArrayList<String> classScheduleId = getSchedule();
-        ContentValues contentValues = new ContentValues();
-        String faculty_attendance_id;
-        int scheduleSize = getScheduleSize();
-
-        for(int i = 0; i < scheduleSize; i++){
-            do{
-                faculty_attendance_id = generateRandomString(9);
-
-                contentValues.put("faculty_attendance_id", faculty_attendance_id);
-                contentValues.put("staff_id", MainActivity.userStaffId);
-                contentValues.put("class_schedule_id", classScheduleId.get(i));
-                contentValues.put("attendance_date", MainActivity.getCurrentDate());
-                contentValues.put("first_check", "");
-                contentValues.put("second_check", "");
-                contentValues.put("first_image_file", "");
-                contentValues.put("second_image_file", "");
-                contentValues.put("status", "");
-                contentValues.put("attendance_synchronized", "0");
-
-            }while(isRecorded(faculty_attendance_id, "faculty_attendance_id", "FACULTY_ATTENDANCE"));
-
-            if (!isAttendanceDuplicated(classScheduleId.get(i))){
-                writeDB.insert("FACULTY_ATTENDANCE", null, contentValues);
-            }
-        }
-
-    }
-
     public boolean isAttendanceDuplicated(String class_schedule_id){ // checks the local database for duplicates using the current date and attendance_id
         Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where class_schedule_id = '" + class_schedule_id + "' and attendance_date = '" + MainActivity.getCurrentDate() + "'",null);
         int count = res.getCount();
@@ -352,7 +297,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getFacultyAttendance(){ // for uploading faculty attendance
 
-        Cursor res = readDB.rawQuery("select faculty_attendance_id, staff_id, class_schedule_id, attendance_date, first_check, second_check, first_image_file, second_image_file, status, validated  from faculty_attendance where attendance_synchronized = 0 and first_check != 'null' and second_check != 'null'", null);
+        Cursor res = readDB.rawQuery("select faculty_attendance_id, staff_id, class_schedule_id, attendance_date, first_check, second_check, first_image_file, second_image_file, status, validated, confirmation_notice_id  from faculty_attendance where attendance_synchronized = 0 and first_check != 'null' and second_check != 'null'", null);
         return res;
     }
 
@@ -476,7 +421,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put("first_image_file", first_image_file);
         contentValues.put("second_image_file", second_image_file);
         contentValues.put("status", status);
-        contentValues.put("attendance_synchronized", "0");
+        contentValues.put("attendance_synchronized", 0);
         contentValues.put("validated", validated);
 
         long result;
@@ -570,8 +515,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res2 = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id = '" + attendance_id + "' and second_image_file = 'null'",null);
         if(res1.getCount() > 0 && res2.getCount() > 0)
             contentValues.put("status", "Present");
-        else
+        else{
             contentValues.put("status", "Absent");
+            contentValues.put("validated", "null");
+        }
 
         long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + attendance_id+ "'", null);
 
@@ -685,12 +632,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    public boolean confirmPresent(String faculty_attendance_id){
+    public boolean confirmPresent(String faculty_attendance_id, String confirmation_notice_id){
         ContentValues contentValues = new ContentValues();
+        contentValues.put("CONFIRMATION_NOTICE_ID", confirmation_notice_id);
         contentValues.put("STATUS", "Present");
-        contentValues.put("VALIDATED", 0);
+        contentValues.put("VALIDATED", "0");
 
-        long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID ='" + faculty_attendance_id + "'", null);
+        long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "FACULTY_ATTENDANCE_ID = '" + faculty_attendance_id + "'", null);
         if (result == -1)
             return false;
         else

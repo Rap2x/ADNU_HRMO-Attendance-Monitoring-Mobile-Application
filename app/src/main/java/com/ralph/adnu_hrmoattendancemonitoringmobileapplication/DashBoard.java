@@ -417,14 +417,24 @@ public class DashBoard extends AppCompatActivity {
             RequestBody adate = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(3));
             RequestBody fcheck = null;
 
+            RequestBody cnid;
+            if(facultyAttendance.getString(10) != null){
+                if(facultyAttendance.getString(10).equals("null")){
+                    cnid = RequestBody.create(MediaType.parse("text/plain"), "");
+                }else
+                    cnid = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(10));
+            }else
+                cnid = RequestBody.create(MediaType.parse("text/plain"), "");
+
             RequestBody validated;
+            Toast.makeText(getApplicationContext(), "Validated: "+ facultyAttendance.getString(9), Toast.LENGTH_SHORT).show();
             if(facultyAttendance.getString(9) != null){
                 if(facultyAttendance.getString(9).equals("null")){
-                    validated = RequestBody.create(MediaType.parse("text/plain"), "");
+                    validated = RequestBody.create(MediaType.parse("text/plain"), "null");
                 }else
                     validated = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(9));
             }else{
-                validated = RequestBody.create(MediaType.parse("text/plain"), "");
+                validated = RequestBody.create(MediaType.parse("text/plain"), "null");
             }
 
             if(isEmpty(facultyAttendance.getString(4))){
@@ -452,17 +462,15 @@ public class DashBoard extends AppCompatActivity {
             }
             RequestBody status = RequestBody.create(MediaType.parse("text/plain"), facultyAttendance.getString(8));
 
-            Call<FacultyAttendance> call = ahcfamsApi.faculty_attendance(id, token, faid, sid, csid, adate, fcheck, scheck, firstImage, secondImage, status, validated);
+            Call<FacultyAttendance> call = ahcfamsApi.faculty_attendance(id, token, faid, sid, csid, adate, fcheck, scheck, firstImage, secondImage, status, validated, cnid);
 
             call.enqueue(new Callback<FacultyAttendance>() {
                 @Override
                 public void onResponse(Call<FacultyAttendance> call, Response<FacultyAttendance> response) {
                     FacultyAttendance attendanceResponse = response.body();
-                    Log.d("Faculty Attendance", attendanceResponse.getStatus());
 
                     if(attendanceResponse.getStatus().equals("201")){
                         MainActivity.myDB.changeSync("faculty_attendance_id", facultyAttendance.getString(0), "attendance_synchronized", "FACULTY_ATTENDANCE");
-
                     }
                 }
 
@@ -474,7 +482,6 @@ public class DashBoard extends AppCompatActivity {
             if(!facultyAttendance.isLast())
                 facultyAttendance.moveToNext();
         }
-        Toast.makeText(getApplicationContext(), "Faculty Attendance Uploaded", Toast.LENGTH_SHORT).show();
         return true;
     }
 

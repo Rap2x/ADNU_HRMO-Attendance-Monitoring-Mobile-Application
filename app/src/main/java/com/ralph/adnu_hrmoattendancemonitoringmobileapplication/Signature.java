@@ -203,7 +203,7 @@ public class Signature extends AppCompatActivity {
 
                     if(isInserted) {
                         signaturePad.clear();
-                        if(status.equals('0')){
+                        if(status.equals("0")){
                             MainActivity.myDB.changeSync("confirmation_notice_id", confirmation_notice_id, "confirmed", "CONFIRMATION_NOTICE");
                             Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
                             MainActivity.myDB.addReason(confirmation_notice_id, absentReason.getText().toString());
@@ -213,8 +213,7 @@ public class Signature extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
                             MainActivity.myDB.addReason(confirmation_notice_id, absentReason.getText().toString());
                             MainActivity.myDB.confirmNotice(confirmation_notice_id);
-                            MainActivity.myDB.confirmPresent(faculty_attendance_id);
-                            MainActivity.myDB.changeUnSync("faculty_attendance_id", faculty_attendance_id, "validated", "FACULTY_ATTENDANCE");
+                            MainActivity.myDB.confirmPresent(faculty_attendance_id, confirmation_notice_id);
                             MainActivity.myDB.changeUnSync("faculty_attendance_id", faculty_attendance_id, "attendance_synchronized", "FACULTY_ATTENDANCE");
                         }
 
