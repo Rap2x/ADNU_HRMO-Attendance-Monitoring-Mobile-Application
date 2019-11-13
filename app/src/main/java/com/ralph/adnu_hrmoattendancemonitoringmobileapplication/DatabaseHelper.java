@@ -152,8 +152,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = readDB.rawQuery("select " + colName +" from " + table +" where " + colName + " = '" + id + "'", null);
 
         if(res.getCount() == 0){
+            res.close();
             return false;
         }else{
+            res.close();
             return true;
         }
 
@@ -427,17 +429,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result;
 
         if(isRecorded(faculty_attendance_id, "faculty_attendance_id", "faculty_attendance")){
-            result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + faculty_attendance_id + "'",null);
-            if(result == -1)
-                return false;
+            if(!isAttendanceChecking(faculty_attendance_id))
+                result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + faculty_attendance_id + "'",null);
         }else
             result = writeDB.insert("FACULTY_ATTENDANCE", null, contentValues);
 
-        if(result == -1){
-            return false;
-        }else{
-            return true;
-        }
+        return true;
     }
 
     public boolean saveSignature(String confirmation_notice_id, String signaturePath){
@@ -667,5 +664,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res.getString(0);
     }
 
+    public boolean isAttendanceChecking(String faculty_attendance_id){ // returns true if faculty_attendance has started
+        Cursor res = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id ='" + faculty_attendance_id  + "' and first_check != null and second_check != null",null);
 
+        if (res.getCount() > 0)
+            return true;
+        else
+            return false;
+    }
 }

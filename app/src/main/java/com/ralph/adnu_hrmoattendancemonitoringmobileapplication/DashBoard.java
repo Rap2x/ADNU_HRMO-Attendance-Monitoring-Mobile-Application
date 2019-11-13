@@ -295,6 +295,7 @@ public class DashBoard extends AppCompatActivity {
 
                 if(facultyAttendances != null){
                     for (FacultyAttendance facultyAttendance1 : facultyAttendances){
+                        //Log.d(TAG, "onResponse: " + facultyAttendance1.getFIRST_CHECK().getClass().getName());
                         boolean isInserted = MainActivity.myDB.updateFacultyAttendance(facultyAttendance1.getFACULTY_ATTENDANCE_ID(), facultyAttendance1.getSTAFF_ID(), facultyAttendance1.getCLASS_SCHEDULE_ID(), facultyAttendance1.getCONFIRMATION_NOTICE_ID(), facultyAttendance1.getROOM_ID(), facultyAttendance1.getATTENDANCE_DATE(), facultyAttendance1.getFIRST_CHECK(), facultyAttendance1.getSECOND_CHECK(), facultyAttendance1.getFIRST_IMAGE_FILE(), facultyAttendance1.getSECOND_IMAGE_FILE(), facultyAttendance1.getSTATUS(), facultyAttendance1.getVALIDATED());
                         if(!isInserted)
                             Toast.makeText(getApplicationContext(), "Faculty Attendance: Error", Toast.LENGTH_SHORT).show();
