@@ -2,6 +2,7 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -91,7 +92,12 @@ public class AttendanceList extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()){
-
+            case R.id.settings:
+                openSettings();
+                break;
+            case R.id.logout:
+                logout();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -120,6 +126,22 @@ public class AttendanceList extends AppCompatActivity {
 
         android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
+    }
+
+    private void openSettings(){
+
+        Intent intent = new Intent(getBaseContext(), Settings.class);
+        startActivity(intent);
+    }
+
+    private void logout(){
+        SharedPreferences sharedPreferences = getSharedPreferences(MainActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.commit();
+
+        Intent in = new Intent(getBaseContext(), MainActivity.class);
+        startActivity(in);
     }
 
     private void showList(){

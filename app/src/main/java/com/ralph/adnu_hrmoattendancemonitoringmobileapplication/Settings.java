@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -21,13 +22,11 @@ public class Settings extends AppCompatActivity implements AdapterView.OnItemSel
 
     private Spinner routeSpinner;
     private Button routeSaveButton;
+    private TextView currentRoute;
 
     private ArrayList<String> routeArray;
 
     private Cursor routes;
-    int currentPosition;
-
-    private static ProgressBar classScheduleProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +47,10 @@ public class Settings extends AppCompatActivity implements AdapterView.OnItemSel
         routeSpinner.setOnItemSelectedListener(this);
 
         routeSaveButton = (Button) findViewById(R.id.routeSave);
-        classScheduleProgress = (ProgressBar) findViewById(R.id.classScheduleProgress);
+
+        currentRoute = (TextView)findViewById(R.id.currentRoute);
+
+        currentRoute.setText(MainActivity.userRoute);
     }
 
     private void onClickListener(){
@@ -57,18 +59,9 @@ public class Settings extends AppCompatActivity implements AdapterView.OnItemSel
             public void onClick(View view) {
                 if(MainActivity.myDB.changeRoute(MainActivity.userStaffId, MainActivity.userRoute)){
                     Toast.makeText(getApplicationContext(), "Route Changed to " + MainActivity.userRoute, Toast.LENGTH_SHORT).show();
+                    currentRoute.setText(MainActivity.userRoute);
                 }else
                     Toast.makeText(getApplicationContext(), "Route changing error", Toast.LENGTH_SHORT).show();
-            }
-        });
-        classScheduleProgress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                /*while(MainActivity.currentClassScheduleCount != MainActivity.classScheduleCount){
-                    double classSchedulePercent = (MainActivity.currentClassScheduleCount / MainActivity.classScheduleCount) * 100;
-                    classScheduleProgress.setProgress((int) Math.ceil(classSchedulePercent));
-                } */
             }
         });
     }

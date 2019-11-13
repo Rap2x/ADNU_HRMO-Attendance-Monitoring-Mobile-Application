@@ -484,7 +484,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getRoutes(){
-        Cursor res = readDB.rawQuery("select distinct route_id from room", null);
+        Cursor res = readDB.rawQuery("select distinct route from room order by route asc", null);
         res.moveToFirst();
 
         return res;
