@@ -6,11 +6,13 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.util.MalformedJsonException;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,6 +26,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -516,10 +520,12 @@ public class DashBoard extends AppCompatActivity {
     private boolean downloadImages(){
         //final Pattern pattern  = Pattern.compile("/(.*?).");\
         OkHttpClient client = new OkHttpClient();
+        final Bitmap[] bitmap = new Bitmap[1];
 
         Request request;
 
         final Cursor imageFileNames = MainActivity.myDB.getImageFileNames();
+        Log.d(TAG, "downloadImages: " + imageFileNames.getCount());
         imageFileNames.moveToFirst();
 
         for (int i = 0; i <= 1; i ++){
@@ -539,12 +545,14 @@ public class DashBoard extends AppCompatActivity {
                         @Override
                         public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
                             InputStream inputStream = response.body().byteStream();
-                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inJustDecodeBounds = true;
+                            bitmap[0] = BitmapFactory.decodeStream(inputStream, null,options);
                             File file = new File(imageDir, fname);
 
                             try{
                                 FileOutputStream out = new FileOutputStream(file);
-                                if(bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out))
+                                if(bitmap[0].compress(Bitmap.CompressFormat.JPEG, 100, out))
                                     Log.d("DownloadImage", fname + " has been downloaded and saved");
                                 out.flush();
                                 out.close();

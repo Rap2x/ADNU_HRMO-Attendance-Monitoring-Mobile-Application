@@ -83,6 +83,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         arrayList.add(res.getString(0));
         arrayList.add(res.getString(1));
         arrayList.add(res.getString(2));
+        res.close();
 
         return arrayList;
     }
@@ -91,35 +92,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = readDB.rawQuery("select user_id from user where user_id = '" + user_id+ "'", null);
 
 
-        if(res.getCount() == 0)
+        if(res.getCount() == 0){
+            res.close();
             return false;
-        else
+        }
+        else{
+            res.close();
             return true;
-
+        }
     }
 
     public boolean isTeacherRecorded(String faculty_id){
         Cursor res = readDB.rawQuery("select faculty_id from faculty where faculty_id = '" + faculty_id + "'", null);
 
 
-        if(res.getCount() == 0)
+        if(res.getCount() == 0){
+            res.close();
             return false;
-        else
+        }
+        else{
+            res.close();
             return true;
-
+        }
     }
 
-    public ArrayList getFaculty(){
-        ArrayList<String> arrayList = new ArrayList<String>();
-        Cursor res = readDB.rawQuery("select * from faculty", null);
-
-        res.moveToLast();
-
-        arrayList.add(res.getString(res.getColumnIndex("faculty_id")));
-
-
-        return arrayList;
-    }
 
     public boolean updateFaculty(String faculty_id,String name , String department, String college){
         ContentValues contentValues = new ContentValues();
@@ -161,26 +157,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean updateRoute(String route_id, String description){
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put("route_id", route_id);
-        contentValues.put("description", description);
-
-        long result;
-
-        if(isRecorded(route_id, "route_id", "route")){
-            result = writeDB.update("ROUTE", contentValues, "route_id = " + route_id,null);
-            if(result == -1)
-                return false;
-        }else{
-            result = writeDB.insert("ROUTE", null, contentValues);
-        }if(result == -1)
-            return false;
-        else
-            return true;
-
-    }
 
     public boolean updateConfirmationNotice(String confirmation_notice_id, String confirmation_notice_date, String electronic_signature, String remarks, String confirmed){
         ContentValues contentValues = new ContentValues();
@@ -235,60 +211,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
         }
 
-    }
-
-    public ArrayList<String> getSchedule(){
-        ArrayList<String> arrayList = new ArrayList<>();
-
-        Cursor res = readDB.rawQuery("select class_schedule_id from class_schedule",null);
-        res.moveToFirst();
-        do{
-            arrayList.add(res.getString(res.getColumnIndex("class_schedule_id")));
-        }while(res.moveToNext());
-
-        return arrayList;
-    }
-
-    public String generateRandomString(int size){
-        String pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-        String randomString = "";
-        Random rand = new Random();
-
-        for(int i =0; i< size; i++){
-            int length = pool.length();
-            int n = rand.nextInt(length);
-            randomString += pool.charAt(n);
-        }
-
-        return randomString;
-    }
-
-    public boolean isAttendanceDuplicated(String class_schedule_id){ // checks the local database for duplicates using the current date and attendance_id
-        Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where class_schedule_id = '" + class_schedule_id + "' and attendance_date = '" + MainActivity.getCurrentDate() + "'",null);
-        int count = res.getCount();
-
-
-        if(count > 0)
-            return true;
-        else
-            return false;
-
-        // Return true if there's a duplicate in the table false if unique
-    }
-
-    public int getScheduleSize(){
-
-        Cursor res = readDB.rawQuery("select * from class_schedule", null);
-        int count = res.getCount();
-
-        return count;
-    }
-
-    public int getAttendanceSize(){
-        Cursor res = readDB.rawQuery("select * from faculty_attendance",null);
-
-        int count = res.getCount();
-        return count;
     }
 
     public Cursor getAttendanceList(String building_name){
@@ -461,14 +383,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
-    public boolean isUnique(String id, String column, String table){
-        Cursor res = readDB.rawQuery("select * from '" + table + "' where " + column + " = '" + id + "'",null);
-
-        if (res.getCount() > 0)
-            return false;
-        else
-            return true;
-    }
 
     public boolean changeRoute(String id, String route){
         ContentValues contentValues = new ContentValues();
@@ -494,6 +408,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = readDB.rawQuery("select confirmation_notice.confirmation_notice_id from confirmation_notice inner join faculty_attendance on confirmation_notice.confirmation_notice_id = faculty_attendance.confirmation_notice_id inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id where class_schedule.faculty_id = '" + faculty_id + "' and confirmation_notice.confirmed = 0", null);
 
         Integer count = res.getCount();
+        res.close();
 
         return count.toString();
     }
@@ -518,7 +433,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         long result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + attendance_id+ "'", null);
-
+        res1.close();
+        res2.close();
         if(result == -1)
             return false;
         else
@@ -530,10 +446,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id from faculty_attendance inner join room on faculty_attendance.room_id = room.room_id inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id where room.route = '" + MainActivity.userRoute + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "'", null);
         res.moveToFirst();
 
-        if(res.getCount() > 0)
+        if(res.getCount() > 0){
+            res.close();
             return true;
-        else
+        }
+        else{
+            res.close();
             return false;
+        }
 
     }
 
@@ -549,20 +469,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return false;
         }else
             return true;
-    }
-
-    public Integer selectAllCount(String table){
-        Cursor res = readDB.rawQuery("select * from '" + table + "'", null);
-        Integer count = res.getCount();
-
-        return count;
-    }
-
-    public String getConfirmationNoticeId(String faculty_attendance_id){
-        Cursor res = readDB.rawQuery("select confirmation_notice_id from faculty_attendance where faculty_attendance_id ='" + faculty_attendance_id + "'", null);
-        res.moveToFirst();
-
-        return res.getString(0);
     }
 
     public boolean clearFirstImage(String faculty_attendance_id){
@@ -613,6 +519,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public String getConfirmationNoticeCount(){
         Cursor res = readDB.rawQuery("select * from confirmation_notice", null);
         Integer count = res.getCount();
+        res.close();
 
         return count.toString();
     }
@@ -661,13 +568,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where confirmation_notice_id = '" +confirmation_notice_id +"'", null);
 
         res.moveToFirst();
+        res.close();
         return res.getString(0);
     }
 
     public boolean isAttendanceChecking(String faculty_attendance_id){ // returns true if faculty_attendance has started
         Cursor res = readDB.rawQuery("select * from faculty_attendance where faculty_attendance_id ='" + faculty_attendance_id  + "' and first_check != null and second_check != null",null);
+        int count = res.getCount();
 
-        if (res.getCount() > 0)
+        res.close();
+        if (count > 0)
             return true;
         else
             return false;
