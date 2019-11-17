@@ -1,6 +1,7 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -8,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -120,6 +122,8 @@ public class DashBoard extends AppCompatActivity {
     }
 
     private void onClickListener(){
+
+
         buildingList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,25 +135,54 @@ public class DashBoard extends AppCompatActivity {
         updateDatabase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (updateFacultyAttendance())
-                    if(updateConfirmationNotice()){
-                            Log.d("Updated Database", "Done");
-                            Toast.makeText(getApplicationContext(), "Local database updated", Toast.LENGTH_SHORT).show();
+                final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                if (updateFacultyAttendance()){
+                                    if(updateConfirmationNotice()){
+                                        Log.d("Updated Database", "Done");
+                                        Toast.makeText(getApplicationContext(), "Local database updated", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
                     }
+                };
+                final AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
 
-            }
+                }
         });
 
         uploadFacultyAttendance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(uploadFacultyAttendance()){
-                    if(uploadConfirmationNotice()){
-                        Toast.makeText(getApplicationContext(), "Attendance and Confirmation Notice has been sent", Toast.LENGTH_SHORT).show();
-                    }else
-                        Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
-                }
 
+                final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                if(uploadFacultyAttendance()){
+                                    if(uploadConfirmationNotice()){
+                                        Toast.makeText(getApplicationContext(), "Attendance and Confirmation Notice has been sent", Toast.LENGTH_SHORT).show();
+                                    }else
+                                        Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    break;
+                        }
+                    }
+                };
+                final AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
 
             }
         });
@@ -157,23 +190,55 @@ public class DashBoard extends AppCompatActivity {
         updateSchedAndFaculty.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(updateFaculty())
-                    if(updateClassSchedule())
-                        if(updateRoom()){
-                            Toast.makeText(getApplicationContext(), "Faculty, Class Schedule, and Room has been saved", Toast.LENGTH_SHORT).show();
-                        }else
-                            Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+
+
+                final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                if(updateFaculty())
+                                    if(updateClassSchedule())
+                                        if(updateRoom()){
+                                            Toast.makeText(getApplicationContext(), "Faculty, Class Schedule, and Room has been saved", Toast.LENGTH_SHORT).show();
+                                        }else
+                                            Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                    }
+                };
+                final AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
             }
         });
 
         downloadImages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(downloadImages()){
-                    Toast.makeText(getApplicationContext(), "Images Downloaded and Saved", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(getApplicationContext(), "Download Images: ERROR", Toast.LENGTH_SHORT).show();
-                }
+
+
+                final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                if(downloadImages()){
+                                    Toast.makeText(getApplicationContext(), "Images Downloaded and Saved", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Toast.makeText(getApplicationContext(), "Download Images: ERROR", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                    }
+                };
+                final AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
             }
         });
     }
@@ -459,7 +524,6 @@ public class DashBoard extends AppCompatActivity {
                 cnid = RequestBody.create(MediaType.parse("text/plain"), "");
 
             RequestBody validated;
-            Toast.makeText(getApplicationContext(), "Validated: "+ facultyAttendance.getString(9), Toast.LENGTH_SHORT).show();
             if(facultyAttendance.getString(9) != null){
                 if(facultyAttendance.getString(9).equals("null")){
                     validated = RequestBody.create(MediaType.parse("text/plain"), "null");

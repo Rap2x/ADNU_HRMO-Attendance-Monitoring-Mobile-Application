@@ -353,8 +353,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if(isRecorded(faculty_attendance_id, "faculty_attendance_id", "faculty_attendance")){
             if(!isAttendanceChecking(faculty_attendance_id))
                 result = writeDB.update("FACULTY_ATTENDANCE", contentValues, "faculty_attendance_id = '" + faculty_attendance_id + "'",null);
-        }else
+        }else {
             result = writeDB.insert("FACULTY_ATTENDANCE", null, contentValues);
+        }
 
         return true;
     }
@@ -443,7 +444,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public boolean isClassAvailable(String building_name){ // used for checking if there is a class in a building
-        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id from faculty_attendance inner join room on faculty_attendance.room_id = room.room_id inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id where room.route = '" + MainActivity.userRoute + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "'", null);
+        Cursor res = readDB.rawQuery("select faculty_attendance.faculty_attendance_id from faculty_attendance inner join room on faculty_attendance.room_id = room.room_id inner join class_schedule on faculty_attendance.class_schedule_id = class_schedule.class_schedule_id where room.route = '" + MainActivity.userRoute + "' and class_schedule.start_time <= '" + MainActivity.getCurrentTime() + "' and class_schedule.end_time >= '" + MainActivity.getCurrentTime() + "' and room.building_name = '" + building_name + "' and attendance_date = '" + MainActivity.getCurrentDayOracleFormat() +"'", null);
         res.moveToFirst();
 
         if(res.getCount() > 0){
@@ -568,8 +569,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor res = readDB.rawQuery("select faculty_attendance_id from faculty_attendance where confirmation_notice_id = '" +confirmation_notice_id +"'", null);
 
         res.moveToFirst();
+        String data = res.getString(0);
         res.close();
-        return res.getString(0);
+        return data;
     }
 
     public boolean isAttendanceChecking(String faculty_attendance_id){ // returns true if faculty_attendance has started
