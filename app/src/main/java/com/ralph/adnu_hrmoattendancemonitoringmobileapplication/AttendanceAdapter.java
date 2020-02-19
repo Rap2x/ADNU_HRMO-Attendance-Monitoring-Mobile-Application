@@ -4,11 +4,14 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,6 +25,8 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         void setAbsent(int position);
         void setPresent(int position);
         void viewConfirmationNotice(int position);
+        void onRadioButtonClicked(int position, View view);
+        void viewImages(int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){
@@ -38,6 +43,9 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         public Button buttonPresent;
         public Button buttonAbsent;
         public TextView noticeCount;
+        public RadioButton radioFirst;
+        public RadioButton radioSecond;
+        public Button viewImagesButton1;
 
         public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
@@ -51,6 +59,9 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
             buttonAbsent = (Button) itemView.findViewById(R.id.absent);
             buttonPresent = (Button) itemView.findViewById(R.id.present);
             noticeCount = (TextView) itemView.findViewById(R.id.notice_count);
+            radioFirst = (RadioButton) itemView.findViewById(R.id.firstCheck);
+            radioSecond = (RadioButton) itemView.findViewById(R.id.secondCheck);
+            viewImagesButton1 = (Button) itemView.findViewById(R.id.viewImageButton2);
 
             buttonAbsent.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -88,6 +99,41 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
                 }
             });
 
+            radioFirst.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listener.onRadioButtonClicked(position, view);
+                        }
+                    }
+                }
+            });
+
+            radioSecond.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listener.onRadioButtonClicked(position, view);
+                        }
+                    }
+                }
+            });
+
+            viewImagesButton1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION){
+                            listener.viewImages(position);
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -108,7 +154,7 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int position) {
         AttendanceListItem listItem = listItems.get(position);
 
         viewHolder.textViewName.setText(listItem.getName());
@@ -118,17 +164,58 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         viewHolder.textViewFirst.setText(listItem.getFirst());
         viewHolder.textViewSecond.setText(listItem.getSecond());
         viewHolder.noticeCount.setText(listItem.getNoticeCount());
-        if(!(listItem.getNoticeCount().equals("0"))){
-            //viewHolder.noticeCount.setTextColor(Color.RED);
+
+        if(!(listItem.getNoticeCount().equals(""))){
             viewHolder.noticeCount.setTextColor(Color.RED);
         }
-    }
 
+        viewHolder.radioFirst.setChecked(false);
+        viewHolder.radioSecond.setChecked(false);
+
+        if(viewHolder.textViewFirst.getText().toString().matches("")) { // if the textview is empty
+            viewHolder.radioSecond.setEnabled(false);
+            viewHolder.radioFirst.setEnabled(true);
+        }else {
+            viewHolder.radioFirst.setEnabled(false);
+            viewHolder.radioSecond.setEnabled(true);
+        }
+        if(!viewHolder.textViewFirst.getText().toString().matches("") && !viewHolder.textViewSecond.getText().toString().matches("")){
+            viewHolder.radioFirst.setEnabled(false);
+            viewHolder.radioSecond.setEnabled(false);
+
+            viewHolder.buttonAbsent.setEnabled(false);
+            viewHolder.buttonPresent.setEnabled(false);
+        }
+
+        viewHolder.viewImagesButton1.setEnabled(false);
+
+        if (listItem.getFirstImageFile() != null) {
+            if(!listItem.getFirstImageFile().equals("null")) {
+                viewHolder.viewImagesButton1.setEnabled(true);
+                viewHolder.textViewFirst.setTextColor(Color.RED);
+            }
+        }
+        if(listItem.getFirstCheckStatus() == "Absent") {
+            viewHolder.textViewFirst.setTextColor(Color.RED);
+            viewHolder.viewImagesButton1.setEnabled(true);
+        }
+
+
+        if(listItem.getSecondImageFile() != null){
+            if(!listItem.getSecondImageFile().equals("null")){
+                viewHolder.textViewSecond.setTextColor(Color.RED);
+                viewHolder.viewImagesButton1.setEnabled(true);
+            }
+        }
+
+        if (listItem.getSecondCheckStatus() == "Absent") {
+            viewHolder.textViewSecond.setTextColor(Color.RED);
+            viewHolder.viewImagesButton1.setEnabled(true);
+        }
+
+    }
     @Override
     public int getItemCount() {
         return listItems.size();
     }
-
-
-
 }

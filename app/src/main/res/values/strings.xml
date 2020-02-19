@@ -1,6 +1,19 @@
 <resources>
     <string name="app_name">Attendance Monitoring Application</string>
     <string name="settings_name">Logout</string>
+    <string name="present_button">Present</string>
+    <string name="absent_button">Absent</string>
+    <string name="first_check_radio">First Check</string>
+    <string name="second_check_radio">Second Check</string>
+    <string name="view_images_button">View Image/s</string>
+    <string name="notice_count">0</string>
+    <string name="full_name_textView">Full Name</string>
+    <string name="class_time_textView">Time</string>
+    <string name="subject_code_textView">Subject</string>
+    <string name="room_number_textView">Room Number</string>
+    <string name="first_time_textView">7:30:35 AM</string>
+    <string name="second_time_textView">8:20:49 AM</string>
+    <string name="building_name">Building Name</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

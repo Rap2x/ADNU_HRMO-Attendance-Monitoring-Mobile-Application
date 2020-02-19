@@ -5,13 +5,9 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,52 +26,38 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import static android.text.TextUtils.isEmpty;
 
 public class Signature extends AppCompatActivity {
 
     private SignaturePad signaturePad;
     private Button clearButton;
     private Button saveButton;
-    private Button appealButton;
+    private Button viewImageButton;
     private TextView name;
     private TextView time;
     private TextView schedule;
     private TextView room;
     private TextView timeChecked;
-    private TextView remarks;
 
     private String currentPhotoPath;
 
     private AhcfamsApi ahcfamsApi;
 
-    private String confirmation_notice_id;
+    private String faculty_attendance_id;
 
     private Cursor confirmationNoticeData;
     private Cursor facultyData;
 
     private String faculty_id;
+    private String confirmation_notice_id;
 
     private EditText absentReason;
-
-    private boolean appeal = false;
-
-
+    private String status = "0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +70,10 @@ public class Signature extends AppCompatActivity {
 
         faculty_id = getIntent().getStringExtra("faculty_id");
         confirmation_notice_id = getIntent().getStringExtra("confirmation_notice_id");
-
+        faculty_attendance_id = MainActivity.myDB.getFacultyAttendanceId(confirmation_notice_id);
         bindData();
+
+        //Toast.makeText(getApplicationContext(), faculty_attendance_id + " " + confirmation_notice_id, Toast.LENGTH_SHORT).show();
 
         showConfirmationNoticeDetails();
 
@@ -116,7 +100,7 @@ public class Signature extends AppCompatActivity {
 
         onClickListener();
 
-        absentReason.setEnabled(false);
+        absentReason.setEnabled(true);
     }
 
     @Override
@@ -133,9 +117,9 @@ public class Signature extends AppCompatActivity {
 
     private String saveSignature(Bitmap bitMapImage) throws IOException{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_" ;
+        String imageFileName = timeStamp + "_" + MainActivity.userRoute + "_" + MainActivity.userStaffId;
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        File image = new File(storageDir, MD5.getMd5(imageFileName) + ".jpg");
 
         FileOutputStream fos = null;
 
@@ -189,13 +173,13 @@ public class Signature extends AppCompatActivity {
 
         clearButton = (Button) findViewById(R.id.clearButton);
         saveButton = (Button) findViewById(R.id.saveButton);
+        viewImageButton = (Button) findViewById(R.id.viewImageButton);
 
         name = (TextView) findViewById(R.id.confirmation_notice_name);
         time = (TextView) findViewById(R.id.signature_pad_time);
         schedule = (TextView) findViewById(R.id.schedule);
         room = (TextView)findViewById(R.id.signature_pad_room_id);
         timeChecked = (TextView) findViewById(R.id.timeChecked);
-        remarks = (TextView) findViewById(R.id.remarks);
 
         absentReason = (EditText) findViewById(R.id.reasonTextView);
     }
@@ -215,18 +199,29 @@ public class Signature extends AppCompatActivity {
                 Bitmap signatureBitmap = signaturePad.getSignatureBitmap();
 
                 try {
-                    Boolean isInserted = MainActivity.myDB.saveSignature(confirmation_notice_id, saveSignature(signatureBitmap));
-
-                    if(appeal){
-                        Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
-                        MainActivity.myDB.createAbsenceAppeal(confirmation_notice_id, absentReason.getText().toString());
-                    }
+                    Boolean isInserted = MainActivity.myDB.saveSignature(confirmation_notice_id, AttendanceList.getFileName(saveSignature(signatureBitmap)));
 
                     if(isInserted) {
                         signaturePad.clear();
+                        if(status.equals("0")){
+                            MainActivity.myDB.changeSync("confirmation_notice_id", confirmation_notice_id, "confirmed", "CONFIRMATION_NOTICE");
+                            Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
+                            MainActivity.myDB.addReason(confirmation_notice_id, absentReason.getText().toString());
+                            MainActivity.myDB.confirmNotice(confirmation_notice_id);
+                        }else{
+                            MainActivity.myDB.changeSync("confirmation_notice_id", confirmation_notice_id, "confirmed", "CONFIRMATION_NOTICE");
+                            Toast.makeText(getApplicationContext(), "Absence Appeal Created", Toast.LENGTH_SHORT).show();
+                            MainActivity.myDB.addReason(confirmation_notice_id, absentReason.getText().toString());
+                            MainActivity.myDB.confirmNotice(confirmation_notice_id);
+                            MainActivity.myDB.confirmPresent(faculty_attendance_id, confirmation_notice_id);
+                            MainActivity.myDB.changeUnSync("faculty_attendance_id", faculty_attendance_id, "attendance_synchronized", "FACULTY_ATTENDANCE");
+                        }
+
                         finish();
-                    }else
+                    }else{
                         Toast.makeText(getApplicationContext(), "Error!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -234,19 +229,30 @@ public class Signature extends AppCompatActivity {
             }
         });
 
+        viewImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Signature.this, ImageActivity.class);
+                Cursor imageFileNames = MainActivity.myDB.getImageFileNames(confirmation_notice_id);
+                imageFileNames.moveToFirst();
 
-
+                intent.putExtra("first_image_file", imageFileNames.getString(0));
+                intent.putExtra("second_image_file", imageFileNames.getString(1));
+                //Send the file name
+                intent.putExtra("faculty_attendance_id", faculty_attendance_id);
+                startActivity(intent);
+            }
+        });
     }
 
     private void showConfirmationNoticeDetails(){
-        confirmationNoticeData = MainActivity.myDB.getConfirmationNotice(faculty_id, confirmation_notice_id);
+        confirmationNoticeData = MainActivity.myDB.getConfirmationNotice(confirmation_notice_id);
         facultyData = MainActivity.myDB.getFacultyDetails(faculty_id);
 
-        name.setText("Name: "+facultyData.getString(1));
-        time.setText("Time Schedule: " + confirmationNoticeData.getString(4));
-        schedule.setText("Subject Code and Section: " + confirmationNoticeData.getString(3)+ "." + confirmationNoticeData.getString(5));
-        room.setText("Room: " + confirmationNoticeData.getString(7));
-        remarks.setText("Remarks: " + confirmationNoticeData.getString(6));
+        name.setText("Name: "+ confirmationNoticeData.getString(0));
+        time.setText("Time Schedule: " + confirmationNoticeData.getString(1));
+        schedule.setText("Subject Code and Section: " + confirmationNoticeData.getString(3)+ "." + confirmationNoticeData.getString(2));
+        room.setText("Room: " + confirmationNoticeData.getString(4));
     }
 
     public void onRadioButtonClicked(View view){
@@ -256,16 +262,14 @@ public class Signature extends AppCompatActivity {
             case R.id.radioPresent:
                 if(checked){
                     Toast.makeText(getApplicationContext(), "Present", Toast.LENGTH_SHORT).show();
-                    absentReason.setEnabled(true);
-                    appeal = true;
+                    status = "1";
                 }
                 break;
 
             case R.id.radioAbsent:
                 if(checked){
                     Toast.makeText(getApplicationContext(), "Absent", Toast.LENGTH_SHORT).show();
-                    absentReason.setEnabled(false);
-                    appeal = false;
+                    status = "0";
                 }
                 break;
         }

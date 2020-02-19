@@ -43,8 +43,16 @@ public class ConfirmationNoticeList extends AppCompatActivity {
 
         showFacultyDetails();
 
-        onClickListener();
     }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        finish();
+        startActivity(getIntent());
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
@@ -58,21 +66,12 @@ public class ConfirmationNoticeList extends AppCompatActivity {
     }
 
     private void createOptionMenu(){
-        android.support.v7.widget.Toolbar toolbar =findViewById(R.id.app_bar);
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
     }
 
     private void onClickListener(){
-        adapter.setOnItemClickListener(new ConfirmationNoticeAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                Intent intent = new Intent(getBaseContext(), Signature.class);
-                String confirmationNoticeId = listItems.get(position).getConfirmationNoticeId();
-                intent.putExtra("faculty_id", faculty_id);
-                intent.putExtra("confirmation_notice_id", confirmationNoticeId);
-                startActivity(intent);
-            }
-        });
+
     }
 
     private void showConfirmationNoticeList(){ //Call this function before showFacultyDetails()
@@ -81,6 +80,9 @@ public class ConfirmationNoticeList extends AppCompatActivity {
 
         confirmationNoticeData = MainActivity.myDB.getAllConfirmationNoticeOfAFaculty(faculty_id);
         confirmationNoticeData.moveToFirst();
+
+        Integer count = confirmationNoticeData.getCount();
+        Toast.makeText(getApplicationContext(), MainActivity.myDB.getConfirmationNoticeCount(), Toast.LENGTH_SHORT).show();
 
         recyclerView = (RecyclerView) findViewById(R.id.confirmation_notice_list_recyclerview);
         recyclerView.setHasFixedSize(true);
@@ -91,16 +93,31 @@ public class ConfirmationNoticeList extends AppCompatActivity {
         for(int i = 0; i < confirmationNoticeData.getCount(); i++){
             ConfirmationNoticeListItem listItem = new ConfirmationNoticeListItem(
                     confirmationNoticeData.getString(0),
-                    confirmationNoticeData.getString(1),
-                    confirmationNoticeData.getString(2),
-                    confirmationNoticeData.getString(3)+ "." + confirmationNoticeData.getString(5),
-                    confirmationNoticeData.getString(4)
+                    "",
+                    "",
+                    confirmationNoticeData.getString(3) + "." + confirmationNoticeData.getString(4),
+                    confirmationNoticeData.getString(5),
+                    confirmationNoticeData.getString(7),
+                    confirmationNoticeData.getString(8)
             );
             listItems.add(listItem);
+            confirmationNoticeData.moveToNext();
         }
 
         adapter = new ConfirmationNoticeAdapter(listItems,this);
         recyclerView.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(new ConfirmationNoticeAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(getBaseContext(), Signature.class);
+                String facultyAttendanceId = listItems.get(position).getFacultyAttendanceId();
+                intent.putExtra("faculty_id", faculty_id);
+                intent.putExtra("faculty_attendance_id", facultyAttendanceId);
+                intent.putExtra("confirmation_notice_id", listItems.get(position).getConfirmatioNoticeId());
+                startActivity(intent);
+            }
+        });
     }
 
     private void showFacultyDetails(){

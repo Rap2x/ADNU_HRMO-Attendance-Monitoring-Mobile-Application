@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Signature">
+    tools:context=".Signature"
+    android:background="@color/colorDarkBlue">
 
     <include
         android:id="@+id/app_bar"
@@ -15,10 +16,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="8dp"
         android:text="Name"
+        android:textColor="@color/colorDarkWhite"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/app_bar" />
 
     <TextView
         android:id="@+id/signature_pad_time"
@@ -28,7 +30,8 @@
         android:layout_marginTop="8dp"
         android:text="Time"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/confirmation_notice_name" />
+        app:layout_constraintTop_toBottomOf="@+id/confirmation_notice_name"
+        android:textColor="@color/colorDarkWhite"/>
 
     <TextView
         android:id="@+id/schedule"
@@ -38,7 +41,8 @@
         android:layout_marginTop="8dp"
         android:text="Schedule"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signature_pad_time" />
+        app:layout_constraintTop_toBottomOf="@+id/signature_pad_time"
+        android:textColor="@color/colorDarkWhite"/>
 
     <TextView
         android:id="@+id/signature_pad_room_id"
@@ -48,7 +52,8 @@
         android:layout_marginTop="8dp"
         android:text="Room"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/schedule" />
+        app:layout_constraintTop_toBottomOf="@+id/schedule"
+        android:textColor="@color/colorDarkWhite"/>
 
     <TextView
         android:id="@+id/timeChecked"
@@ -58,28 +63,22 @@
         android:layout_marginTop="8dp"
         android:text="Time Checked"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signature_pad_room_id" />
+        app:layout_constraintTop_toBottomOf="@+id/signature_pad_room_id"
+        android:textColor="@color/colorDarkWhite"/>
 
-    <TextView
-        android:id="@+id/remarks"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="8dp"
-        android:text="Remarks"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/timeChecked" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="409dp"
+        android:layout_width="0dp"
         android:layout_height="220dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="43dp"
+        android:layout_marginEnd="16dp"
         android:background="@color/colorGrey"
         android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/remarks">
+        app:layout_constraintTop_toBottomOf="@+id/timeChecked">
 
         <com.github.gcacace.signaturepad.views.SignaturePad
             android:id="@+id/signature_pad"
@@ -95,9 +94,12 @@
         android:id="@+id/clearButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="48dp"
         android:layout_marginBottom="32dp"
+        android:background="@drawable/savebutton"
+        android:elevation="5dp"
         android:text="Clear"
+        android:textColor="@color/colorDarkWhite"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -105,11 +107,27 @@
         android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="48dp"
         android:layout_marginBottom="32dp"
+        android:background="@drawable/savebutton"
+        android:elevation="5dp"
         android:text="Save"
+        android:textColor="@color/colorDarkWhite"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/viewImageButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/savebutton"
+        android:elevation="5dp"
+        android:text="View Image"
+        android:textColor="@color/colorDarkWhite"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/saveButton"
+        app:layout_constraintStart_toEndOf="@+id/clearButton" />
 
     <RadioGroup
         android:layout_width="wrap_content"
@@ -125,14 +143,16 @@
             android:layout_height="wrap_content"
             android:text="Absent"
             android:checked="true"
-            android:onClick="onRadioButtonClicked"/>
+            android:onClick="onRadioButtonClicked"
+            android:textColor="@color/colorDarkWhite"/>
 
         <RadioButton
             android:id="@+id/radioPresent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Present"
-            android:onClick="onRadioButtonClicked"/>
+            android:onClick="onRadioButtonClicked"
+            android:textColor="@color/colorDarkWhite"/>
 
     </RadioGroup>
 
@@ -144,7 +164,10 @@
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:gravity="start|top"
+        android:hint="Reason"
+        android:textColorHint="@color/colorDarkWhite"
         android:inputType="textMultiLine"
+        android:textColor="@color/colorDarkWhite"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 

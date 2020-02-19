@@ -9,4 +9,7 @@
     <color name="colorBlue">#1C558D</color>
     <color name="colorRed">#ff0000</color>
     <color name="colorTimeBlue">#0000ff</color>
+    <color name="colorDarkWhite">#D3D6E6</color>
+    <color name="colorGold">#908028</color>
+    <color name="colorDarkBlue">#0F1536</color>
 </resources>

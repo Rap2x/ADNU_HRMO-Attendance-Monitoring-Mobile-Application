@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BuildingList">
+    tools:context=".BuildingList"
+    android:background="#0F1536">
 
     <include
         android:id="@+id/app_bar"
@@ -14,8 +15,8 @@
         android:id="@+id/recyclerView2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="64dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/app_bar"></android.support.v7.widget.RecyclerView>
+        app:layout_constraintTop_toTopOf="parent"></android.support.v7.widget.RecyclerView>
 
 </android.support.constraint.ConstraintLayout>

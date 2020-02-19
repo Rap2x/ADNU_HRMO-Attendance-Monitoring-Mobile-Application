@@ -2,11 +2,14 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -43,6 +46,7 @@ public class ConfirmationNoticeAdapter extends RecyclerView.Adapter<Confirmation
 
         viewHolder.subjectCode.setText(listItem.getSubjectCode());
         viewHolder.time.setText(listItem.getTime());
+        viewHolder.date.setText(listItem.getDate());
     }
 
     @Override
@@ -54,6 +58,7 @@ public class ConfirmationNoticeAdapter extends RecyclerView.Adapter<Confirmation
         public TextView title;
         public TextView subjectCode;
         public TextView time;
+        public TextView date;
 
 
         public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
@@ -62,6 +67,7 @@ public class ConfirmationNoticeAdapter extends RecyclerView.Adapter<Confirmation
             title = (TextView) itemView.findViewById(R.id.confirmation_notice_title);
             subjectCode = (TextView) itemView.findViewById(R.id.subject_code);
             time = (TextView) itemView.findViewById(R.id.time);
+            date = (TextView) itemView.findViewById(R.id.attendance_date);
 
             title.setOnClickListener(new View.OnClickListener() {
                 @Override

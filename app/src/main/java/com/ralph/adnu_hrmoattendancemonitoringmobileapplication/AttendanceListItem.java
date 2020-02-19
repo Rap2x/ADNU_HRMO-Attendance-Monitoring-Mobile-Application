@@ -10,8 +10,14 @@ public class AttendanceListItem {
     private String second;
     private String faculty_id;
     private String noticeCount;
+    private String firstImageFile;
+    private String secondImageFile;
+    private String firstCheckStatus;
+    private String secondCheckStatus;
 
-    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id, String noticeCount) {
+    private String set;
+
+    public AttendanceListItem(String name, String subjectCode, String roomNumber, String classTime, String facultyAttendance_Id, String first, String second, String faculty_id, String noticeCount, String firstImageFile, String secondImageFile, String firstCheckStatus, String secondCheckStatus) {
         this.name = name;
         this.subjectCode = subjectCode;
         this.roomNumber = roomNumber;
@@ -21,6 +27,26 @@ public class AttendanceListItem {
         this.second = second;
         this.faculty_id = faculty_id;
         this.noticeCount = noticeCount;
+        this.firstImageFile = firstImageFile;
+        this.secondImageFile = secondImageFile;
+        this.firstCheckStatus = firstCheckStatus;
+        this.secondCheckStatus = secondCheckStatus;
+    }
+
+    public String getFirstCheckStatus() {
+        return firstCheckStatus;
+    }
+
+    public String getSecondCheckStatus() {
+        return secondCheckStatus;
+    }
+
+    public void setFirstCheckStatus(String firstCheckStatus) {
+        this.firstCheckStatus = firstCheckStatus;
+    }
+
+    public void setSecondCheckStatus(String secondCheckStatus) {
+        this.secondCheckStatus = secondCheckStatus;
     }
 
     public String getName() {
@@ -65,5 +91,21 @@ public class AttendanceListItem {
 
     public String getNoticeCount() {
         return noticeCount;
+    }
+
+    public String getSet() {
+        return set;
+    }
+
+    public void setSet(String set) {
+        this.set = set;
+    }
+
+    public String getFirstImageFile() {
+        return firstImageFile;
+    }
+
+    public String getSecondImageFile() {
+        return secondImageFile;
     }
 }

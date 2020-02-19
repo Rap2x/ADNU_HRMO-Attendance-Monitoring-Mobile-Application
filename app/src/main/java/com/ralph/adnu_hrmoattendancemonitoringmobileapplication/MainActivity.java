@@ -3,10 +3,16 @@ package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.icu.text.SimpleDateFormat;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -76,10 +83,19 @@ public class MainActivity extends AppCompatActivity {
 
     public static String currentDay;
 
+    SharedPreferences sharedPreferences;
+    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String sessionId = "id";
+    public static final String sessionToken = "token";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        View view = findViewById(R.id.loginPage);
+
+        TextView appName = findViewById(R.id.appName);
 
         requestPermission();
 
@@ -89,6 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
         currentDay = getDay();
 
+        myDB.clearUser();
+
+        sharedPreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
     }
 
     private void onClickListener(){
@@ -101,9 +120,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestPermission(){
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_DENIED || ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) //check if camera permission is not yet granted
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100); // grant camera permission
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 100); // grant camera permission
 
     }
 
@@ -183,19 +203,24 @@ public class MainActivity extends AppCompatActivity {
                         boolean isInserted = myDB.loginStaff(loginResponse.getUsername(), loginResponse.getToken(), loginResponse.getDateTime(), loginResponse.getRoute_id());
 
                         if(isInserted) { //Move to the next activity if inserted
-                            Intent in = new Intent(MainActivity.this, BuildingList.class);
-                            startActivity(in);
-                            Toast.makeText(getApplicationContext(), "Database Updated", Toast.LENGTH_SHORT).show();
-
                             ArrayList userCredentials = myDB.getUserCredentials();
                             userStaffId = userCredentials.get(0).toString();
                             userToken = userCredentials.get(1).toString();
                             userRoute = userCredentials.get(2).toString();
 
-                            getTableRowCounts();
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                            editor.putString(sessionId, userStaffId);
+                            editor.putString(sessionToken, userToken);
+
+                            editor.commit();
+
+                            Intent in = new Intent(MainActivity.this, DashBoard.class);
+                            startActivity(in);
+                            //getTableRowCounts();
                         }
                         else
-                            Toast.makeText(getApplicationContext(), "Error: Database not Updated", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), loginResponse.getMessage(), Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -229,6 +254,16 @@ public class MainActivity extends AppCompatActivity {
         return currentDate;
     }
 
+    public static String getCurrentDayOracleFormat(){
+        Calendar calendar = Calendar.getInstance();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-YY");
+
+        String currentDate = dateFormat.format(calendar.getTime());
+
+        return currentDate.toUpperCase();
+    }
+
     public static String getCurrentDateDash(){
         Calendar calendar = Calendar.getInstance();
 
@@ -251,6 +286,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static String time12HourTo24Hour(String time) throws ParseException {
+
+        time = time.replace("NN", "PM");
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             String result = LocalTime.parse(time, DateTimeFormatter.ofPattern("hh:mma", Locale.US)).format(DateTimeFormatter.ofPattern("HH:mm"));
@@ -284,6 +321,18 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat displayFormat = new SimpleDateFormat("hh.mm.ss a");
             SimpleDateFormat parseFormat = new SimpleDateFormat("hh:mm:ss a");
             Date date = parseFormat.parse(time);
+            return getCurrentDateDash()+ " " + displayFormat.format(date);
+        }
+    }
+
+    public static String convertTimestampToTime(String timeStamp) throws ParseException{
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            String result = LocalTime.parse(timeStamp, DateTimeFormatter.ofPattern("dd-MMM-YY hh.mm.ss aa", Locale.TAIWAN)).format(DateTimeFormatter.ofPattern("hh:mm:ss a"));
+            return result;
+        }else{
+            SimpleDateFormat displayFormat = new SimpleDateFormat("hh.mm.ss a");
+            SimpleDateFormat parseFormat = new SimpleDateFormat("hh:mm:ss a");
+            Date date = parseFormat.parse(timeStamp);
             return getCurrentDateDash()+ " " + displayFormat.format(date);
         }
     }

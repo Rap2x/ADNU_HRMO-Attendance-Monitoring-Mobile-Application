@@ -61,8 +61,9 @@ public interface AhcfamsApi {
             @Part("scheck")RequestBody scheck,
             @Part MultipartBody.Part fipath,
             @Part MultipartBody.Part sipath,
-            @Part("sdeduct")RequestBody sdeduct,
-            @Part("status")RequestBody status
+            @Part("status")RequestBody status,
+            @Part("validated")RequestBody validated,
+            @Part("cnid")RequestBody cnid
             );
 
     @Multipart
@@ -70,9 +71,13 @@ public interface AhcfamsApi {
     Call<ConfirmationNotice> confirmation_notice(
             @Part("id")RequestBody id,
             @Part("token")RequestBody token,
-            @Part("cid")RequestBody cid,
+            @Part("cnid")RequestBody cnid,
+            @Part("faid")RequestBody faid,
+            @Part("date")RequestBody date,
             @Part("remarks")RequestBody remarks,
-            @Part MultipartBody.Part spath
+            @Part("reason") RequestBody reason,
+            @Part("confirmed") RequestBody confirmed,
+            @Part MultipartBody.Part esignature
     );
 
     @FormUrlEncoded

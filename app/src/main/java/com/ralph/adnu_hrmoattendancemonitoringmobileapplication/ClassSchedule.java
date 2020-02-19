@@ -4,7 +4,6 @@ public class ClassSchedule {
     private String id;
     private String token;
     private String CLASS_SCHEDULE_ID;
-    private String ROOM_ID;
     private String FACULTY_ID;
     private String SEMESTER;
     private String SCHOOL_YEAR;
@@ -13,7 +12,6 @@ public class ClassSchedule {
     private String CLASS_SECTION;
     private String CLASS_DAY;
     private String SUBJECT_CODE;
-    private String HALF_DAY;
     private String HOURS;
 
     public ClassSchedule(String id, String token) {
@@ -23,10 +21,6 @@ public class ClassSchedule {
 
     public String getCLASS_SCHEDULE_ID() {
         return CLASS_SCHEDULE_ID;
-    }
-
-    public String getROOM_ID() {
-        return ROOM_ID;
     }
 
     public String getFACULTY_ID() {
@@ -59,10 +53,6 @@ public class ClassSchedule {
 
     public String getSUBJECT_CODE() {
         return SUBJECT_CODE;
-    }
-
-    public String getHALF_DAY() {
-        return HALF_DAY;
     }
 
     public String getHOURS() {

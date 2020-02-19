@@ -2,6 +2,12 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:colorControlNormal">@color/colorDarkWhite</item>
+        <item name="android:colorControlActivated">#908028</item>
+    </style>
+    
+    <style name="ToolbarButtonMenu" parent="AppTheme">
+        <item name="android:textColorSecondary">@color/colorDarkWhite</item>
     </style>
 
 </resources>

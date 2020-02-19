@@ -1,22 +1,31 @@
 package com.ralph.adnu_hrmoattendancemonitoringmobileapplication;
 
 public class ConfirmationNoticeListItem {
-    private String confirmationNoticeId;
+
+    private String facultyAttendanceId;
     private String facultyId;
     private String facultyName;
     private String subjectCode;
     private String time;
+    private String date;
+    private String confirmatioNoticeId;
 
-    public ConfirmationNoticeListItem(String confirmationNoticeId, String facultyId, String facultyName, String subjectCode, String time) {
-        this.confirmationNoticeId = confirmationNoticeId;
+    public ConfirmationNoticeListItem(String facultyAttendanceId, String facultyId, String facultyName, String subjectCode, String time, String date, String confirmatioNoticeId) {
+        this.facultyAttendanceId = facultyAttendanceId;
         this.facultyId = facultyId;
         this.facultyName = facultyName;
         this.subjectCode = subjectCode;
         this.time = time;
+        this.date = date;
+        this.confirmatioNoticeId = confirmatioNoticeId;
     }
 
-    public String getConfirmationNoticeId() {
-        return confirmationNoticeId;
+    public String getDate() {
+        return date;
+    }
+
+    public String getFacultyAttendanceId() {
+        return facultyAttendanceId;
     }
 
     public String getFacultyId() {
@@ -35,23 +44,7 @@ public class ConfirmationNoticeListItem {
         return time;
     }
 
-    public void setConfirmationNoticeId(String confirmationNoticeId) {
-        this.confirmationNoticeId = confirmationNoticeId;
-    }
-
-    public void setFacultyId(String facultyId) {
-        this.facultyId = facultyId;
-    }
-
-    public void setFacultyName(String facultyName) {
-        this.facultyName = facultyName;
-    }
-
-    public void setSubjectCode(String subjectCode) {
-        this.subjectCode = subjectCode;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
+    public String getConfirmatioNoticeId() {
+        return confirmatioNoticeId;
     }
 }
